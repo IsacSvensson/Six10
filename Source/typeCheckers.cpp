@@ -1,9 +1,11 @@
 #include "lexer.hpp"
 
-std::string keywords[9]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else"};
+std::string keywords[13]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal", "input", "output"};
 std::string datatypes[5]{"int", "float", "bool", "char", "string"};
 std::string assignmentOperators[6]{"=", "+=", "-=", "*=", "/=", "%="};
 std::string arithmeticOperators[8]{"+", "-", "/", "*", "%", "**", "++", "--"};
+std::string relationalOperators[6]{"<", "<=", ">", ">=", "==", "!="};
+std::string logicalOperators[6]{"&&", "||", "!"};
 char parentheses[8]{'(', ')', '{', '}', '[', ']', '<', '>'};
 
 bool isParentheses(std::string::iterator it){
@@ -20,6 +22,28 @@ bool isParentheses(std::string::iterator it){
 bool isAssignmentOperator(std::string str){
     bool result = false;
     for (std::string &op : assignmentOperators)
+        if (str == op)
+        {
+            result = true;
+            break;
+        }
+    return result;
+}
+
+bool islogicalOperator(std::string str){
+    bool result = false;
+    for (std::string &op : logicalOperators)
+        if (str == op)
+        {
+            result = true;
+            break;
+        }
+    return result;
+}
+
+bool isRelationalOperator(std::string str){
+    bool result = false;
+    for (std::string &op : relationalOperators)
         if (str == op)
         {
             result = true;

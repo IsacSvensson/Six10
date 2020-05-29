@@ -21,14 +21,13 @@ enum Type : short{
     ASSIGNMENTOP, // Checker function made
     MEMBEROP, // Done
     ARITHMETICOP, // Checker function made
-    RELATIONALOP,
-    LOGICALOP,
-    BITWISEOP,
+    RELATIONALOP, // Checker function made
+    LOGICALOP, // Checker function made
+    BITWISEOP, // Not implemented for now
     // WHITESPACE
     SPACE, // done
-    WIN_EOL,
+    WIN_EOL, // done
     EOL, // done
-    WIN_EOF, // done
     EOF_,
     // INVALID
     INVALID
