@@ -4,24 +4,6 @@
 #include "typeCheckers.hpp"
 #include "lexer.hpp"
 
-struct Token
-{
-    short type;
-    std::string value;
-    Token(Type t, std::string s) : type(t), value(s) {};
-    Token(std::pair<Type, int> tokenPair, std::string::iterator &i){
-        type = tokenPair.first;
-        value = "";
-        for (int c = 0; c < tokenPair.second; c++)
-            value += *i++;
-        if (value == "\n")
-            value = "\\n";
-        else if (value == "    ")
-            value = "\t";
-    };
-        
-};
-
 void lexer(std::string sourceCode){
     auto iterator = sourceCode.begin();
     std::queue<Token> q;
@@ -29,7 +11,11 @@ void lexer(std::string sourceCode){
     {
         auto token = isType(iterator);
         q.push(Token(token, iterator));
-        std::cout << q.back().type << ' ' << q.back().value << std::endl;
+        std::cout << '<' << getType(q.back()) << '>';
+        int tabs = (24 - (getType(q.back()).size()+10))/8;
+        for (int i = -1; i < tabs; i++)
+            std::cout << '\t';
+        std::cout << ": " << q.back().value << std::endl;
     }
 }
 
