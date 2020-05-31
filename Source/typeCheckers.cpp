@@ -1,6 +1,6 @@
 #include "lexer.hpp"
 
-std::string keywords[13]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal", "input", "output"};
+std::string keywords[11]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal"};
 std::string datatypes[5]{"int", "float", "bool", "char", "string"};
 std::string assignmentOperators[6]{"=", "+=", "-=", "*=", "/=", "%="};
 std::string arithmeticOperators[8]{"+", "-", "/", "*", "%", "**", "++", "--"};
@@ -85,7 +85,7 @@ bool isDataType(std::string str){
     return result;
 }
 
-std::pair<Type, int> isType(std::string::iterator it){
+std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end){
     int len = 0;
     auto newIt = it;
     bool notFound = true;
@@ -105,12 +105,15 @@ std::pair<Type, int> isType(std::string::iterator it){
         return std::make_pair(IDENTIFIER, len);
     }
     else if (*it == '"'){
-        while (notFound)
+        while (notFound && newIt < end)
         {
             if ((*newIt == '"') && len > 1)
                 notFound = false;
             newIt++;
             len++;
+        }
+        if (notFound){
+            return std::make_pair(INVALID, len);
         }
         return std::make_pair(STRING, len);
         }
@@ -138,20 +141,43 @@ std::pair<Type, int> isType(std::string::iterator it){
             newIt++;
         }
         if (len == 4)
-            return std::make_pair(TABB, 4);
+            return std::make_pair(TAB, 4);
         else
             return std::make_pair(SPACE, 1);
     }
+    else if (*it == '\t')
+        return std::make_pair(TAB, 1);
     else if (*it == '\n')
         return std::make_pair(EOL, 1);
     else if (*it == '\r' && *(it+1) == '\n')
         return std::make_pair(WIN_EOL, 2);
     else if (isParentheses(it))
         return std::make_pair(PARENTHESES, 1);
-    else if ((*it == '/' && *(it+1) == '#') || (*it == '#' && *(it+1) == '/'))
-        return std::make_pair(MULTILINECOMMENT, 2);
-    else if (*it == '#')
-        return std::make_pair(COMMENT, 1);
+    else if (*it == '/' && *(it+1) == '#'){
+        while (notFound && newIt < end)
+        {
+            if (*newIt == '#' && *(newIt+1) == '/'){
+                notFound = false;
+                len++;
+                }
+            newIt++;
+            len++;
+        }
+        if (notFound){
+            return std::make_pair(INVALID, len);
+        }
+        return std::make_pair(MULTILINECOMMENT, len);
+        }
+    else if (*it == '#'){
+        while (notFound && newIt < end)
+        {
+            if (*(newIt+1) == '\n')
+                notFound = false;
+            newIt++;
+            len++;
+        }
+        return std::make_pair(COMMENT, len);
+        }
     else if (*it == ',')
         return std::make_pair(COMMA, 1);
     else if (*it == '.')
@@ -175,8 +201,8 @@ std::string getType(Token t){
     case IDENTIFIER:
         return "identifier";
         break;
-    case TABB:
-        return "tabb";
+    case TAB:
+        return "tab";
         break;
     case PARENTHESES:
         return "parentheses";
@@ -225,7 +251,7 @@ std::string getType(Token t){
         return "EOL";
         break;
     case EOF_:
-        return "end of file";
+        return "EOF";
         break;
     default:
         return "invalid type";

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <queue>
 
 enum Type : short{
     // Input, letters and numbers
@@ -10,7 +11,7 @@ enum Type : short{
     INTEGER, // done
     FLOAT, // done
     IDENTIFIER, // done
-    TABB, // done
+    TAB, // done
     PARENTHESES, // done
     KEYWORD, // done
     COMMENT, // Done
@@ -50,6 +51,6 @@ struct Token
     };
 };
 
-void lexer(std::string sourceCode);
+std::queue<Token> lexer(std::string sourceCode);
 
 #endif
