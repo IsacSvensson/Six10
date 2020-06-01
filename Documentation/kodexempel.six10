@@ -1,0 +1,20 @@
+aNewVariable = 12
+aNewVariable += 86
+
+aNewVariable <= 100
+
+foreach number in range(0, 10):
+    output("Printing number: " + str(number))
+
+if number == 10:
+    doThis()
+if number == 1:
+    doSomethingElse()
+else:
+    doThat()
+end
+
+/#
+This is a multi line comment
+It can be writen on multiple lines
+#/
