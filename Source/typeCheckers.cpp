@@ -1,12 +1,12 @@
 #include "lexer.hpp"
 
 std::string keywords[11]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal"};
-std::string datatypes[5]{"int", "float", "bool", "char", "string"};
+std::string datatypes[5]{"int", "float", "bool", "char", "str"};
 std::string assignmentOperators[6]{"=", "+=", "-=", "*=", "/=", "%="};
 std::string arithmeticOperators[8]{"+", "-", "/", "*", "%", "**", "++", "--"};
 std::string relationalOperators[6]{"<", "<=", ">", ">=", "==", "!="};
 std::string logicalOperators[6]{"&&", "||", "!"};
-char parentheses[8]{'(', ')', '{', '}', '[', ']', '<', '>'};
+char parentheses[6]{'(', ')', '{', '}', '[', ']'};
 
 bool isParentheses(std::string::iterator it){
     bool result = false;
@@ -90,6 +90,11 @@ std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end)
     auto newIt = it;
     bool notFound = true;
     
+    std::string twoChars;
+    twoChars += *it;
+    std::string singleChar = twoChars;
+    twoChars += *(it+1);
+
     if (isalpha(*it) || *it == '_'){
         std::string string = "";
         while ((isalpha(*newIt) || isdigit(*newIt)) || (*newIt == '_'))
@@ -182,7 +187,24 @@ std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end)
         return std::make_pair(COMMA, 1);
     else if (*it == '.')
         return std::make_pair(MEMBEROP, 1);
-    
+    else if (*it == ':')
+        return std::make_pair(COLON, 1);
+    else if (isRelationalOperator(twoChars))
+        return std::make_pair(RELATIONALOP, 2);
+    else if (islogicalOperator(twoChars))
+        return std::make_pair(LOGICALOP, 2);
+    else if (isAssignmentOperator(twoChars))
+        return std::make_pair(ASSIGNMENTOP, 2);
+    else if (isArithmeticOperator(twoChars))
+        return std::make_pair(ARITHMETICOP, 2);
+    else if (isRelationalOperator(singleChar))
+        return std::make_pair(RELATIONALOP, 1);
+    else if (islogicalOperator(singleChar))
+        return std::make_pair(LOGICALOP, 1);
+    else if (isAssignmentOperator(singleChar))
+        return std::make_pair(ASSIGNMENTOP, 1);
+    else if (isArithmeticOperator(singleChar))
+        return std::make_pair(ARITHMETICOP, 1);
     return std::make_pair(INVALID, 1);
 }
 
@@ -206,6 +228,9 @@ std::string getType(Token t){
         break;
     case PARENTHESES:
         return "parentheses";
+        break;
+    case COLON:
+        return "colon";
         break;
     case KEYWORD:
         return "keyword";

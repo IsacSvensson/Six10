@@ -13,6 +13,7 @@ enum Type : short{
     IDENTIFIER, // done
     TAB, // done
     PARENTHESES, // done
+    COLON,
     KEYWORD, // done
     COMMENT, // Done
     MULTILINECOMMENT, //Done

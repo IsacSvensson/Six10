@@ -2,9 +2,18 @@
 #include <queue>
 #include "typeCheckers.hpp"
 #include "lexer.hpp"
+#include <fstream>
+
+void getSourceCode(std::string path, std::string &sourceCode){
+    std::ifstream ifs(path);
+    sourceCode.assign( (std::istreambuf_iterator<char>(ifs)),
+                       (std::istreambuf_iterator<char>()));
+}
 
 int main(){
-    auto q = lexer("foreach number in range(0, 10):\n\toutput(\"Printing number: + number\")/# here is a multiline comment\\n this is the second line #/ # here is a regular comment\n");
+    std::string sourceCode;
+    getSourceCode("./Documentation/kodexempel.six10", sourceCode);
+    auto q = lexer(sourceCode);
     while (!q.empty()){
         std::cout << '<' << getType(q.front()) << '>';
         int spaces = 20 - (getType(q.front()).size()+2);
