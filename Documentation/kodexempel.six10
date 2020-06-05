@@ -6,6 +6,7 @@ aNewVariable <= 100
 foreach number in range(0, 10):
     output("Printing number: " + str(number))
 
+# if statements are ended with an "end"-statement
 if number == 10:
     doThis()
 if number == 1:
