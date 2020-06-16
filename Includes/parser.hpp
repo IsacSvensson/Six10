@@ -15,6 +15,7 @@ private:
 public:
     Parser(std::vector<Token> tokens) : tokens(tokens) {};
     void run();
+    void printTree(astNode* tree);
 };
 
 #endif

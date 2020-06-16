@@ -24,31 +24,51 @@ astNode* Parser::term(){
     auto left = factor();
     Token* opToken;
     astNode* right;
-    binOpNode* toReturn;
     while (tokens[tokIndex].value == "*" || tokens[tokIndex].value == "/" ){
         opToken = &tokens[tokIndex];
         advance();
         right = factor();
-        toReturn = new binOpNode(ARITHMETICOP, left, opToken, right);
+        left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
     }
-    return (astNode*)toReturn;
+    return left;
 }
 
 astNode* Parser::expr(){
-    auto left = factor();
+    auto left = term();
     Token* opToken;
     astNode* right;
-    binOpNode* toReturn;
 
     while (tokens[tokIndex].value == "+" || tokens[tokIndex].value == "-" ){
         opToken = &tokens[tokIndex];
         advance();
-        right = factor();
-        toReturn = new binOpNode(ARITHMETICOP, left, opToken, right);
+        right = term();
+        left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
     }
-    return (astNode*)toReturn;
+    return left;
 }
 
 void Parser::run(){
     auto tree = expr();
+    printTree(tree);
+}
+
+void Parser::printTree(astNode* tree){
+    switch (tree->nodeType)
+    {
+    case ARITHMETICOP:
+        std::cout << "(";
+        printTree(((binOpNode*)tree)->left);
+        std::cout << (((binOpNode*)tree)->op->value);
+        printTree(((binOpNode*)tree)->right);
+        std::cout << ")";
+        break;
+    case INTEGER:
+        std::cout << ((numberNode*)tree)->tok.value;
+        break;
+    case FLOAT:
+        std::cout << ((numberNode*)tree)->tok.value;
+        break;
+    default:
+        break;
+    } 
 }
