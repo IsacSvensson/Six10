@@ -8,6 +8,10 @@ std::vector<Token> lexer(std::string sourceCode){
     while (iterator < sourceCode.end())
     {
         auto token = isType(iterator, sourceCode.end());
+        if (token.first == SPACE){
+            iterator++;
+            continue;
+            }
         v.push_back(Token(token, iterator));
     }
     v.push_back(Token(EOF_, ""));
