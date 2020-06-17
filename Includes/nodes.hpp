@@ -13,6 +13,7 @@ public:
     astNode* right;
     astNode(Type nodeType, astNode* l = nullptr, astNode* r = nullptr) : 
         nodeType(nodeType), left(l), right(r) {};
+    friend std::ostream& operator<<(std::ostream& os , const astNode* node);
 };
 
 class numberNode{

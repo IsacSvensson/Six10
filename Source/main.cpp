@@ -8,8 +8,13 @@
 
 void getSourceCode(std::string path, std::string &sourceCode){
     std::ifstream ifs(path);
-    sourceCode.assign((std::istreambuf_iterator<char>(ifs)),
-                      (std::istreambuf_iterator<char>()));
+    if (ifs)
+        sourceCode.assign((std::istreambuf_iterator<char>(ifs)),
+                        (std::istreambuf_iterator<char>()));
+    else{
+        std::cout << "Error: Could not open path: " << path;
+        abort();
+    }
 }
 
 int main(int argc, char* argv[]){
@@ -27,12 +32,13 @@ int main(int argc, char* argv[]){
                 p.run();
                 std::cout << std::endl;
             }
-        else if(opt == "-h")
+        else if(opt == "-h" || opt == "-hjälp")
         {
-            std::cout << "Options:\n-----------------------------------------------\n" 
-                << " -h\t\tHelp, show this display\n"
-                << " -shell\t\tOpen shell prompt\n" << " filename\tRead file to lexer and parser\n" 
-                << "-----------------------------------------------\n";
+            std::cout << "\nOptions:\n----------------------------------------------------------------\n" 
+                << " -h, -help\t\tHelp, show this display\n"
+                << " -shell\t\t\tOpens CLI\n" << " filename\t\tReads local file to lexer and parser\n" 
+                << "----------------------------------------------------------------\n"
+                << "   Github repo: https://github.com/IsacSvensson/Six10\n";
         }
         else
         {

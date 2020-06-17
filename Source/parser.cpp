@@ -49,6 +49,7 @@ astNode* Parser::expr(){
 
 void Parser::run(){
     auto tree = expr();
+    std::cout << tree << std::endl; 
     printTree(tree);
 }
 
