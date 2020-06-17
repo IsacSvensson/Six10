@@ -4,6 +4,7 @@
 #include "lexer.hpp"
 #include "nodes.hpp"
 #include "parser.hpp"
+#include "error.hpp"
 #include <fstream>
 
 void getSourceCode(std::string path, std::string &sourceCode){
@@ -17,6 +18,12 @@ void getSourceCode(std::string path, std::string &sourceCode){
     }
 }
 
+std::pair<std::vector<Token>,Error*> run(std::string code){
+    Lexer lex(code);
+    auto tokens = lex.makeTokens();
+    return tokens;
+}
+
 int main(int argc, char* argv[]){
     if (argc > 1){
         std::string opt = argv[1];
@@ -28,7 +35,12 @@ int main(int argc, char* argv[]){
                 std::getline(std::cin, text);
                 if (text == "q")
                     return 0;
-                Parser p(lexer(text));
+                auto tokens = run(text);
+                if(tokens.second){
+                    std::cout << tokens.second->toString() << std::endl;
+                    continue;
+                }
+                Parser p(tokens.first);
                 p.run();
                 std::cout << std::endl;
             }
@@ -44,8 +56,13 @@ int main(int argc, char* argv[]){
         {
             std::string sourceCode;
             getSourceCode(opt, sourceCode);
-            auto q = lexer(sourceCode);
-            Parser parser(q);
+            Lexer lex(sourceCode);
+            auto tokens =  lex.makeTokens();
+            if (tokens.second){
+                std::cerr << tokens.second->toString();
+                return -1;
+            }
+            Parser parser(tokens.first);
             parser.run();
         }
     }

@@ -1,19 +1,38 @@
 #include <utility>
 #include "typeCheckers.hpp"
 #include "lexer.hpp"
+#include "error.hpp"
+#include "position.hpp"
+#include <string>
 
-std::vector<Token> lexer(std::string sourceCode){
-    auto iterator = sourceCode.begin();
-    std::vector<Token> v;
-    while (iterator < sourceCode.end())
+
+std::pair<std::vector<Token>, Error*> Lexer::makeTokens(){
+    while (it < sourceCode.end())
     {
-        auto token = isType(iterator, sourceCode.end());
+        auto token = isType(it, sourceCode.end());
         if (token.first == SPACE){
-            iterator++;
+            advance();
             continue;
             }
-        v.push_back(Token(token, iterator));
+        else if (token.first == INVALID){
+            Position posStart = pos;
+            auto ch = std::string(1, *it);
+            advance();
+            return std::make_pair(tokens, (Error*) new IllegalCharError(ch, posStart, Position(pos)));
+            }
+        tokens.push_back(Token(token, it));
+        for(int i = 0; i < token.second; i++)
+            advance();
     }
-    v.push_back(Token(EOF_, ""));
-    return v;
+    tokens.push_back(Token(EOF_, ""));
+    return std::make_pair(tokens, nullptr);
+}
+
+void Lexer::advance(){
+    char toSend = ' ';
+    if (!tokens.empty())
+        if (tokens.back().type == EOL)
+            toSend = '\n';
+    pos.advance(toSend);
+    it++;
 }

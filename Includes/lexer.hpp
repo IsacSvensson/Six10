@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <string>
+#include "error.hpp"
+#include "position.hpp"
+
 
 enum Type : short{
     // Input, letters and numbers
@@ -48,7 +51,19 @@ struct Token
             value = "\\n";
         else if (value == "    ")
             value = "\t";
+        i -= tokenPair.second;
     };
+};
+
+class Lexer{
+    std::string sourceCode;
+    Position pos;
+    std::string::iterator it;
+    std::vector<Token> tokens;
+    void advance();
+public:
+    Lexer(std::string sc) : sourceCode(sc), pos(), it(sourceCode.begin()) {};
+    std::pair<std::vector<Token>, Error*> makeTokens();
 };
 
 std::vector<Token> lexer(std::string sourceCode);
