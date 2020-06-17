@@ -1,7 +1,7 @@
 INCLUDES := Includes\\
 BUILD := Build\\
 BIN := BIN\\
-EXECUTABLE := $(BIN)main.exe
+EXECUTABLE := $(BIN)six10.exe
 SOURCE := SOURCE\\
 DELETE := del
 
