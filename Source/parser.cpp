@@ -9,48 +9,68 @@ Token* Parser::advance(){
 }
 
 
-astNode* Parser::factor(){
+ParseResult* Parser::factor(){
+    auto res = new ParseResult();
     Token* tok = &tokens[tokIndex];
     
     if (tok->type == INTEGER || tok->type == FLOAT){
-        advance();
+        res->registerResult(nullptr, advance());
         auto toReturn = new numberNode((Type)tok->type, tok);
-        return (astNode*)toReturn;
+        return res->success((astNode*)toReturn);
     }
-    return nullptr;
+    return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected int or float")));
 }
 
-astNode* Parser::term(){
-    auto left = factor();
+ParseResult* Parser::term(){
+    auto res = new ParseResult();
+    auto left = res->registerResult(factor());
+    if (res->error)
+        return res;
     Token* opToken;
     astNode* right;
     while (tokens[tokIndex].value == "*" || tokens[tokIndex].value == "/" ){
         opToken = &tokens[tokIndex];
-        advance();
-        right = factor();
+        res->registerResult(nullptr, advance());
+        right = res->registerResult(factor());
+        if (res->error)
+            return res;
         left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
     }
-    return left;
+    return res->success(left);
 }
 
-astNode* Parser::expr(){
-    auto left = term();
+ParseResult* Parser::expr(){
+    auto res = new ParseResult();
+    auto left = res->registerResult(term());
+    if (res->error)
+        return res;
     Token* opToken;
     astNode* right;
 
     while (tokens[tokIndex].value == "+" || tokens[tokIndex].value == "-" ){
         opToken = &tokens[tokIndex];
-        advance();
-        right = term();
+        res->registerResult(nullptr, advance());
+        right = res->registerResult(term());
+        if (res->error)
+            return res;
         left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
     }
-    return left;
+    return res->success(left);
 }
 
-void Parser::run(){
-    auto tree = expr();
-    std::cout << tree << std::endl; 
-    printTree(tree);
+ParseResult* Parser::parse(){
+    auto res = expr();
+    if (res->error){
+        std::cout << res->error->toString();
+        return nullptr;
+    }
+    else if(!res->error && tokens[tokIndex].type != EOF_)
+        return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
+            *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected an '+', '-', '*' or '/'")));
+    std::cout << res->node << std::endl; 
+    printTree(res->node);
+
+    return res;
 }
 
 void Parser::printTree(astNode* tree){
@@ -72,4 +92,21 @@ void Parser::printTree(astNode* tree){
     default:
         break;
     } 
+}
+
+astNode* ParseResult::registerResult(ParseResult* pr, Token* n){
+    if (n)
+        return nullptr;
+    if(pr->error)
+        error = pr->error;
+    return pr->node;
+}
+
+ParseResult* ParseResult::success(astNode* node){
+    this->node = node;
+    return this;
+}
+ParseResult* ParseResult::failure(Error* error){
+    this->error = error;
+    return this;
 }

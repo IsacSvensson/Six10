@@ -18,9 +18,9 @@ std::pair<std::vector<Token>, Error*> Lexer::makeTokens(){
             Position posStart = pos;
             auto ch = std::string(1, *it);
             advance();
-            return std::make_pair(tokens, (Error*) new IllegalCharError(ch, posStart, Position(pos)));
+            return std::make_pair(tokens, (Error*) new IllegalCharError(filename, ch, posStart, Position(pos)));
             }
-        tokens.push_back(Token(token, it));
+        tokens.push_back(Token(token, it, &pos));
         for(int i = 0; i < token.second; i++)
             advance();
     }

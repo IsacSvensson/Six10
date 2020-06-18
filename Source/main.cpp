@@ -18,10 +18,24 @@ void getSourceCode(std::string path, std::string &sourceCode){
     }
 }
 
-std::pair<std::vector<Token>,Error*> run(std::string code){
-    Lexer lex(code);
+std::pair<astNode*, Error*> run(std::string code, std::string fn){
+    Lexer lex(code, fn);
     auto tokens = lex.makeTokens();
-    return tokens;
+
+    if(tokens.second){
+        std::cout << tokens.second->toString() << std::endl;
+        return std::make_pair(nullptr, tokens.second);
+    }
+
+    Parser p(tokens.first);
+    auto res = p.parse();
+    if (res->error){
+            std::cout << res->error->toString();
+            return std::make_pair(nullptr, res->error);
+        }
+    std::cout << std::endl;
+    
+    return std::make_pair(res->node, nullptr);
 }
 
 int main(int argc, char* argv[]){
@@ -35,14 +49,8 @@ int main(int argc, char* argv[]){
                 std::getline(std::cin, text);
                 if (text == "q")
                     return 0;
-                auto tokens = run(text);
-                if(tokens.second){
-                    std::cout << tokens.second->toString() << std::endl;
-                    continue;
-                }
-                Parser p(tokens.first);
-                p.run();
-                std::cout << std::endl;
+                std::string cli = "Command line interface";
+                run(text, cli);
             }
         else if(opt == "-h" || opt == "-hjälp")
         {
@@ -56,14 +64,7 @@ int main(int argc, char* argv[]){
         {
             std::string sourceCode;
             getSourceCode(opt, sourceCode);
-            Lexer lex(sourceCode);
-            auto tokens =  lex.makeTokens();
-            if (tokens.second){
-                std::cerr << tokens.second->toString();
-                return -1;
-            }
-            Parser parser(tokens.first);
-            parser.run();
+            run(sourceCode, opt);
         }
     }
     else

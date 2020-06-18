@@ -1,5 +1,6 @@
 #include "position.hpp"
 #include <string>
+#include <sstream>
 
 void Position::advance(char currentChar){
     index++;
@@ -10,6 +11,11 @@ void Position::advance(char currentChar){
     }
 }
 
-Position* Position::copy(){
-    return new Position(*this);
+std::string Position::getPos(){
+    std::stringstream ss;
+    ss << "Line: " << line << ", Col:" << col;
+
+    std::string pos;
+    pos = ss.str();
+    return pos;
 }

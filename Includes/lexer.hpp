@@ -41,10 +41,32 @@ struct Token
 {
     short type;
     std::string value;
-    Token(Type t, std::string s) : type(t), value(s) {};
-    Token(std::pair<Type, int> tokenPair, std::string::iterator &i){
+    Position* posStart;
+    Position* posEnd;
+    Token(Type t, std::string s, Position* ps = nullptr, Position* pe = nullptr) : type(t), value(s){ 
+        if(ps)
+            posStart = new Position(*ps); 
+        if(pe) 
+            posEnd = new Position(*pe); 
+        else if (ps && !pe) {
+            posEnd = new Position(*ps); 
+            posEnd->advance(' ');}
+    };
+    Token(std::pair<Type, int> tokenPair, std::string::iterator &i, Position* s = nullptr, Position* e = nullptr){
         type = tokenPair.first;
         value = "";
+        if (s){
+            posStart = new Position(*s);
+            if (e)
+                posEnd = new Position(*e);
+            else{
+                posEnd = new Position(*s);
+                for (int i = 0; i < tokenPair.second; i++)
+                    posEnd->advance(' ');
+            }
+        }
+
+        
         for (int c = 0; c < tokenPair.second; c++)
             value += *i++;
         if (value == "\n")
@@ -53,19 +75,21 @@ struct Token
             value = "\t";
         i -= tokenPair.second;
     };
+    ~Token(){
+    }
 };
 
 class Lexer{
     std::string sourceCode;
     Position pos;
+    std::string filename;
     std::string::iterator it;
-    std::vector<Token> tokens;
+    std::vector<struct Token> tokens;
     void advance();
 public:
-    Lexer(std::string sc) : sourceCode(sc), pos(), it(sourceCode.begin()) {};
-    std::pair<std::vector<Token>, Error*> makeTokens();
+    Lexer(std::string sc, std::string fn) : sourceCode(sc), pos(fn, sourceCode), filename(fn), it(sourceCode.begin()) {};
+    std::pair<std::vector<struct Token>, Error*> makeTokens();
 };
 
-std::vector<Token> lexer(std::string sourceCode);
 
 #endif
