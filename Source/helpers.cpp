@@ -27,7 +27,7 @@ std::string stringWithArrows(std::string text, Position* start, Position* end){
             line.size();
         
         result += "\n\n" + line + '\n';
-        result += std::string(colStart, ' ') + std::string(colEnd-colStart, '^');
+        result += std::string(colStart, ' ') + std::string(colEnd-colStart, '^') + '\n';
         std::replace(result.begin(), result.end(), '\t', ' ');
     }
     return result;

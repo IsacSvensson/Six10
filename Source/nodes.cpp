@@ -17,6 +17,10 @@ std::ostream& operator<<(std::ostream& os , const astNode* node){
         return os << "(" << type << ":" << 
             ((binOpNode*)node)->left << ((binOpNode*)node)->op->value << ((binOpNode*)node)->right << ")";
         break;
+    case UNARYOP:
+        type = getType(*((UnOpNode*)node)->op);
+        return os << "(" << type << ":" << 
+            ((UnOpNode*)node)->op->value << ((numberNode*)(((UnOpNode*)node)->node))->tok.value << ")";
         break;    
     default:
         break;

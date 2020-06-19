@@ -41,11 +41,10 @@ public:
 class UnOpNode{
 public:
     Type nodeType;
-    astNode* left;
+    astNode* node;
     Token* op;
-    UnOpNode(Type nodeType, astNode* l, Token* op) : nodeType(nodeType), left(l), op(op) {};
-    ~UnOpNode() {delete left; delete op;};
-    void doThis() {std::cout << ((numberNode*)(left))->getToken()->value << op->value; };
+    UnOpNode(Type nodeType, astNode* node, Token* op) : nodeType(nodeType), node(node), op(op) {};
+    ~UnOpNode() {delete node; delete op;};
 };
 
 #endif

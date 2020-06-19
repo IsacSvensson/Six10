@@ -28,6 +28,7 @@ enum Type : short{
     RELATIONALOP, // Checker function made
     LOGICALOP, // Checker function made
     BITWISEOP, // Not implemented for now
+    UNARYOP,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done

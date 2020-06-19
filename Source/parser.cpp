@@ -13,11 +13,33 @@ ParseResult* Parser::factor(){
     auto res = new ParseResult();
     Token* tok = &tokens[tokIndex];
     
-    if (tok->type == INTEGER || tok->type == FLOAT){
+    if (tok->type == ARITHMETICOP && (tok->value == "+" || tok->value == "-")){
+        res->registerResult(nullptr, advance());
+        auto factor = res->registerResult(this->factor());
+        if (res->error)
+            return res;
+        return res->success((astNode*)(new UnOpNode(UNARYOP, factor, tok)));
+    }
+    else if (tok->type == INTEGER || tok->type == FLOAT){
         res->registerResult(nullptr, advance());
         auto toReturn = new numberNode((Type)tok->type, tok);
         return res->success((astNode*)toReturn);
     }
+    else if (tok->type == PARENTHESES && tok->value == "(")
+    {
+        res->registerResult(nullptr, advance());
+        auto expression = res->registerResult(this->expr());
+        if (res->error)
+            return res;
+        if (tokens[tokIndex].value == ")"){
+            res->registerResult(nullptr, advance());
+            return res->success(expression);}
+        else
+        {
+            return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ')'")));
+        }
+    }
+    
     return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected int or float")));
 }
 
@@ -67,31 +89,9 @@ ParseResult* Parser::parse(){
     else if(!res->error && tokens[tokIndex].type != EOF_)
         return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
             *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected an '+', '-', '*' or '/'")));
-    std::cout << res->node << std::endl; 
-    printTree(res->node);
+    std::cout << res->node << std::endl;
 
     return res;
-}
-
-void Parser::printTree(astNode* tree){
-    switch (tree->nodeType)
-    {
-    case ARITHMETICOP:
-        std::cout << "(";
-        printTree(((binOpNode*)tree)->left);
-        std::cout << (((binOpNode*)tree)->op->value);
-        printTree(((binOpNode*)tree)->right);
-        std::cout << ")";
-        break;
-    case INTEGER:
-        std::cout << ((numberNode*)tree)->tok.value;
-        break;
-    case FLOAT:
-        std::cout << ((numberNode*)tree)->tok.value;
-        break;
-    default:
-        break;
-    } 
 }
 
 astNode* ParseResult::registerResult(ParseResult* pr, Token* n){
