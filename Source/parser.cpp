@@ -83,13 +83,11 @@ ParseResult* Parser::expr(){
 ParseResult* Parser::parse(){
     auto res = expr();
     if (res->error){
-        std::cout << res->error->toString();
-        return nullptr;
+        return res;
     }
     else if(!res->error && tokens[tokIndex].type != EOF_)
         return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
             *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected an '+', '-', '*' or '/'")));
-    std::cout << res->node << std::endl;
 
     return res;
 }

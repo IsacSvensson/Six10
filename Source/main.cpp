@@ -5,6 +5,7 @@
 #include "nodes.hpp"
 #include "parser.hpp"
 #include "error.hpp"
+#include "interpreter.hpp"
 #include <fstream>
 
 void getSourceCode(std::string path, std::string &sourceCode){
@@ -33,6 +34,9 @@ std::pair<astNode*, Error*> run(std::string code, std::string fn){
             std::cout << res->error->toString();
             return std::make_pair(nullptr, res->error);
         }
+
+    Interpreter interpreter(res->node);
+    interpreter.visit(res->node);
     std::cout << std::endl;
     
     return std::make_pair(res->node, nullptr);

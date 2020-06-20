@@ -283,3 +283,79 @@ std::string getType(Token t){
         break;
     }
 }
+
+std::string getType(Type t){
+    switch (t)
+    {
+    case STRING:
+        return "string";
+        break;
+    case INTEGER:
+        return "int";
+        break;
+    case FLOAT:
+        return "float";
+        break;
+    case IDENTIFIER:
+        return "identifier";
+        break;
+    case TAB:
+        return "tab";
+        break;
+    case PARENTHESES:
+        return "parentheses";
+        break;
+    case COLON:
+        return "colon";
+        break;
+    case KEYWORD:
+        return "keyword";
+        break;
+    case COMMENT:
+        return "Comment";
+        break;
+    case MULTILINECOMMENT:
+        return "multiline comment";
+        break;
+    case COMMA:
+        return "comma";
+        break;
+    case DATATYPE:
+        return "datatype";
+        break;
+    case ASSIGNMENTOP:
+        return "assignment operator";
+        break; // Checker function made
+    case MEMBEROP:
+        return "member operator";
+        break;
+    case ARITHMETICOP:
+        return "arithmetic operator";
+        break; // Checker function made
+    case RELATIONALOP:
+        return "relational operator";
+        break; // Checker function made
+    case LOGICALOP:
+        return "logical operator";
+        break; // Checker function made
+    case BITWISEOP:
+        return "bitwise operator";
+        break; // Not implemented for now
+    // WHITESPACE
+    case SPACE:
+        return "space";
+        break;
+    case WIN_EOL:
+        return "windows type EOL";
+        break;
+    case EOL:
+        return "EOL";
+        break;
+    case EOF_:
+        return "EOF";
+        break;
+    default:
+        return "invalid type";
+        break;
+    }
+}
