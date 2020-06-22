@@ -24,7 +24,7 @@ std::pair<std::vector<Token>, Error*> Lexer::makeTokens(){
         for(int i = 0; i < token.second; i++)
             advance();
     }
-    tokens.push_back(Token(EOF_, ""));
+    tokens.push_back(Token(EOF_, std::string(), &pos, &pos));
     return std::make_pair(tokens, nullptr);
 }
 

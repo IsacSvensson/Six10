@@ -40,7 +40,7 @@ ParseResult* Parser::factor(){
         }
     }
     
-    return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected int or float")));
+    return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int or float")));
 }
 
 ParseResult* Parser::term(){
