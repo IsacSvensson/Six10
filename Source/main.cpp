@@ -1,11 +1,11 @@
 #include <iostream>
 #include <queue>
+#include "interpreter.hpp"
 #include "typeCheckers.hpp"
 #include "lexer.hpp"
 #include "nodes.hpp"
 #include "parser.hpp"
 #include "error.hpp"
-#include "interpreter.hpp"
 #include <fstream>
 
 void getSourceCode(std::string path, std::string &sourceCode){
@@ -19,7 +19,7 @@ void getSourceCode(std::string path, std::string &sourceCode){
     }
 }
 
-std::pair<astNode*, Error*> run(std::string code, std::string fn){
+std::pair<Number*, Error*> run(std::string code, std::string fn){
     Lexer lex(code, fn);
     auto tokens = lex.makeTokens();
 
@@ -36,10 +36,10 @@ std::pair<astNode*, Error*> run(std::string code, std::string fn){
         }
 
     Interpreter interpreter(res->node);
-    interpreter.visit(res->node);
+    auto result = interpreter.visit(res->node);
     std::cout << std::endl;
     
-    return std::make_pair(res->node, nullptr);
+    return std::make_pair(result, nullptr);
 }
 
 int main(int argc, char* argv[]){
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
                 if (text == "q")
                     return 0;
                 std::string cli = "Command line interface";
-                run(text, cli);
+                std::cout << run(text, cli).first->value << std::endl;
             }
         else if(opt == "-h" || opt == "-hjälp")
         {

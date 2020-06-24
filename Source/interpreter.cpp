@@ -1,49 +1,97 @@
 #include "interpreter.hpp"
 #include "typeCheckers.hpp"
+#include "nodes.hpp"
+#include <string>
 
-void Interpreter::visit(astNode* node){
+Number* Interpreter::visit(astNode* node){
     switch (node->nodeType)
     {
     case INTEGER:
-        visitInteger(node);
+        return visitInteger(node);
         break;
     case FLOAT:
-        visitFloat(node);
+        return visitFloat(node);
         break;
     case ARITHMETICOP:
-        visitBinNode(node);
-        visit(node->left);
-        visit(node->right);
+        return visitBinNode(node);
         break;
     case UNARYOP:
-        visitUnNode(node);
-        visit(((UnOpNode*)node)->node);
+        return visitUnNode(node);
         break;
     default:
         break;
     }
+    return nullptr;
 }
 
-void Interpreter::visitInteger(astNode* node){
-    std::cout << "Found Integer Node!" << std::endl;
-    if(node->nodeType == STRING)
-        std::cout << "hejd";
+Number* Interpreter::visitInteger(astNode* node){
+    auto toRet = new Number(std::stoi(((numberNode*)node)->tok.value));
+    toRet->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+    return toRet; 
 }
 
-void Interpreter::visitFloat(astNode* node){
-    std::cout << "Found Float Node!" << std::endl;
-    if(node->nodeType == STRING)
-        std::cout << "hejd";
+Number*  Interpreter::visitFloat(astNode* node){
+    auto toRet = new Number(std::stod(((numberNode*)node)->tok.value), false);
+    toRet->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+    return toRet;
 }
 
-void Interpreter::visitBinNode(astNode* node){
-    std::cout << "Found Binary Operation Node!" << std::endl;
-    if(node->nodeType == STRING)
-        std::cout << "hejd";
+Number*  Interpreter::visitBinNode(astNode* node){
+    auto left = visit(node->left);
+    auto right = visit(node->right);
+    Number* result;
+
+    if (((binOpNode*)node)->op->value == "+")
+        result = left->addedTo(right);
+    else if (((binOpNode*)node)->op->value == "-")
+        result = left->subtractedBy(right);
+    else if (((binOpNode*)node)->op->value == "*")
+        result = left->multipliedby(right);
+    else if (((binOpNode*)node)->op->value == "/")
+        result = left->dividedby(right);
+    
+    delete left;
+    delete right;
+
+    result->setPos(node->posStart, node->posEnd);
+    return result;
 }
 
-void Interpreter::visitUnNode(astNode* node){
-    std::cout << "Found Unary Operation Node!" << std::endl;
-    if(node->nodeType == STRING)
-        std::cout << "hejd";
+Number*  Interpreter::visitUnNode(astNode* node){
+    auto number = visit(node);
+    auto min = new Number(-1);
+    auto toRet = number->multipliedby(min);
+
+    delete min;
+    delete number;
+
+    toRet->setPos(node->posStart, node->posEnd);
+    return toRet;
 }
+
+void Number::setPos(Position* start, Position* end) {
+        posStart = start;
+        posEnd = end;
+    }
+    Number* Number::addedTo(Number* other) {
+        double val = value + other->value;
+        if (this->integer == false || other->integer == false)
+            return new Number(val, false);
+        return new Number(int(val));
+    }
+    Number* Number::subtractedBy(Number* other) {
+        double val = value - other->value;
+        if (this->integer == false || other->integer == false)
+            return new Number(val, false);
+        return new Number(int(val));
+    }
+    Number* Number::multipliedby(Number* other) {
+        double val = value * other->value;
+        if (this->integer == false || other->integer == false)
+            return new Number(val, false);
+        return new Number(int(val));
+    }
+    Number* Number::dividedby(Number* other) {
+        double val = value / other->value;
+        return new Number(val, false);
+    }
