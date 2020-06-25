@@ -30,4 +30,11 @@ public:
     ~InvalidSyntaxError();
 };
 
+class RuntimeError : Error
+{
+public:
+    RuntimeError(std::string fn, Position posStart, Position posEnd, std::string details = "") : Error("Runtime Error", fn, details, posStart, posEnd) {};
+    ~RuntimeError();
+};
+
 #endif

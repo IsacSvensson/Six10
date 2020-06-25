@@ -37,7 +37,6 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
 
     Interpreter interpreter(res->node);
     auto result = interpreter.visit(res->node);
-    std::cout << std::endl;
     
     return std::make_pair(result, nullptr);
 }
@@ -54,7 +53,7 @@ int main(int argc, char* argv[]){
                 if (text == "q")
                     return 0;
                 std::string cli = "Command line interface";
-                std::cout << run(text, cli).first->value << std::endl;
+                std::cout << "= " <<  run(text, cli).first->value << std::endl;
             }
         else if(opt == "-h" || opt == "-hjälp")
         {

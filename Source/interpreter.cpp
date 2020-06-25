@@ -24,21 +24,29 @@ Number* Interpreter::visit(astNode* node){
     return nullptr;
 }
 
-Number* Interpreter::visitInteger(astNode* node){
-    auto toRet = new Number(std::stoi(((numberNode*)node)->tok.value));
-    toRet->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
-    return toRet; 
-}
-
-Number*  Interpreter::visitFloat(astNode* node){
-    auto toRet = new Number(std::stod(((numberNode*)node)->tok.value), FLOAT);
-    toRet->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+RuntimeResult* Interpreter::visitInteger(astNode* node){
+    auto num = new Number(std::stoi(((numberNode*)node)->tok.value));
+    num->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+    auto toRet = new RuntimeResult(); 
+    toRet->success(num);
+    delete num;
     return toRet;
 }
 
-Number*  Interpreter::visitBinNode(astNode* node){
-    auto left = visit(node->left);
-    auto right = visit(node->right);
+RuntimeResult* Interpreter::visitFloat(astNode* node){
+    auto num = new Number(std::stod(((numberNode*)node)->tok.value), FLOAT);
+    num->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+    auto toRet = new RuntimeResult(); 
+    toRet->success(num);
+    delete num;
+    return toRet;
+}
+
+RuntimeResult* Interpreter::visitBinNode(astNode* node){
+    auto res = new RuntimeResult();
+
+    auto left = res->registerResult(visit(node->left));
+    auto right = res->registerResult(visit(node->right));
     Number* result;
 
     if (((binOpNode*)node)->op->value == "+")
@@ -57,7 +65,7 @@ Number*  Interpreter::visitBinNode(astNode* node){
     return result;
 }
 
-Number*  Interpreter::visitUnNode(astNode* node){
+RuntimeResult*  Interpreter::visitUnNode(astNode* node){
     auto number = visit(((UnOpNode*)node)->node);
     auto min = new Number(-1);
     auto toRet = number->multipliedby(min);
@@ -95,3 +103,17 @@ void Number::setPos(Position* start, Position* end) {
         double val = value / other->value;
         return new Number(val, FLOAT);
     }
+
+Number* RuntimeResult::registerResult(RuntimeResult* res){
+    if (res->error)
+        return res->value
+    return res;
+}
+RuntimeResult* RuntimeResult::success(Number* value){
+    this->value = new Number(value);
+    return this;
+}
+RuntimeResult* RuntimeResult::failure(Error* error){
+    this->error = error;
+    return this;
+}
