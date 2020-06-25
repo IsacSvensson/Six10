@@ -31,7 +31,7 @@ Number* Interpreter::visitInteger(astNode* node){
 }
 
 Number*  Interpreter::visitFloat(astNode* node){
-    auto toRet = new Number(std::stod(((numberNode*)node)->tok.value), false);
+    auto toRet = new Number(std::stod(((numberNode*)node)->tok.value), FLOAT);
     toRet->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
     return toRet;
 }
@@ -58,7 +58,7 @@ Number*  Interpreter::visitBinNode(astNode* node){
 }
 
 Number*  Interpreter::visitUnNode(astNode* node){
-    auto number = visit(node);
+    auto number = visit(((UnOpNode*)node)->node);
     auto min = new Number(-1);
     auto toRet = number->multipliedby(min);
 
@@ -75,23 +75,23 @@ void Number::setPos(Position* start, Position* end) {
     }
     Number* Number::addedTo(Number* other) {
         double val = value + other->value;
-        if (this->integer == false || other->integer == false)
-            return new Number(val, false);
+        if (this->type == FLOAT || other->type == FLOAT)
+            return new Number(val, FLOAT);
         return new Number(int(val));
     }
     Number* Number::subtractedBy(Number* other) {
         double val = value - other->value;
-        if (this->integer == false || other->integer == false)
-            return new Number(val, false);
+        if (this->type == FLOAT || other->type == FLOAT)
+            return new Number(val, FLOAT);
         return new Number(int(val));
     }
     Number* Number::multipliedby(Number* other) {
         double val = value * other->value;
-        if (this->integer == false || other->integer == false)
-            return new Number(val, false);
+        if (this->type == FLOAT || other->type == FLOAT)
+            return new Number(val, FLOAT);
         return new Number(int(val));
     }
     Number* Number::dividedby(Number* other) {
         double val = value / other->value;
-        return new Number(val, false);
+        return new Number(val, FLOAT);
     }
