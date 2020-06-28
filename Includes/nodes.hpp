@@ -4,10 +4,8 @@
 #include "typeCheckers.hpp"
 #include "lexer.hpp"
 #include "interpreter.hpp"
-#include <iostream>
 
 class astNode{
-private:
 public:
     Type nodeType;
     astNode* left;
@@ -22,11 +20,13 @@ public:
 class numberNode{
 public:
     Type nodeType;
-    Token tok;
+    astNode* left;
+    astNode* right;
     Position* posStart;
     Position* posEnd;
+    Token tok;
     numberNode(Type nodeType, Token* token) : 
-        nodeType(nodeType), tok(*token), posStart(tok.posStart), posEnd(tok.posEnd) {};
+        nodeType(nodeType), left(nullptr), right(nullptr), posStart(token->posStart), posEnd(token->posEnd), tok(*token) {};
     Token* getToken() { return &tok; };
 };
 
@@ -35,10 +35,10 @@ public:
     Type nodeType;
     astNode* left;
     astNode* right;
-    Token* op;
     Position* posStart;
     Position* posEnd;
-    binOpNode(Type nodeType, astNode* l, Token* op, astNode* r) : nodeType(nodeType), left(l), right(r), op(op), posStart(op->posStart), posEnd(op->posEnd) {};
+    Token* op;
+    binOpNode(Type nodeType, astNode* l, Token* op, astNode* r) : nodeType(nodeType), left(l), right(r), posStart(l->posStart), posEnd(r->posEnd), op(op) {};
     ~binOpNode() {delete left; delete right; delete op;};
     void doThis(){
     };
@@ -48,12 +48,12 @@ public:
 class UnOpNode{
 public:
     Type nodeType;
-    astNode* node;
-    Token* op;
+    astNode* left;
+    astNode* right;
     Position* posStart;
     Position* posEnd;
-    UnOpNode(Type nodeType, astNode* node, Token* op) : nodeType(nodeType), node(node), op(op), posStart(op->posStart), posEnd(op->posEnd) {};
-    ~UnOpNode() {delete node; delete op;};
+    Token* op;
+    UnOpNode(Type nodeType, astNode* node, Token* op) : nodeType(nodeType), left(node), posStart(op->posStart), posEnd(op->posEnd), op(op) {};
 };
 
 #endif

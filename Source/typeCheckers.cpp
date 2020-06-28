@@ -3,7 +3,7 @@
 std::string keywords[11]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal"};
 std::string datatypes[5]{"int", "float", "bool", "char", "str"};
 std::string assignmentOperators[6]{"=", "+=", "-=", "*=", "/=", "%="};
-std::string arithmeticOperators[8]{"+", "-", "/", "*", "%", "**", "++", "--"};
+std::string arithmeticOperators[9]{"+", "-", "/", "*", "^", "%", "**", "++", "--"};
 std::string relationalOperators[6]{"<", "<=", ">", ">=", "==", "!="};
 std::string logicalOperators[6]{"&&", "||", "!"};
 char parentheses[6]{'(', ')', '{', '}', '[', ']'};

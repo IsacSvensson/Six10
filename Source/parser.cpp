@@ -1,3 +1,4 @@
+#include "interpreter.hpp"
 #include "parser.hpp"
 #include "lexer.hpp"
 
@@ -8,19 +9,11 @@ Token* Parser::advance(){
     return nullptr;
 }
 
-
-ParseResult* Parser::factor(){
+ParseResult* Parser::atom(){
     auto res = new ParseResult();
     Token* tok = &tokens[tokIndex];
-    
-    if (tok->type == ARITHMETICOP && (tok->value == "+" || tok->value == "-")){
-        res->registerResult(nullptr, advance());
-        auto factor = res->registerResult(this->factor());
-        if (res->error)
-            return res;
-        return res->success((astNode*)(new UnOpNode(UNARYOP, factor, tok)));
-    }
-    else if (tok->type == INTEGER || tok->type == FLOAT){
+
+    if (tok->type == INTEGER || tok->type == FLOAT){
         res->registerResult(nullptr, advance());
         auto toReturn = new numberNode((Type)tok->type, tok);
         return res->success((astNode*)toReturn);
@@ -39,8 +32,40 @@ ParseResult* Parser::factor(){
             return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ')'")));
         }
     }
-    
     return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int or float")));
+}
+
+ParseResult* Parser::power(){
+    auto res = new ParseResult();
+    auto left = res->registerResult(atom());
+    if (res->error)
+        return res;
+    Token* opToken;
+    astNode* right;
+    while (tokens[tokIndex].value == "^" ){
+        opToken = &tokens[tokIndex];
+        res->registerResult(nullptr, advance());
+        right = res->registerResult(factor());
+        if (res->error)
+            return res;
+        left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
+    }
+    return res->success(left);
+}
+
+ParseResult* Parser::factor(){
+    auto res = new ParseResult();
+    Token* tok = &tokens[tokIndex];
+    
+    if (tok->type == ARITHMETICOP && (tok->value == "+" || tok->value == "-")){
+        res->registerResult(nullptr, advance());
+        auto factor = res->registerResult(this->factor());
+        if (res->error)
+            return res;
+        return res->success((astNode*)(new UnOpNode(UNARYOP, factor, tok)));
+    }
+    
+    return power();
 }
 
 ParseResult* Parser::term(){

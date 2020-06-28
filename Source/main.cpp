@@ -31,14 +31,13 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
     Parser p(tokens.first);
     auto res = p.parse();
     if (res->error){
-            std::cout << res->error->toString();
             return std::make_pair(nullptr, res->error);
         }
 
     Interpreter interpreter(res->node);
     auto result = interpreter.visit(res->node);
     
-    return std::make_pair(result, nullptr);
+    return std::make_pair(result->value, result->error);
 }
 
 int main(int argc, char* argv[]){
@@ -53,7 +52,11 @@ int main(int argc, char* argv[]){
                 if (text == "q")
                     return 0;
                 std::string cli = "Command line interface";
-                std::cout << "= " <<  run(text, cli).first->value << std::endl;
+                auto res = run(text, cli);
+                if (res.second)
+                    std::cout << res.second->toString() << std::endl;
+                else
+                    std::cout << "= " << res.first->value << std::endl;
             }
         else if(opt == "-h" || opt == "-hjälp")
         {

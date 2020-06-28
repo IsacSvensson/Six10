@@ -19,6 +19,8 @@ private:
     std::vector<Token> tokens;
     std::size_t tokIndex = 0;
     Token* advance();
+    ParseResult* atom();
+    ParseResult* power();
     ParseResult* factor();
     ParseResult* term();
     ParseResult* expr();

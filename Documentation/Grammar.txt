@@ -1,5 +1,11 @@
 expr    : term ((PLUS|MINUS) term)*
 
-term    : factor ((MUL|DIV) faktor)*
+term    : factor ((MUL|DIV) factor)*
 
-factor  : INT|FLOAT
+factor  : (PLUS|MINUS) factor
+        | power
+
+power   : atom (POW factor)*
+
+atom    : INT|FLOAT
+        | LEFTPARENTHESIS expr RIGHTPARENTHESIS

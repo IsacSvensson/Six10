@@ -5,6 +5,8 @@
 #include "position.hpp"
 #include "lexer.hpp"
 
+class RuntimeResult;
+class astNode;
 
 class Number{
 public:
@@ -15,10 +17,11 @@ public:
     Number(double val, Type t = INTEGER) : type(t), value(val) {setPos();};
     Number(Number* num) : type(num->type), value(num->value), posStart(new Position(*num->posStart)), posEnd(new Position(*num->posEnd)) {};
     void setPos(Position* start = nullptr, Position* end = nullptr);
-    Number* addedTo(Number* other);
-    Number* subtractedBy(Number* other);
-    Number* multipliedby(Number* other);
-    Number* dividedby(Number* other);
+    std::pair<Number*, Error*> addedTo(Number* other);
+    std::pair<Number*, Error*> subtractedBy(Number* other);
+    std::pair<Number*, Error*> multipliedby(Number* other);
+    std::pair<Number*, Error*> dividedby(Number* other);
+    std::pair<Number*, Error*> powedby(Number* other);
 };
 
 class Interpreter{

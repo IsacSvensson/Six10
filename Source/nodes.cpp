@@ -1,4 +1,5 @@
 #include<iostream>
+#include "nodes.hpp"
 #include "parser.hpp"
 #include "lexer.hpp"
 #include "typeCheckers.hpp"
@@ -20,7 +21,7 @@ std::ostream& operator<<(std::ostream& os , const astNode* node){
     case UNARYOP:
         type = getType(*((UnOpNode*)node)->op);
         return os << "(" << type << ":" << 
-            ((UnOpNode*)node)->op->value << ((numberNode*)(((UnOpNode*)node)->node))->tok.value << ")";
+            ((UnOpNode*)node)->op->value << ((numberNode*)(((UnOpNode*)node)->left))->tok.value << ")";
         break;    
     default:
         break;
