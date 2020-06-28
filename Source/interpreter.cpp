@@ -4,20 +4,20 @@
 #include <string>
 #include <cmath>
 
-RuntimeResult* Interpreter::visit(astNode* node){
+RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     switch (node->nodeType)
     {
     case INTEGER:
-        return visitInteger(node);
+        return visitInteger(node, context);
         break;
     case FLOAT:
-        return visitFloat(node);
+        return visitFloat(node, context);
         break;
     case ARITHMETICOP:
-        return visitBinNode(node);
+        return visitBinNode(node, context);
         break;
     case UNARYOP:
-        return visitUnNode(node);
+        return visitUnNode(node, context);
         break;
     default:
         break;
@@ -25,27 +25,29 @@ RuntimeResult* Interpreter::visit(astNode* node){
     return nullptr;
 }
 
-RuntimeResult* Interpreter::visitInteger(astNode* node){
+RuntimeResult* Interpreter::visitInteger(astNode* node, Context* context){
     auto num = new Number(std::stoi(((numberNode*)node)->tok.value));
     num->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+    num->setContext(context);
     auto toRet = new RuntimeResult(); 
     toRet->success(num);
     return toRet;
 }
 
-RuntimeResult* Interpreter::visitFloat(astNode* node){
+RuntimeResult* Interpreter::visitFloat(astNode* node, Context* context){
     auto num = new Number(std::stod(((numberNode*)node)->tok.value), FLOAT);
     num->setPos(((numberNode*)node)->tok.posStart, ((numberNode*)node)->tok.posEnd);
+    num->setContext(context);
     auto toRet = new RuntimeResult(); 
     toRet->success(num);
     return toRet;
 }
 
-RuntimeResult* Interpreter::visitBinNode(astNode* node){
+RuntimeResult* Interpreter::visitBinNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
 
-    auto left = res->registerResult(visit(node->left));
-    auto right = res->registerResult(visit(node->right));
+    auto left = res->registerResult(visit(node->left, context));
+    auto right = res->registerResult(visit(node->right, context));
     if (res->error)
         return res;
     std::pair<Number*, Error*> result;
@@ -70,9 +72,9 @@ RuntimeResult* Interpreter::visitBinNode(astNode* node){
     return res;
 }
 
-RuntimeResult*  Interpreter::visitUnNode(astNode* node){
+RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
-    auto number = res->registerResult(visit(((UnOpNode*)node)->left));
+    auto number = res->registerResult(visit(((UnOpNode*)node)->left, context));
     if (res->error)
         return res;
     auto min = new Number(-1);
@@ -88,37 +90,43 @@ RuntimeResult*  Interpreter::visitUnNode(astNode* node){
     return res;
 }
 
-void Number::setPos(Position* start, Position* end) {
+Number* Number::setPos(Position* start, Position* end) {
         posStart = start;
         posEnd = end;
+        return this;
     }
 std::pair<Number*, Error*> Number::addedTo(Number* other) {
     double val = value + other->value;
     if (this->type == FLOAT || other->type == FLOAT)
-        return std::make_pair(new Number(val, FLOAT), nullptr);
-    return std::make_pair(new Number(int(val)), nullptr);
+        return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
+    return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
 }
 std::pair<Number*, Error*> Number::subtractedBy(Number* other) {
     double val = value - other->value;
     if (this->type == FLOAT || other->type == FLOAT)
-        return std::make_pair(new Number(val, FLOAT), nullptr);
-    return std::make_pair(new Number(int(val)), nullptr);
+        return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
+    return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
 }
 std::pair<Number*, Error*> Number::multipliedby(Number* other) {
     double val = value * other->value;
     if (this->type == FLOAT || other->type == FLOAT)
-        return std::make_pair(new Number(val, FLOAT), nullptr);
-    return std::make_pair(new Number(int(val)), nullptr);
+        return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
+    return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
 }
 std::pair<Number*, Error*> Number::dividedby(Number* other) {
     double val = value / other->value;
     if (other->value == 0)
-        return std::make_pair(nullptr, (Error*)(new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Division by zero")));
-    return std::make_pair(new Number(val, FLOAT), nullptr);
+        return std::make_pair(nullptr, (Error*)(new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Division by zero", context)));
+    return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
 }
 std::pair<Number*, Error*> Number::powedby(Number* other) {
     double val = pow(value, other->value);
-    return std::make_pair(new Number(val, FLOAT), nullptr);
+    return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
+}
+
+Number* Number::setContext(Context* context = nullptr){
+    this->context = context;
+    return this;
 }
 
 Number* RuntimeResult::registerResult(RuntimeResult* res){

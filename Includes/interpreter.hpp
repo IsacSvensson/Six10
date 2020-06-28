@@ -4,6 +4,7 @@
 #include "nodes.hpp"
 #include "position.hpp"
 #include "lexer.hpp"
+#include "context.hpp"
 
 class RuntimeResult;
 class astNode;
@@ -14,9 +15,11 @@ public:
     double value;
     Position* posStart;
     Position* posEnd;
+    Context* context;
     Number(double val, Type t = INTEGER) : type(t), value(val) {setPos();};
     Number(Number* num) : type(num->type), value(num->value), posStart(new Position(*num->posStart)), posEnd(new Position(*num->posEnd)) {};
-    void setPos(Position* start = nullptr, Position* end = nullptr);
+    Number* setPos(Position* start = nullptr, Position* end = nullptr);
+    Number* setContext(Context* context);
     std::pair<Number*, Error*> addedTo(Number* other);
     std::pair<Number*, Error*> subtractedBy(Number* other);
     std::pair<Number*, Error*> multipliedby(Number* other);
@@ -27,11 +30,11 @@ public:
 class Interpreter{
 public:
     astNode* node;
-    RuntimeResult* visit(astNode* node);
-    RuntimeResult* visitInteger(astNode* node);
-    RuntimeResult* visitFloat(astNode* node);
-    RuntimeResult* visitBinNode(astNode* node);
-    RuntimeResult* visitUnNode(astNode* node);
+    RuntimeResult* visit(astNode* node, Context* context);
+    RuntimeResult* visitInteger(astNode* node, Context* context);
+    RuntimeResult* visitFloat(astNode* node, Context* context);
+    RuntimeResult* visitBinNode(astNode* node, Context* context);
+    RuntimeResult* visitUnNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
 };
 

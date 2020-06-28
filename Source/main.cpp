@@ -6,6 +6,7 @@
 #include "nodes.hpp"
 #include "parser.hpp"
 #include "error.hpp"
+#include "context.hpp"
 #include <fstream>
 
 void getSourceCode(std::string path, std::string &sourceCode){
@@ -35,7 +36,8 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
         }
 
     Interpreter interpreter(res->node);
-    auto result = interpreter.visit(res->node);
+    Context* context = new Context("<program>");
+    auto result = interpreter.visit(res->node, context);
     
     return std::make_pair(result->value, result->error);
 }
@@ -54,7 +56,10 @@ int main(int argc, char* argv[]){
                 std::string cli = "Command line interface";
                 auto res = run(text, cli);
                 if (res.second)
-                    std::cout << res.second->toString() << std::endl;
+                    if (res.second->type == RTERROR)
+                        std::cout << ((RuntimeError*)res.second)->toString();
+                    else
+                        std::cout << res.second->toString() << std::endl;
                 else
                     std::cout << "= " << res.first->value << std::endl;
             }
