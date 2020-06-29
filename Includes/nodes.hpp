@@ -56,4 +56,28 @@ public:
     UnOpNode(Type nodeType, astNode* node, Token* op) : nodeType(nodeType), left(node), posStart(op->posStart), posEnd(op->posEnd), op(op) {};
 };
 
+class VarAccessNode{
+public:
+    Type nodeType;
+    astNode* left;
+    astNode* right;
+    Position* posStart;
+    Position* posEnd;
+    Token* varNameTok;
+    VarAccessNode(Token* varNameTok) : nodeType(VARACCESSNODE), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(varNameTok) {};
+};
+
+class VarAssignNode{
+public:
+    Type nodeType;
+    astNode* left;
+    astNode* right;
+    Position* posStart;
+    Position* posEnd;
+    Token* varNameTok;
+    VarAssignNode(Token* varNameTok, astNode* nodeVal) : nodeType(ASSIGNMENTOP), left(nodeVal), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(varNameTok) {};
+};
+
+
+
 #endif

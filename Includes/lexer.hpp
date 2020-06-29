@@ -29,6 +29,8 @@ enum Type : short{
     LOGICALOP, // Checker function made
     BITWISEOP, // Not implemented for now
     UNARYOP,
+    // Misc Nodes
+    VARACCESSNODE,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done

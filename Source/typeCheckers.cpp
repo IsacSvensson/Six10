@@ -1,6 +1,6 @@
 #include "lexer.hpp"
 
-std::string keywords[11]{"and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal"};
+std::string keywords[12]{"var", "and", "or", "not", "foreach", "while", "in", "if", "else if", "else", "is", "equal"};
 std::string datatypes[5]{"int", "float", "bool", "char", "str"};
 std::string assignmentOperators[6]{"=", "+=", "-=", "*=", "/=", "%="};
 std::string arithmeticOperators[9]{"+", "-", "/", "*", "^", "%", "**", "++", "--"};

@@ -32,6 +32,11 @@ ParseResult* Parser::atom(){
             return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ')'")));
         }
     }
+    else if (tok->type == IDENTIFIER){
+        res->registerResult(nullptr, advance());
+        auto toReturn = new VarAccessNode(tok);
+        return res->success((astNode*)toReturn);
+    }
     return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int or float")));
 }
 
@@ -88,6 +93,24 @@ ParseResult* Parser::term(){
 
 ParseResult* Parser::expr(){
     auto res = new ParseResult();
+    Token* varName;
+
+    if (tokens[tokIndex].value == "var"){
+        res->registerResult(nullptr, advance());
+        if (tokens[tokIndex].type != IDENTIFIER)
+            return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
+            *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected identifier")));
+        varName = &tokens[tokIndex];
+        res->registerResult(nullptr, advance());
+        if (tokens[tokIndex].type != ASSIGNMENTOP)
+            return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
+            *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected assignment operator")));
+        res->registerResult(nullptr, advance());
+        auto expression = res->registerResult(expr());
+        if (res->error)
+            return res;
+        return res->success((astNode*)(new VarAssignNode(varName, expression)));
+        }
     auto left = res->registerResult(term());
     if (res->error)
         return res;
