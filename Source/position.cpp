@@ -13,7 +13,7 @@ void Position::advance(char currentChar){
 
 std::string Position::getPos(){
     std::stringstream ss;
-    ss << "Line: " << line << ", Col:" << col;
+    ss << "Line: " << line+1 << ", Col:" << col+1;
 
     std::string pos;
     pos = ss.str();

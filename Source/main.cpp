@@ -25,7 +25,6 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
     auto tokens = lex.makeTokens();
 
     if(tokens.second){
-        std::cout << tokens.second->toString() << std::endl;
         return std::make_pair(nullptr, tokens.second);
     }
 

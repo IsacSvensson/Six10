@@ -1,4 +1,5 @@
-expr    : term ((PLUS|MINUS) term)*
+expr    : IDENTIFIER ASSIGNMENTOPERATOR expr
+        | term ((PLUS|MINUS) term)*
 
 term    : factor ((MUL|DIV) factor)*
 
@@ -7,5 +8,5 @@ factor  : (PLUS|MINUS) factor
 
 power   : atom (POW factor)*
 
-atom    : INT|FLOAT
+atom    : IDENTIFIER|INT|FLOAT
         | LEFTPARENTHESIS expr RIGHTPARENTHESIS
