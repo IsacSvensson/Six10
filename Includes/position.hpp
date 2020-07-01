@@ -1,6 +1,4 @@
-#ifndef POSITION_HPP
-#define POSITION_HPP
-
+#pragma once
 #include <string>
 
 class Position{
@@ -16,5 +14,3 @@ public:
     void advance(char currentChar = ' ');
     std::string getPos();
 };
-
-#endif

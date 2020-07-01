@@ -1,5 +1,4 @@
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#pragma once 
 
 #include "nodes.hpp"
 #include <string>
@@ -29,6 +28,3 @@ public:
     ParseResult* parse();
     void printTree(astNode* tree);
 };
-
-
-#endif

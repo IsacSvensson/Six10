@@ -90,6 +90,30 @@ RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
     return res;
 }
 
+
+RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    auto name = ((VarAccessNode*)node)->varNameTok->value;
+    auto value = context->symTab.get(name);
+
+    if (!value)
+        res->failure((Error*)new RuntimeError(node->posEnd->filename ,*node->posStart, *node->posEnd, ("'" + name + "' is not defined"), context));
+    
+    return res->success(value);
+}
+
+RuntimeResult* Interpreter::visitVarAssignNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    auto name = ((VarAccessNode*)node)->varNameTok->value;
+    auto value = res->registerResult(visit(node->left, context));
+
+    if (res->error)
+        return res;
+    
+    context->symTab.set(name, value);
+    return res->success(value);
+}
+
 Number* Number::setPos(Position* start, Position* end) {
         posStart = start;
         posEnd = end;

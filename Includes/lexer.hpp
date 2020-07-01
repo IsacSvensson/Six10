@@ -1,11 +1,9 @@
-#ifndef LEXER_HPP
-#define LEXER_HPP
+#pragma once
 
 #include <vector>
 #include <string>
-#include "error.hpp"
 #include "position.hpp"
-
+#include "error.hpp"
 
 enum Type : short{
     // Input, letters and numbers
@@ -93,6 +91,3 @@ public:
     Lexer(std::string sc, std::string fn) : sourceCode(sc), pos(fn, sourceCode), filename(fn), it(sourceCode.begin()) {};
     std::pair<std::vector<struct Token>, Error*> makeTokens();
 };
-
-
-#endif

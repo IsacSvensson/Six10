@@ -1,10 +1,9 @@
-#ifndef INTERPRETER_HPP
-#define INTERPRETER_HPP
+#pragma once
 
-#include "nodes.hpp"
 #include "position.hpp"
-#include "lexer.hpp"
 #include "context.hpp"
+#include "lexer.hpp"
+#include "nodes.hpp"
 
 class RuntimeResult;
 class astNode;
@@ -35,6 +34,8 @@ public:
     RuntimeResult* visitFloat(astNode* node, Context* context);
     RuntimeResult* visitBinNode(astNode* node, Context* context);
     RuntimeResult* visitUnNode(astNode* node, Context* context);
+    RuntimeResult* visitVarAccessNode(astNode* node, Context* context);
+    RuntimeResult* visitVarAssignNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
 };
 
@@ -48,5 +49,3 @@ public:
     RuntimeResult* success(Number* value);
     RuntimeResult* failure(Error* error);
 };
-
-#endif

@@ -20,7 +20,11 @@ void getSourceCode(std::string path, std::string &sourceCode){
     }
 }
 
+
 std::pair<Number*, Error*> run(std::string code, std::string fn){
+    SymbolTable globalSymTab(100);
+    globalSymTab.set("null", new Number(0, INTEGER));
+    
     Lexer lex(code, fn);
     auto tokens = lex.makeTokens();
 
@@ -36,6 +40,7 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
 
     Interpreter interpreter(res->node);
     Context* context = new Context("<program>");
+    context->symTab = globalSymTab;
     auto result = interpreter.visit(res->node, context);
     
     return std::make_pair(result->value, result->error);

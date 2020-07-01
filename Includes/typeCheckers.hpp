@@ -1,5 +1,4 @@
-#ifndef TYPECHECKERS_HPP
-#define TYPECHECKERS_HPP
+#pragma once
 
 #include <string>
 #include "lexer.hpp"
@@ -14,7 +13,3 @@ bool isDataType(std::string str);
 std::string getType(const Token t);
 std::string getType(Type t);
 std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end);
-
-#endif
-
-

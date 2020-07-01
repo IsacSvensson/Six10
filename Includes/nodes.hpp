@@ -1,8 +1,7 @@
-#ifndef NODES_HPP
-#define NODES_HPP
+#pragma once
 
-#include "typeCheckers.hpp"
 #include "lexer.hpp"
+#include "typeCheckers.hpp"
 #include "interpreter.hpp"
 
 class astNode{
@@ -27,6 +26,8 @@ public:
     Token tok;
     numberNode(Type nodeType, Token* token) : 
         nodeType(nodeType), left(nullptr), right(nullptr), posStart(token->posStart), posEnd(token->posEnd), tok(*token) {};
+    numberNode(numberNode* node) : 
+        nodeType(node->nodeType), left(node->left), right(node->right), posStart(node->posStart), posEnd(node->posEnd), tok(node->tok) {};
     Token* getToken() { return &tok; };
 };
 
@@ -78,6 +79,3 @@ public:
     VarAssignNode(Token* varNameTok, astNode* nodeVal) : nodeType(ASSIGNMENTOP), left(nodeVal), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(varNameTok) {};
 };
 
-
-
-#endif

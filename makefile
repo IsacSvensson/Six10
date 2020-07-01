@@ -8,8 +8,8 @@ DELETE := del
 CPP := g++
 CPPFLAGS := -g -std=c++17 -Wall -Wextra -Wpedantic -Werror
 
-$(EXECUTABLE): $(BUILD)lexer.o $(BUILD)main.o $(BUILD)typeCheckers.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)error.o $(BUILD)position.o $(BUILD)helpers.o $(BUILD)interpreter.o
-	$(CPP) $(CPPFLAGS) $(BUILD)lexer.o $(BUILD)main.o $(BUILD)typeCheckers.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)error.o $(BUILD)position.o $(BUILD)helpers.o $(BUILD)interpreter.o -o $(EXECUTABLE)
+$(EXECUTABLE): $(BUILD)main.o $(BUILD)lexer.o $(BUILD)typeCheckers.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)error.o $(BUILD)position.o $(BUILD)helpers.o $(BUILD)interpreter.o
+	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)lexer.o $(BUILD)typeCheckers.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)error.o $(BUILD)position.o $(BUILD)helpers.o $(BUILD)interpreter.o -o $(EXECUTABLE)
 
 $(BUILD)main.o: $(SOURCE)main.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)main.cpp -I$(INCLUDES) -o $(BUILD)main.o

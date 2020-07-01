@@ -1,5 +1,4 @@
-#ifndef ERROR_HPP
-#define ERROR_HPP
+#pragma once
 
 #include <string>
 #include "position.hpp"
@@ -47,5 +46,3 @@ public:
     std::string toString();
     std::string generateTraceback();
 };
-
-#endif
