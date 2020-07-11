@@ -1,8 +1,9 @@
 #include<iostream>
+#include <sstream>
 #include "nodes.hpp"
 #include "parser.hpp"
-#include "lexer.hpp"
-#include "typeCheckers.hpp"
+#include "helpers.hpp"
+
 
 std::ostream& operator<<(std::ostream& os , const astNode* node){
     std::string type;
@@ -27,4 +28,22 @@ std::ostream& operator<<(std::ostream& os , const astNode* node){
         break;
     }
     return os << getType(((numberNode*)node)->tok);
+}
+
+void Position::advance(char currentChar){
+    index++;
+    col++;
+    if (currentChar == '\n'){
+        line++;
+        col = 0;
+    }
+}
+
+std::string Position::getPos(){
+    std::stringstream ss;
+    ss << "Line: " << line+1 << ", Col:" << col+1;
+
+    std::string pos;
+    pos = ss.str();
+    return pos;
 }

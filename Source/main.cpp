@@ -1,12 +1,8 @@
 #include <iostream>
 #include <queue>
 #include "interpreter.hpp"
-#include "typeCheckers.hpp"
-#include "lexer.hpp"
 #include "nodes.hpp"
 #include "parser.hpp"
-#include "error.hpp"
-#include "context.hpp"
 #include <fstream>
 
 void getSourceCode(std::string path, std::string &sourceCode){
@@ -20,10 +16,10 @@ void getSourceCode(std::string path, std::string &sourceCode){
     }
 }
 
+static SymbolTable globalSymTab(100);
 
 std::pair<Number*, Error*> run(std::string code, std::string fn){
-    SymbolTable globalSymTab(100);
-    globalSymTab.set("null", new Number(0, INTEGER));
+    
     
     Lexer lex(code, fn);
     auto tokens = lex.makeTokens();
@@ -40,13 +36,14 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
 
     Interpreter interpreter(res->node);
     Context* context = new Context("<program>");
-    context->symTab = globalSymTab;
+    context->symTab = &globalSymTab;
     auto result = interpreter.visit(res->node, context);
     
     return std::make_pair(result->value, result->error);
 }
 
 int main(int argc, char* argv[]){
+    globalSymTab.set("null", new Number(0, INTEGER));
     if (argc > 1){
         std::string opt = argv[1];
         if (opt == "-shell")

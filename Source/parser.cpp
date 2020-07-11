@@ -1,6 +1,5 @@
 #include "interpreter.hpp"
 #include "parser.hpp"
-#include "lexer.hpp"
 
 Token* Parser::advance(){
     tokIndex++;

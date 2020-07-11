@@ -1,8 +1,10 @@
 #include "nodes.hpp"
 #include "interpreter.hpp"
-#include "typeCheckers.hpp"
+#include "helpers.hpp"
 #include <string>
 #include <cmath>
+#include <utility>
+#include <sstream>
 
 RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     switch (node->nodeType)
@@ -18,6 +20,12 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
         break;
     case UNARYOP:
         return visitUnNode(node, context);
+        break;
+    case ASSIGNMENTOP:
+        return visitVarAssignNode(node, context);
+        break;
+    case VARACCESSNODE:
+        return visitVarAccessNode(node, context);
         break;
     default:
         break;
@@ -94,7 +102,7 @@ RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
 RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
     auto name = ((VarAccessNode*)node)->varNameTok->value;
-    auto value = context->symTab.get(name);
+    auto value = context->symTab->get(name);
 
     if (!value)
         res->failure((Error*)new RuntimeError(node->posEnd->filename ,*node->posStart, *node->posEnd, ("'" + name + "' is not defined"), context));
@@ -104,13 +112,13 @@ RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
 
 RuntimeResult* Interpreter::visitVarAssignNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
-    auto name = ((VarAccessNode*)node)->varNameTok->value;
+    auto name = ((VarAssignNode*)node)->varNameTok->value;
     auto value = res->registerResult(visit(node->left, context));
 
     if (res->error)
         return res;
     
-    context->symTab.set(name, value);
+    context->symTab->set(name, value);
     return res->success(value);
 }
 
@@ -166,4 +174,117 @@ RuntimeResult* RuntimeResult::success(Number* value){
 RuntimeResult* RuntimeResult::failure(Error* error){
     this->error = error;
     return this;
+}
+
+unsigned int SymbolTable::symHash(std::string id){
+    unsigned int val = 0;
+    short i = 1;
+    for (char& c: id){
+        val += pow(c, i);
+        i++;
+    }
+    return val%symtab.size();
+}
+
+void SymbolTable::set(std::string id, Number* val){
+    std::size_t index = symHash(id);
+    auto atIndex = symtab[index];
+    if (atIndex){
+        while (atIndex->name != id && atIndex->next)
+            atIndex = atIndex->next;
+        if (atIndex->name == id){
+            atIndex->value = val;
+        }
+        else if (parent)
+            parent->set(id, val);
+        else{
+            atIndex->next = new SymNode(id, val);
+            numOfSyms++;
+        }
+    }
+    else{
+        symtab[index] = new SymNode(id, val);
+    }
+}
+
+Number* SymbolTable::get(std::string id){
+    std::size_t index = symHash(id);
+    auto atIndex = symtab[index];
+    if (atIndex){
+        while (atIndex->name != id && atIndex->next)
+            atIndex = atIndex->next;
+        if (atIndex->name == id){
+            return &atIndex->value;
+        }
+        else if (parent)
+            return parent->get(id);
+    }
+    return nullptr;
+}
+
+std::pair<std::vector<Token>, Error*> Lexer::makeTokens(){
+    while (it < sourceCode.end())
+    {
+        auto token = isType(it, sourceCode.end());
+        if (token.first == SPACE){
+            advance();
+            continue;
+            }
+        else if (token.first == INVALID){
+            Position posStart = pos;
+            auto ch = std::string(1, *it);
+            advance();
+            return std::make_pair(tokens, (Error*) new IllegalCharError(filename, ch, posStart, Position(pos)));
+            }
+        tokens.push_back(Token(token, it, &pos));
+        for(int i = 0; i < token.second; i++)
+            advance();
+    }
+    tokens.push_back(Token(EOF_, std::string(), &pos, &pos));
+    return std::make_pair(tokens, nullptr);
+}
+
+void Lexer::advance(){
+    char toSend = ' ';
+    if (!tokens.empty())
+        if (tokens.back().type == EOL)
+            toSend = '\n';
+    pos.advance(toSend);
+    it++;
+}
+
+
+
+std::string Error::toString(){
+    std::string toReturn;
+    toReturn = errorName + ": '" + details + "'\nFile: \"" + fileName + "\": " + posStart.getPos();
+    toReturn += stringWithArrows(posStart.filetext, &posStart, &posEnd);
+    return toReturn;
+}
+
+std::string RuntimeError::toString(){
+    std::string result = "";
+    result += generateTraceback();
+    result += errorName + ": " + details + "\n";
+    result += stringWithArrows(posStart.filetext, &posStart, &posEnd);
+    return result;
+}
+
+std::string RuntimeError::generateTraceback(){
+    std::string result = "";
+    std::string temp;
+    auto pos = &posStart;
+    auto ctx = context;
+
+    std::stringstream ss;
+
+    while (ctx){
+        ss << "File " << pos->filename << ", line " << (pos->line + 1) << ", in " << ctx->displayName;
+        std::getline(ss, temp);
+        result = temp + "\n" +  result;
+        pos = ctx->parentEntryPos;
+        ctx = ctx->parent;
+    }
+
+    return "Traceback (most recent call last):\n" + result;
 }

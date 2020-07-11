@@ -8,29 +8,17 @@ DELETE := del
 CPP := g++
 CPPFLAGS := -g -std=c++17 -Wall -Wextra -Wpedantic -Werror
 
-$(EXECUTABLE): $(BUILD)main.o $(BUILD)lexer.o $(BUILD)typeCheckers.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)error.o $(BUILD)position.o $(BUILD)helpers.o $(BUILD)interpreter.o
-	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)lexer.o $(BUILD)typeCheckers.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)error.o $(BUILD)position.o $(BUILD)helpers.o $(BUILD)interpreter.o -o $(EXECUTABLE)
+$(EXECUTABLE): $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o
+	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o -o $(EXECUTABLE)
 
 $(BUILD)main.o: $(SOURCE)main.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)main.cpp -I$(INCLUDES) -o $(BUILD)main.o
-
-$(BUILD)lexer.o: $(SOURCE)lexer.cpp
-	$(CPP) $(CPPFLAGS) -c $(SOURCE)lexer.cpp -I$(INCLUDES) -o $(BUILD)lexer.o
-
-$(BUILD)typeCheckers.o: $(SOURCE)typeCheckers.cpp
-	$(CPP) $(CPPFLAGS) -c $(SOURCE)typeCheckers.cpp -I$(INCLUDES) -o $(BUILD)typeCheckers.o
 
 $(BUILD)nodes.o: $(SOURCE)nodes.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)nodes.cpp -I$(INCLUDES) -o $(BUILD)nodes.o
 
 $(BUILD)parser.o: $(SOURCE)parser.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)parser.cpp -I$(INCLUDES) -o $(BUILD)parser.o
-
-$(BUILD)error.o: $(SOURCE)error.cpp
-	$(CPP) $(CPPFLAGS) -c $(SOURCE)error.cpp -I$(INCLUDES) -o $(BUILD)error.o
-
-$(BUILD)position.o: $(SOURCE)position.cpp
-	$(CPP) $(CPPFLAGS) -c $(SOURCE)position.cpp -I$(INCLUDES) -o $(BUILD)position.o
 
 $(BUILD)helpers.o: $(SOURCE)helpers.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)helpers.cpp -I$(INCLUDES) -o $(BUILD)helpers.o
@@ -41,12 +29,8 @@ $(BUILD)interpreter.o: $(SOURCE)interpreter.cpp
 clean:
 	-$(DELETE) $(EXECUTABLE)
 	-$(DELETE) $(BUILD)main.o
-	-$(DELETE) $(BUILD)lexer.o
-	-$(DELETE) $(BUILD)typeCheckers.o
 	-$(DELETE) $(BUILD)parser.o
 	-$(DELETE) $(BUILD)nodes.o
-	-$(DELETE) $(BUILD)error.o
-	-$(DELETE) $(BUILD)position.o
 	-$(DELETE) $(BUILD)helpers.o
 	-$(DELETE) $(BUILD)interpreter.o
 	
