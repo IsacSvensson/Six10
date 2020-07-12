@@ -13,18 +13,21 @@ ParseResult* Parser::atom(){
     Token* tok = &tokens[tokIndex];
 
     if (tok->type == INTEGER || tok->type == FLOAT){
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         auto toReturn = new numberNode((Type)tok->type, tok);
         return res->success((astNode*)toReturn);
     }
     else if (tok->type == PARENTHESES && tok->value == "(")
     {
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         auto expression = res->registerResult(this->expr());
         if (res->error)
             return res;
         if (tokens[tokIndex].value == ")"){
-            res->registerResult(nullptr, advance());
+            res->registerAdvancement();
+            advance();
             return res->success(expression);}
         else
         {
@@ -32,11 +35,12 @@ ParseResult* Parser::atom(){
         }
     }
     else if (tok->type == IDENTIFIER){
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         auto toReturn = new VarAccessNode(tok);
         return res->success((astNode*)toReturn);
     }
-    return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int or float")));
+    return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int, float or an identifier")));
 }
 
 ParseResult* Parser::power(){
@@ -48,7 +52,8 @@ ParseResult* Parser::power(){
     astNode* right;
     while (tokens[tokIndex].value == "^" ){
         opToken = &tokens[tokIndex];
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         right = res->registerResult(factor());
         if (res->error)
             return res;
@@ -62,7 +67,8 @@ ParseResult* Parser::factor(){
     Token* tok = &tokens[tokIndex];
     
     if (tok->type == ARITHMETICOP && (tok->value == "+" || tok->value == "-")){
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         auto factor = res->registerResult(this->factor());
         if (res->error)
             return res;
@@ -81,7 +87,8 @@ ParseResult* Parser::term(){
     astNode* right;
     while (tokens[tokIndex].value == "*" || tokens[tokIndex].value == "/" ){
         opToken = &tokens[tokIndex];
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         right = res->registerResult(factor());
         if (res->error)
             return res;
@@ -95,16 +102,19 @@ ParseResult* Parser::expr(){
     Token* varName;
 
     if (tokens[tokIndex].value == "var"){
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         if (tokens[tokIndex].type != IDENTIFIER)
             return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
             *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected identifier")));
         varName = &tokens[tokIndex];
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         if (tokens[tokIndex].type != ASSIGNMENTOP)
             return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, 
             *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected assignment operator")));
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         auto expression = res->registerResult(expr());
         if (res->error)
             return res;
@@ -118,10 +128,12 @@ ParseResult* Parser::expr(){
 
     while (tokens[tokIndex].value == "+" || tokens[tokIndex].value == "-" ){
         opToken = &tokens[tokIndex];
-        res->registerResult(nullptr, advance());
+        res->registerAdvancement();
+        advance();
         right = res->registerResult(term());
         if (res->error)
-            return res;
+            return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posEnd->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd,
+            "'+', '-', var, int, float or an identifier")));
         left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
     }
     return res->success(left);
@@ -139,12 +151,15 @@ ParseResult* Parser::parse(){
     return res;
 }
 
-astNode* ParseResult::registerResult(ParseResult* pr, Token* n){
-    if (n)
-        return nullptr;
-    if(pr->error)
-        error = pr->error;
-    return pr->node;
+astNode* ParseResult::registerResult(ParseResult* res){
+    advanceCount++;
+    if(res->error)
+        error = res->error;
+    return res->node;
+}
+
+void ParseResult::registerAdvancement(){
+    advanceCount++;
 }
 
 ParseResult* ParseResult::success(astNode* node){
@@ -152,6 +167,7 @@ ParseResult* ParseResult::success(astNode* node){
     return this;
 }
 ParseResult* ParseResult::failure(Error* error){
-    this->error = error;
+    if (!(this->error) || advanceCount == 0)
+        this->error = error;
     return this;
 }

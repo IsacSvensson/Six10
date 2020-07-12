@@ -9,7 +9,10 @@ class ParseResult{
 public:
     Error* error;
     astNode* node;
-    astNode* registerResult(ParseResult* pr, Token* n = nullptr);
+    int advanceCount;
+    ParseResult() : error(nullptr), node(nullptr), advanceCount(0) {};
+    astNode* registerResult(ParseResult* res);
+    void registerAdvancement();
     ParseResult* success(astNode* node);
     ParseResult* failure(Error* error);
 };  

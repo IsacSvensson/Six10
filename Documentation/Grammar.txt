@@ -1,13 +1,17 @@
-asgn    : IDENTIFIER ASSIGNMENTOPERATOR expr
+expr        : Keyword:var IDENTIFIER ASSIGNMENTOP expr
+            | comp-expr ((("&&" | "||") | (Keyword:and | Keyword:or))comp-expr)*
 
-expr    : term ((PLUS|MINUS) term)*
+comp-expr   : Keyword:not comp-expr
+            | arithm-expr ((RELATIONALOP) arithm-expr)*
 
-term    : factor ((MUL|DIV) factor)*
+arithm-expr : term ((PLUS|MINUS) term)*
 
-factor  : (PLUS|MINUS) factor
-        | power
+term        : factor ((MUL|DIV) factor)*
 
-power   : atom (POW factor)*
+factor      : (PLUS|MINUS) factor
+            | power
 
-atom    : IDENTIFIER|INT|FLOAT
-        | LEFTPARENTHESIS expr RIGHTPARENTHESIS
+power       : atom (POW factor)*
+
+atom        : IDENTIFIER|INT|FLOAT
+            | LEFTPARENTHESIS expr RIGHTPARENTHESIS
