@@ -25,6 +25,15 @@ public:
     std::pair<Number*, Error*> multipliedby(Number* other);
     std::pair<Number*, Error*> dividedby(Number* other);
     std::pair<Number*, Error*> powedby(Number* other);
+    std::pair<Number*, Error*> getComparisonEQ(Number* other);
+    std::pair<Number*, Error*> getComparisonNotEq(Number* other);
+    std::pair<Number*, Error*> getComparisonLT(Number* other);
+    std::pair<Number*, Error*> getComparisonGT(Number* other);
+    std::pair<Number*, Error*> getComparisonLTE(Number* other);
+    std::pair<Number*, Error*> getComparisonGTE(Number* other);
+    std::pair<Number*, Error*> logicalAnd(Number* other);
+    std::pair<Number*, Error*> logicalOr(Number* other);
+    std::pair<Number*, Error*> logicalNot();
 };
 
 class SymNode{

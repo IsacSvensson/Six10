@@ -5,6 +5,7 @@
 #include <cmath>
 #include <utility>
 #include <sstream>
+#include <iostream>
 
 RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     switch (node->nodeType)
@@ -70,7 +71,22 @@ RuntimeResult* Interpreter::visitBinNode(astNode* node, Context* context){
         result = left->dividedby(right);
     else if (((binOpNode*)node)->op->value == "^")
         result = left->powedby(right);
-    
+    else if (((binOpNode*)node)->op->value == "==")
+        result = left->getComparisonEQ(right);
+    else if (((binOpNode*)node)->op->value == "!=")
+        result = left->getComparisonNotEq(right);
+    else if (((binOpNode*)node)->op->value == "<")
+        result = left->getComparisonLT(right);
+    else if (((binOpNode*)node)->op->value == ">")
+        result = left->getComparisonGT(right);
+    else if (((binOpNode*)node)->op->value == "<=")
+        result = left->getComparisonLTE(right);
+    else if (((binOpNode*)node)->op->value == ">=")
+        result = left->getComparisonGTE(right);
+    else if (((binOpNode*)node)->op->value == "and" || ((binOpNode*)node)->op->value == "&&")
+        result = left->logicalAnd(right);
+    else if (((binOpNode*)node)->op->value == "or" || ((binOpNode*)node)->op->value == "||")
+        result = left->logicalOr(right);
     if (result.second)
         return res->failure(result.second);
 
@@ -82,20 +98,32 @@ RuntimeResult* Interpreter::visitBinNode(astNode* node, Context* context){
 
 RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
+    std::pair<Number*, Error*> toRet;
     auto number = res->registerResult(visit(((UnOpNode*)node)->left, context));
     if (res->error)
         return res;
-    auto min = new Number(-1);
-    auto toRet = number->multipliedby(min);
-    if (toRet.second)
-        return res->failure(toRet.second);
+    if (((UnOpNode*)node)->op->value.compare("not"))
+    {
+        toRet = number->logicalNot();
+        if (toRet.second)
+            return res->failure(toRet.second);
+        delete number;
+        return res->success(toRet.first);
+    }
+    else if (((UnOpNode*)node)->op->value == "-"){
+        auto min = new Number(-1);
+        toRet = number->multipliedby(min);
+        if (toRet.second)
+            return res->failure(toRet.second);
 
-    delete min;
-    delete number;
+        delete min;
+        delete number;
 
-    toRet.first->setPos(node->posStart, node->posEnd);
-    res->success(toRet.first);
-    return res;
+        toRet.first->setPos(node->posStart, node->posEnd);
+        res->success(toRet.first);
+        return res;
+    }
+    return res->failure((Error*)new RuntimeError(node->posStart->filename, *node->posStart, *node->posEnd, "Could not complete operation."));
 }
 
 
@@ -288,4 +316,41 @@ std::string RuntimeError::generateTraceback(){
     }
 
     return "Traceback (most recent call last):\n" + result;
+}
+
+std::pair<Number*, Error*> Number::getComparisonEQ(Number* other){
+    double val = value == other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::getComparisonNotEq(Number* other){
+    double val = value != other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::getComparisonLT(Number* other){
+    double val = value < other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::getComparisonGT(Number* other){
+    double val = value > other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::getComparisonLTE(Number* other){
+    double val = value <= other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::getComparisonGTE(Number* other){
+    double val = value >= other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::logicalAnd(Number* other){
+    double val = value && other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::logicalOr(Number* other){
+    double val = value || other->value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+std::pair<Number*, Error*> Number::logicalNot(){
+    double val = !value;
+    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
 }

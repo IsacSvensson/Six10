@@ -6,7 +6,7 @@ SOURCE := SOURCE\\
 DELETE := del
 
 CPP := g++
-CPPFLAGS := -g -std=c++17 -Wall -Wextra -Wpedantic -Werror
+CPPFLAGS := -g -std=c++17
 
 $(EXECUTABLE): $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o
 	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o -o $(EXECUTABLE)

@@ -26,6 +26,8 @@ private:
     ParseResult* power();
     ParseResult* factor();
     ParseResult* term();
+    ParseResult* arithmExpr();
+    ParseResult* compExpr();
     ParseResult* expr();
 public:
     Parser(std::vector<Token> tokens) : tokens(tokens) {};

@@ -97,6 +97,44 @@ ParseResult* Parser::term(){
     return res->success(left);
 }
 
+ParseResult* Parser::arithmExpr(){
+    auto res = new ParseResult();
+    auto left = res->registerResult(term());
+    if (res->error)
+        return res;
+    Token* opToken;
+    astNode* right;
+
+    while (tokens[tokIndex].value == "+" || tokens[tokIndex].value == "-" ){
+        opToken = &tokens[tokIndex];
+        res->registerAdvancement();
+        advance();
+        right = res->registerResult(term());
+        if (res->error)
+            return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posEnd->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd,
+            "'+', '-', var, int, float or an identifier")));
+        left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
+    }
+    return res->success(left);
+}
+
+ParseResult* Parser::compExpr(){
+    auto res = new ParseResult();
+    if (tokens[tokIndex].value == "not" || tokens[tokIndex].value == "!"){
+        auto opToken = tokens[tokIndex];
+        res->registerAdvancement();
+        advance();
+        auto node = res->registerResult(compExpr());
+        if (res->error)
+            return res;
+        return res->success((astNode*)new UnOpNode(UNARYOP, node, &tokens[tokIndex]));
+        }
+    auto node = res->registerResult(arithmExpr());
+    if (res->error)
+        return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posStart->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd, "Expected int, float, identifier, '+', '-', '(' or 'not'")));
+    return res->success(node);
+}
+
 ParseResult* Parser::expr(){
     auto res = new ParseResult();
     Token* varName;
@@ -120,22 +158,22 @@ ParseResult* Parser::expr(){
             return res;
         return res->success((astNode*)(new VarAssignNode(varName, expression)));
         }
-    auto left = res->registerResult(term());
+    auto left = res->registerResult(compExpr());
     if (res->error)
         return res;
     Token* opToken;
     astNode* right;
-
-    while (tokens[tokIndex].value == "+" || tokens[tokIndex].value == "-" ){
-        opToken = &tokens[tokIndex];
-        res->registerAdvancement();
-        advance();
-        right = res->registerResult(term());
-        if (res->error)
-            return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posEnd->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd,
-            "'+', '-', var, int, float or an identifier")));
-        left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
-    }
+    
+    opToken = &tokens[tokIndex];
+    if (opToken->type == EOL || opToken->type == EOF_)
+        return res->success(left);
+    res->registerAdvancement();
+    advance();
+    right = res->registerResult(compExpr());
+    if (res->error)
+        return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posEnd->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd,
+        "'+', '-', var, int, float or an identifier")));
+    left = (astNode*)(new binOpNode(ARITHMETICOP, left, opToken, right));
     return res->success(left);
 }
 

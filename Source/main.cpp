@@ -44,6 +44,8 @@ std::pair<Number*, Error*> run(std::string code, std::string fn){
 
 int main(int argc, char* argv[]){
     globalSymTab.set("null", new Number(0, INTEGER));
+    globalSymTab.set("True", new Number(1, INTEGER));
+    globalSymTab.set("False", new Number(0, INTEGER));
     if (argc > 1){
         std::string opt = argv[1];
         if (opt == "-shell")
