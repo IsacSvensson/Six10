@@ -40,7 +40,78 @@ ParseResult* Parser::atom(){
         auto toReturn = new VarAccessNode(tok);
         return res->success((astNode*)toReturn);
     }
+    else if (tok->value == "if"){
+        auto ifExpr = res->registerResult(this->ifExpr());
+        if (res->error)
+            return res;
+        return res->success(ifExpr);
+    }
     return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int, float or an identifier")));
+}
+
+ParseResult* Parser::ifExpr(){
+    auto res = new ParseResult();
+    std::vector<std::pair<astNode*, astNode*>> cases;
+    astNode* elseCase = nullptr;
+    Token* tok;
+
+    if (tokens[tokIndex].value != "if"){
+        tok = &tokens[tokIndex];
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'if'"));
+    }
+
+    res->registerAdvancement();
+    advance();
+
+    auto condition = res->registerResult(expr());
+    if (res->error)
+        return res;
+
+    if (tokens[tokIndex].value != "then"){
+        tok = &tokens[tokIndex];
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'then'"));
+    }
+
+    res->registerAdvancement();
+    advance();
+
+    auto expr = res->registerResult(this->expr());
+    if (res->error)
+        return res;
+    cases.push_back(std::make_pair(condition, expr));
+
+    while (tokens[tokIndex].value == "elif"){
+        res->registerAdvancement();
+        advance();
+
+        auto condition = res->registerResult(this->expr());
+        if (res->error)
+            return res;
+
+        if (tokens[tokIndex].value != "then"){
+            tok = &tokens[tokIndex];
+            return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'then'"));
+        }
+
+        res->registerAdvancement();
+        advance();
+
+        auto expr = res->registerResult(this->expr());
+        if (res->error)
+            return res;
+        cases.push_back(std::make_pair(condition, expr));
+    }
+
+    if (tokens[tokIndex].value == "else"){
+        res->registerAdvancement();
+        advance();
+
+        elseCase = res->registerResult(this->expr());
+        if (res->error)
+            return res;
+    }
+    return res->success((astNode*)new IfNode(cases, elseCase));
+
 }
 
 ParseResult* Parser::power(){
@@ -165,7 +236,7 @@ ParseResult* Parser::expr(){
     astNode* right;
     
     opToken = &tokens[tokIndex];
-    if (opToken->type == EOL || opToken->type == EOF_)
+    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else")
         return res->success(left);
     res->registerAdvancement();
     advance();

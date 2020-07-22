@@ -15,3 +15,6 @@ power       : atom (POW factor)*
 
 atom        : IDENTIFIER|INT|FLOAT
             | LEFTPARENTHESIS expr RIGHTPARENTHESIS
+            | Keyword:if expr Keyword:then expr
+              (Keyword:elif expr Keyword:then expr)*
+              (Keyword:else expr Keyword:then expr)?

@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
                         std::cout << ((RuntimeError*)res.second)->toString();
                     else
                         std::cout << res.second->toString() << std::endl;
-                else
+                else if (res.first)
                     std::cout << "= " << res.first->value << std::endl;
             }
         else if(opt == "-h" || opt == "-hjälp")

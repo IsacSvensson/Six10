@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class Position{
 public:
@@ -41,6 +42,7 @@ enum Type : short{
     UNARYOP,
     // Misc Nodes
     VARACCESSNODE,
+    IFSTATMENT,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done
@@ -167,3 +169,14 @@ public:
     VarAssignNode(Token* varNameTok, astNode* nodeVal) : nodeType(ASSIGNMENTOP), left(nodeVal), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(varNameTok) {};
 };
 
+class IfNode : public astNode{
+public:
+    std::vector<std::pair<astNode*, astNode*>> cases;
+    astNode* elseCase;
+    IfNode(std::vector<std::pair<astNode*, astNode*>> c, astNode* eC) : cases(c), elseCase(eC), astNode(IFSTATMENT) {this->posStart = cases[0].first->posStart;
+                                                                                                                        if (elseCase)
+                                                                                                                            this->posEnd = elseCase->posEnd;
+                                                                                                                        else
+                                                                                                                            this->posEnd = cases[cases.size()-1].first->posEnd;
+                                                                                                                        };
+};

@@ -29,6 +29,7 @@ private:
     ParseResult* arithmExpr();
     ParseResult* compExpr();
     ParseResult* expr();
+    ParseResult* ifExpr();
 public:
     Parser(std::vector<Token> tokens) : tokens(tokens) {};
     ParseResult* parse();

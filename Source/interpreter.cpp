@@ -28,6 +28,9 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     case VARACCESSNODE:
         return visitVarAccessNode(node, context);
         break;
+    case IFSTATMENT:
+        return visitIfNode(node, context);
+        break;
     default:
         break;
     }
@@ -130,11 +133,15 @@ RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
 RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
     auto name = ((VarAccessNode*)node)->varNameTok->value;
-    auto value = new Number(context->symTab->get(name));
-    value->setPos(node->posStart, node->posEnd);
+    auto content = context->symTab->get(name);
+    Number* value = nullptr;
+    if (content){
+        value = new Number(content);
+        value->setPos(node->posStart, node->posEnd);
+    }
 
     if (!value)
-        res->failure((Error*)new RuntimeError(node->posEnd->filename ,*node->posStart, *node->posEnd, ("'" + name + "' is not defined"), context));
+        return res->failure((Error*)new RuntimeError(node->posEnd->filename ,*node->posStart, *node->posEnd, ("'" + name + "' is not defined"), context));
     
     return res->success(value);
 }
@@ -149,6 +156,28 @@ RuntimeResult* Interpreter::visitVarAssignNode(astNode* node, Context* context){
     
     context->symTab->set(name, value);
     return res->success(value);
+}
+
+RuntimeResult* Interpreter::visitIfNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    
+    for (std::pair<astNode*, astNode*>& ifCase : ((IfNode*)node)->cases){
+        auto conditionValue = res->registerResult(visit(ifCase.first, context));
+        if (res->error) return res;
+
+        if (conditionValue->isTrue()){
+            auto exprValue = res->registerResult(visit(ifCase.second, context));
+            if (res->error) return res;
+            return res->success(exprValue);
+        }
+    }
+
+    if (((IfNode*)node)->elseCase){
+        auto elseValue = res->registerResult(visit(((IfNode*)node)->elseCase, context));
+        if (res->error) return res;
+        return res->success(elseValue);
+    }
+    return res->success(nullptr);
 }
 
 Number* Number::setPos(Position* start, Position* end) {
@@ -196,8 +225,10 @@ Number* RuntimeResult::registerResult(RuntimeResult* res){
     return res->value;
 }
 RuntimeResult* RuntimeResult::success(Number* value){
+    if (value){
     this->value = value;
     this->type = value->type;
+    }
     return this;
 }
 RuntimeResult* RuntimeResult::failure(Error* error){
@@ -353,4 +384,8 @@ std::pair<Number*, Error*> Number::logicalOr(Number* other){
 std::pair<Number*, Error*> Number::logicalNot(){
     double val = !value;
     return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+}
+
+bool Number::isTrue(){
+    return value != 0;
 }

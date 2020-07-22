@@ -34,6 +34,7 @@ public:
     std::pair<Number*, Error*> logicalAnd(Number* other);
     std::pair<Number*, Error*> logicalOr(Number* other);
     std::pair<Number*, Error*> logicalNot();
+    bool isTrue();
 };
 
 class SymNode{
@@ -142,6 +143,7 @@ public:
     RuntimeResult* visitUnNode(astNode* node, Context* context);
     RuntimeResult* visitVarAccessNode(astNode* node, Context* context);
     RuntimeResult* visitVarAssignNode(astNode* node, Context* context);
+    RuntimeResult* visitIfNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
 };
 
