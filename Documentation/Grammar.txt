@@ -15,6 +15,15 @@ power       : atom (POW factor)*
 
 atom        : IDENTIFIER|INT|FLOAT
             | LEFTPARENTHESIS expr RIGHTPARENTHESIS
-            | Keyword:if expr Keyword:then expr
+            | if-expr
+            | for-expr
+            | while-expr
+
+if-expr     : Keyword:if expr Keyword:then expr
               (Keyword:elif expr Keyword:then expr)*
-              (Keyword:else expr Keyword:then expr)?
+              (Keyword:else expr)?
+
+for-expr    : Keyword:for IDENTIFIER ASSIGNMENTOP expr Keyword:to expr
+              (Keyword:step expr)? Keyword:then expr
+
+while-expr  : Keyword:while expr Keyword:then expr  

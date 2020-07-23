@@ -144,6 +144,8 @@ public:
     RuntimeResult* visitVarAccessNode(astNode* node, Context* context);
     RuntimeResult* visitVarAssignNode(astNode* node, Context* context);
     RuntimeResult* visitIfNode(astNode* node, Context* context);
+    RuntimeResult* visitForNode(astNode* node, Context* context);
+    RuntimeResult* visitWhileNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
 };
 

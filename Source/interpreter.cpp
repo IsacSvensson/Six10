@@ -31,6 +31,12 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     case IFSTATMENT:
         return visitIfNode(node, context);
         break;
+    case FORLOOP:
+        return visitForNode(node, context);
+        break;
+    case WHILELOOP:
+        return visitWhileNode(node, context);
+        break;
     default:
         break;
     }
@@ -176,6 +182,56 @@ RuntimeResult* Interpreter::visitIfNode(astNode* node, Context* context){
         auto elseValue = res->registerResult(visit(((IfNode*)node)->elseCase, context));
         if (res->error) return res;
         return res->success(elseValue);
+    }
+    return res->success(nullptr);
+}
+
+RuntimeResult* Interpreter::visitForNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+
+    auto startVal = res->registerResult(visit((((ForNode*)node)->startValueNode), context));
+    if (res->error) return res;
+    auto endVal = res->registerResult(visit((((ForNode*)node)->endValueNode), context));
+    if (res->error) return res;
+
+    Number* stepVal = nullptr;
+    if (((ForNode*)node)->stepValueNode){
+        stepVal = res->registerResult(visit((((ForNode*)node)->stepValueNode), context));
+        if (res->error) return res;
+    }
+    else
+        stepVal = new Number(1);
+    
+    double i = startVal->value;
+
+    if (stepVal->value <= 0)
+        while (i > endVal->value){
+            context->symTab->set(((ForNode*)node)->varNameTok.value, new Number(i));
+            i += stepVal->value;
+
+            res->registerResult(visit(((ForNode*)node)->bodyNode, context));
+            if (res->error) return res;
+        }
+    else
+        while (i < endVal->value){
+            context->symTab->set(((ForNode*)node)->varNameTok.value, new Number(i));
+            i += stepVal->value;
+
+            res->registerResult(visit(((ForNode*)node)->bodyNode, context));
+            if (res->error) return res;
+        }
+    return res->success(nullptr);
+}
+
+RuntimeResult* Interpreter::visitWhileNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    while (true)
+    {
+        auto condition = res->registerResult(visit(((WhileNode*)node)->conditionNode, context));
+        if (!condition->isTrue()) break;
+
+        res->registerResult(visit(((WhileNode*)node)->bodyNode, context));
+        if (res->error) return res;
     }
     return res->success(nullptr);
 }

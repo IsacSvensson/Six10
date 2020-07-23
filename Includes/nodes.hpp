@@ -43,6 +43,8 @@ enum Type : short{
     // Misc Nodes
     VARACCESSNODE,
     IFSTATMENT,
+    FORLOOP,
+    WHILELOOP,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done
@@ -179,4 +181,23 @@ public:
                                                                                                                         else
                                                                                                                             this->posEnd = cases[cases.size()-1].first->posEnd;
                                                                                                                         };
+};
+
+class ForNode : public astNode{
+public:
+    Token varNameTok;
+    astNode* startValueNode;
+    astNode* endValueNode;
+    astNode* stepValueNode;
+    astNode* bodyNode;
+    ForNode(Token tok, astNode* start, astNode* end, astNode* step, astNode* body) : varNameTok(tok), startValueNode(start), endValueNode(end), stepValueNode(step), bodyNode(body), astNode(FORLOOP) {
+        posStart = varNameTok.posStart; posEnd = bodyNode->posEnd;
+    };
+};
+
+class WhileNode : public astNode{
+public:
+    astNode* conditionNode;
+    astNode* bodyNode;
+    WhileNode(astNode* condition, astNode* body) : conditionNode(condition), bodyNode(body), astNode(WHILELOOP) {posStart = condition->posStart; posEnd = bodyNode->posEnd;};
 };

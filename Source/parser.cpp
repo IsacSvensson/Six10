@@ -46,7 +46,109 @@ ParseResult* Parser::atom(){
             return res;
         return res->success(ifExpr);
     }
+    else if (tok->value == "for"){
+        auto forExpr = res->registerResult(this->forExpr());
+        if (res->error)
+            return res;
+        return res->success(forExpr);
+    }
+    else if (tok->value == "while"){
+        auto whileExpr = res->registerResult(this->whileExpr());
+        if (res->error)
+            return res;
+        return res->success(whileExpr);
+    }
     return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int, float or an identifier")));
+}
+
+ParseResult* Parser::forExpr(){
+    auto res = new ParseResult();
+    Token* tok = &tokens[tokIndex];
+
+    if (tok->value != "for"){
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'for'"));
+    }
+
+    res->registerAdvancement();
+    advance();
+    if (tokIndex < tokens.size()) tok++;
+
+    if (tok->type != IDENTIFIER)
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected identifier"));
+    
+    auto varName = tok;
+    res->registerAdvancement();
+    advance();
+    if (tokIndex < tokens.size()) tok++;
+
+    if (tok->value != "=")
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '='"));
+    
+    res->registerAdvancement();
+    advance();
+    if (tokIndex < tokens.size()) tok++;
+
+    auto startVal = res->registerResult(expr());
+    if (res->error) return res;
+
+    res->registerAdvancement();
+    advance();
+    if (tokIndex < tokens.size()) tok++;
+
+
+    if (tok->value != "to")
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected to"));
+
+    auto endVal = res->registerResult(expr());
+    if (res->error) return res;
+
+    astNode* stepVal = nullptr;
+    if (tok->value == "step"){
+        res->registerAdvancement();
+        advance();
+        if (tokIndex < tokens.size()) tok++;
+
+        stepVal = res->registerResult(expr());
+        if (res->error) return res;
+    }
+    tok = &tokens[tokIndex];
+    if (tok->value != "then")
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'then'"));
+
+    res->registerAdvancement();
+    advance();
+    if (tokIndex < tokens.size()) tok++;
+
+    auto body = res->registerResult(expr());
+    if (res->error) return res;
+
+    return res->success((astNode*)new ForNode(*varName, startVal, endVal, stepVal, body));
+}
+
+ParseResult* Parser::whileExpr(){
+    auto res = new ParseResult();
+    Token* tok = &tokens[tokIndex];
+
+    if (tok->value != "while")
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'while'"));
+    
+    res->registerAdvancement();
+    advance();
+
+    auto condition = res->registerResult(expr());
+    if (res->error) return res;
+    tok = &tokens[tokIndex];
+
+    if (tok->value != "then")
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'then'"));
+    
+    res->registerAdvancement();
+    advance();
+
+    auto body = res->registerResult(expr());
+    if (res->error) return res;
+
+    return res->success((astNode*)new WhileNode(condition, body)); 
 }
 
 ParseResult* Parser::ifExpr(){
@@ -236,7 +338,7 @@ ParseResult* Parser::expr(){
     astNode* right;
     
     opToken = &tokens[tokIndex];
-    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else")
+    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then")
         return res->success(left);
     res->registerAdvancement();
     advance();

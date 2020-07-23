@@ -30,6 +30,8 @@ private:
     ParseResult* compExpr();
     ParseResult* expr();
     ParseResult* ifExpr();
+    ParseResult* forExpr();
+    ParseResult* whileExpr();
 public:
     Parser(std::vector<Token> tokens) : tokens(tokens) {};
     ParseResult* parse();
