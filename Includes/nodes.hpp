@@ -146,7 +146,7 @@ public:
     Position* posStart;
     Position* posEnd;
     Token* op;
-    UnOpNode(Type nodeType, astNode* node, Token* op) : nodeType(nodeType), left(node), posStart(op->posStart), posEnd(op->posEnd), op(op) {};
+    UnOpNode(Type nodeType, astNode* node, Token* op) : nodeType(nodeType), left(node), posStart(op->posStart), posEnd(op->posEnd), op(new Token(*op)) {};
 };
 
 class VarAccessNode{

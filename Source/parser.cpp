@@ -300,7 +300,7 @@ ParseResult* Parser::compExpr(){
         auto node = res->registerResult(compExpr());
         if (res->error)
             return res;
-        return res->success((astNode*)new UnOpNode(UNARYOP, node, &tokens[tokIndex]));
+        return res->success((astNode*)new UnOpNode(UNARYOP, node, &opToken));
         }
     auto node = res->registerResult(arithmExpr());
     if (res->error)

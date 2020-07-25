@@ -111,7 +111,7 @@ RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
     auto number = res->registerResult(visit(((UnOpNode*)node)->left, context));
     if (res->error)
         return res;
-    if (((UnOpNode*)node)->op->value.compare("not"))
+    if (((UnOpNode*)node)->op->value == "not" || ((UnOpNode*)node)->op->value == "!")
     {
         toRet = number->logicalNot();
         if (toRet.second)
