@@ -34,7 +34,7 @@ std::string stringWithArrows(std::string text, Position* start, Position* end){
     return result;
 }
 
-std::string keywords[15]{"var", "and", "or", "not", "for", "to", "while", "in", "if", "elif", "else", "then", "is", "equal", "step"};
+std::string keywords[16]{"var", "and", "or", "not", "for", "to", "while", "in", "if", "elif", "else", "then", "is", "equal", "step", "def"};
 std::string datatypes[5]{"int", "float", "bool", "char", "str"};
 std::string assignmentOperators[7]{"=", "+=", "-=", "*=", "/=", "%=", "->"};
 std::string arithmeticOperators[9]{"+", "-", "/", "*", "^", "%", "**", "++", "--"};

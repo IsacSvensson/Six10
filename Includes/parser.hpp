@@ -23,6 +23,7 @@ private:
     std::size_t tokIndex = 0;
     Token* advance();
     ParseResult* atom();
+    ParseResult* call();
     ParseResult* power();
     ParseResult* factor();
     ParseResult* term();
@@ -32,6 +33,7 @@ private:
     ParseResult* ifExpr();
     ParseResult* forExpr();
     ParseResult* whileExpr();
+    ParseResult* funcDef();
 public:
     Parser(std::vector<Token> tokens) : tokens(tokens) {};
     ParseResult* parse();

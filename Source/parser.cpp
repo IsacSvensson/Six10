@@ -8,6 +8,50 @@ Token* Parser::advance(){
     return nullptr;
 }
 
+ParseResult* Parser::call(){
+    auto res = new ParseResult();
+    Token* tok = &tokens[tokIndex];
+    auto atom = res->registerResult(this->atom());
+    if (res->error) return res;
+
+    std::vector<astNode*> argNodes;
+    if (tok->value == "("){
+        res->registerAdvancement();
+        advance();
+        tok++;
+
+        if(tok->value == ")"){
+            res->registerAdvancement();
+            advance();
+            tok++;
+        }
+        else
+        {
+            argNodes.push_back(res->registerResult(expr()));
+            if (res->error)
+                return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posEnd->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd,
+                "'+', '-', var, int, for, while, def, float or an identifier")));
+            tok = &tokens[tokIndex];
+            while(tok->value == ","){
+                res->registerAdvancement();
+                advance();
+                tok++;
+
+                argNodes.push_back(res->registerResult(expr()));
+                if (res->error) return res;
+            }
+            if (tok->value != ")")
+                return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ',' or ')'")));
+
+            res->registerAdvancement();
+            advance();
+            tok++;
+        }
+    return res->success((astNode*)new CallNode(atom, argNodes));
+    }
+    return res->success(atom);
+}
+
 ParseResult* Parser::atom(){
     auto res = new ParseResult();
     Token* tok = &tokens[tokIndex];
@@ -58,7 +102,89 @@ ParseResult* Parser::atom(){
             return res;
         return res->success(whileExpr);
     }
+    else if (tok->value == "def"){
+        auto funcDef = res->registerResult(this->funcDef());
+        if (res->error)
+            return res;
+        return res->success(funcDef);
+    }
     return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '+', '-', int, float or an identifier")));
+}
+
+ParseResult* Parser::funcDef(){
+    auto res = new ParseResult();
+    Token* tok = &tokens[tokIndex];
+
+    if (tok->value != "def"){
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected 'def'"));
+    }
+
+    res->registerAdvancement();
+    advance();
+    tok++;
+
+    Token* varNameTok = nullptr;
+    if (tok->type == IDENTIFIER){
+        varNameTok = tok;
+        res->registerAdvancement();
+        advance();
+        tok++;
+        if (tok->value != "(")
+            return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '('"));
+    }
+    else
+        if (tok->value != "(")
+            return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected an identifier or '('"));
+
+    res->registerAdvancement();
+    advance();
+    tok++;
+
+    std::vector<Token> argNameToks;
+
+    if (tok->type == IDENTIFIER){
+        argNameToks.push_back(*tok);
+        res->registerAdvancement();
+        advance();
+        tok++;
+
+        while (tok->value == ",")
+        {
+            res->registerAdvancement();
+            advance();
+            tok++;
+
+            if (tok->type != IDENTIFIER)
+                return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected identifier"));
+            
+            argNameToks.push_back(*tok);
+            res->registerAdvancement();
+            advance();
+            tok++;
+        }
+        if (tok->value != ")")
+            return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ',' or ')'"));
+    }
+    else
+    {
+        if (tok->value != ")")
+            return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected identifier or ')'"));
+    }
+    res->registerAdvancement();
+    advance();
+    tok++;
+
+    if (tok->value != "->"){
+        return res->failure((Error*)new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected '->'"));
+    }
+    res->registerAdvancement();
+    advance();
+    tok++;
+
+    auto nodeToReturn = res->registerResult(expr());
+    if (res->error) return res;
+
+    return res->success((astNode*)new FuncDefNode(varNameTok, argNameToks, nodeToReturn));
 }
 
 ParseResult* Parser::forExpr(){
@@ -218,7 +344,7 @@ ParseResult* Parser::ifExpr(){
 
 ParseResult* Parser::power(){
     auto res = new ParseResult();
-    auto left = res->registerResult(atom());
+    auto left = res->registerResult(call());
     if (res->error)
         return res;
     Token* opToken;

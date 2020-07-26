@@ -45,6 +45,8 @@ enum Type : short{
     IFSTATMENT,
     FORLOOP,
     WHILELOOP,
+    FUNCDEF,
+    FUNCCALL,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done
@@ -200,4 +202,28 @@ public:
     astNode* conditionNode;
     astNode* bodyNode;
     WhileNode(astNode* condition, astNode* body) : conditionNode(condition), bodyNode(body), astNode(WHILELOOP) {posStart = condition->posStart; posEnd = bodyNode->posEnd;};
+};
+
+class FuncDefNode : public astNode{
+public:
+    Token* varNameTok;
+    std::vector<Token> argNameToks;
+    astNode* bodyNode;
+    FuncDefNode(Token *vnt, std::vector<Token> ant, astNode* bn) : varNameTok(vnt), argNameToks(ant), bodyNode(bn), astNode(FUNCDEF) {
+        if (varNameTok) posStart = varNameTok->posStart;
+        else if (argNameToks.size()) posStart = argNameToks[0].posStart;
+        else posStart = bodyNode->posStart;
+        posEnd = bodyNode->posEnd;
+    };
+};
+
+class CallNode : public astNode{
+public:
+    astNode* nodeToCall;
+    std::vector<astNode*> argNodes;
+    CallNode(astNode* ntc, std::vector<astNode*> an) : nodeToCall(ntc), argNodes(an), astNode(FUNCCALL) {
+        posStart = nodeToCall->posStart;
+        if (argNodes.size()) posEnd = argNodes[argNodes.size()-1]->posEnd;
+        else posEnd = nodeToCall->posEnd;
+    };
 };

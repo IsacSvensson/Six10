@@ -11,13 +11,16 @@ term        : factor ((MUL|DIV) factor)*
 factor      : (PLUS|MINUS) factor
             | power
 
-power       : atom (POW factor)*
+power       : call (POW factor)*
+
+call        : atom (LEFTPARENTHESIS (expr (COMMA expr)*) RIGHTPARENTHESIS)?
 
 atom        : IDENTIFIER|INT|FLOAT
             | LEFTPARENTHESIS expr RIGHTPARENTHESIS
             | if-expr
             | for-expr
             | while-expr
+            | func-def
 
 if-expr     : Keyword:if expr Keyword:then expr
               (Keyword:elif expr Keyword:then expr)*
@@ -27,3 +30,7 @@ for-expr    : Keyword:for IDENTIFIER ASSIGNMENTOP expr Keyword:to expr
               (Keyword:step expr)? Keyword:then expr
 
 while-expr  : Keyword:while expr Keyword:then expr  
+
+func-def    : Keyword:def IDENTIFIER? LEFTPARENTHESIS 
+              (IDENTIFIER (COMMA IDENTIFIER)*)? RIGHTPARENTHESIS
+              ARROW expr
