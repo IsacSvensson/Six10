@@ -37,6 +37,12 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     case WHILELOOP:
         return visitWhileNode(node, context);
         break;
+    case FUNCDEF:
+        return visitFuncDefNode(node, context);
+        break;
+    case FUNCCALL:
+        return visitCallNode(node, context);
+        break;
     default:
         break;
     }
@@ -68,7 +74,7 @@ RuntimeResult* Interpreter::visitBinNode(astNode* node, Context* context){
     auto right = res->registerResult(visit(node->right, context));
     if (res->error)
         return res;
-    std::pair<Number*, Error*> result;
+    std::pair<Value*, Error*> result;
 
     if (((binOpNode*)node)->op->value == "+")
         result = left->addedTo(right);
@@ -107,7 +113,7 @@ RuntimeResult* Interpreter::visitBinNode(astNode* node, Context* context){
 
 RuntimeResult*  Interpreter::visitUnNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
-    std::pair<Number*, Error*> toRet;
+    std::pair<Value*, Error*> toRet;
     auto number = res->registerResult(visit(((UnOpNode*)node)->left, context));
     if (res->error)
         return res;
@@ -140,9 +146,14 @@ RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
     auto name = ((VarAccessNode*)node)->varNameTok->value;
     auto content = context->symTab->get(name);
-    Number* value = nullptr;
-    if (content){
-        value = new Number(content);
+    Value* value = nullptr;
+    if (content && (content->type == INTEGER || content->type == FLOAT)){
+        value = new Number((Number*)content);
+        value->setPos(node->posStart, node->posEnd);
+    }
+
+    if (content && (content->type == FUNCDEF)){
+        value = copyValue(content);
         value->setPos(node->posStart, node->posEnd);
     }
 
@@ -189,14 +200,14 @@ RuntimeResult* Interpreter::visitIfNode(astNode* node, Context* context){
 RuntimeResult* Interpreter::visitForNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
 
-    auto startVal = res->registerResult(visit((((ForNode*)node)->startValueNode), context));
+    auto startVal = (Number*)res->registerResult(visit((((ForNode*)node)->startValueNode), context));
     if (res->error) return res;
-    auto endVal = res->registerResult(visit((((ForNode*)node)->endValueNode), context));
+    auto endVal = (Number*)res->registerResult(visit((((ForNode*)node)->endValueNode), context));
     if (res->error) return res;
 
     Number* stepVal = nullptr;
     if (((ForNode*)node)->stepValueNode){
-        stepVal = res->registerResult(visit((((ForNode*)node)->stepValueNode), context));
+        stepVal = (Number*)res->registerResult(visit((((ForNode*)node)->stepValueNode), context));
         if (res->error) return res;
     }
     else
@@ -236,51 +247,104 @@ RuntimeResult* Interpreter::visitWhileNode(astNode* node, Context* context){
     return res->success(nullptr);
 }
 
-Number* Number::setPos(Position* start, Position* end) {
+RuntimeResult* Interpreter::visitFuncDefNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    std::string funcName = ((FuncDefNode*)node)->varNameTok->value;
+    astNode* bodyNode = ((FuncDefNode*)node)->bodyNode;
+    std::vector<std::string> argNames;
+
+    for (int i = 0; i < ((FuncDefNode*)node)->argNameToks.size(); i++){
+        argNames.push_back(((FuncDefNode*)node)->argNameToks[i].value);
+    }
+    Function* funcValue = new Function(funcName, bodyNode, argNames);
+    funcValue->setContext(context)->setPos(node->posStart, node->posEnd);
+
+    if (((FuncDefNode*)node)->varNameTok)
+        context->symTab->set(funcName, funcValue);
+
+    return res->success(funcValue);
+}
+
+RuntimeResult* Interpreter::visitCallNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    std::vector<Value*> args;
+    
+    auto valueToCall = res->registerResult(visit(((CallNode*)node)->nodeToCall, context));
+    if (res->error) return res;
+
+    valueToCall = copyValue(valueToCall)->setPos(node->posStart, node->posEnd);
+
+    for (int i = 0; i < ((CallNode*)node)->argNodes.size(); i++){
+        args.push_back(res->registerResult(visit(((CallNode*)node)->argNodes[i], context)));
+        if (res->error) return res;
+    }
+
+    auto returnVal = res->registerResult(((Function*)valueToCall)->execute(args));
+    if (res->error) return res;
+
+    return res->success(returnVal);
+}
+
+Value* Value::setPos(Position* start, Position* end) {
         posStart = start;
         posEnd = end;
         return this;
     }
-std::pair<Number*, Error*> Number::addedTo(Number* other) {
-    double val = value + other->value;
-    if (this->type == FLOAT || other->type == FLOAT)
+std::pair<Value*, Error*> Value::addedTo(Value* other) {
+    if ((other->type == INTEGER || other->type == FLOAT)&&(this->type == INTEGER || this->type == FLOAT)){
+        double val = ((Number*)this)->value + ((Number*)other)->value;
+        if (this->type == FLOAT || other->type == FLOAT)
+            return std::make_pair(((Value*)new Number(val, FLOAT))->setContext(this->context), nullptr);
+        return std::make_pair(((Value*)new Number(int(val)))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));;
+}
+std::pair<Value*, Error*> Value::subtractedBy(Value* other) {
+    if ((other->type == INTEGER || other->type == FLOAT)&&(this->type == INTEGER || this->type == FLOAT)){
+        double val = ((Number*)this)->value - ((Number*)other)->value;
+        if (this->type == FLOAT || other->type == FLOAT)
+            return std::make_pair(((Value*)new Number(val, FLOAT))->setContext(this->context), nullptr);
+        return std::make_pair(((Value*)new Number(int(val)))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));;
+}
+std::pair<Value*, Error*> Value::multipliedby(Value* other) {
+    if ((other->type == INTEGER || other->type == FLOAT)&&(this->type == INTEGER || this->type == FLOAT)){
+        double val = ((Number*)this)->value * ((Number*)other)->value;
+        if (this->type == FLOAT || other->type == FLOAT)
+            return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
+        return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));;
+}
+std::pair<Value*, Error*> Value::dividedby(Value* other) {
+    if ((other->type == INTEGER || other->type == FLOAT)&&(this->type == INTEGER || this->type == FLOAT)){
+        double val = ((Number*)this)->value / ((Number*)other)->value;
+        if (((Number*)other)->value == 0)
+            return std::make_pair(nullptr, (Error*)(new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Division by zero", context)));
         return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
-    return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));;
 }
-std::pair<Number*, Error*> Number::subtractedBy(Number* other) {
-    double val = value - other->value;
-    if (this->type == FLOAT || other->type == FLOAT)
+std::pair<Value*, Error*> Value::powedby(Value* other) {
+    if ((other->type == INTEGER || other->type == FLOAT)&&(this->type == INTEGER || this->type == FLOAT)){
+        double val = pow(((Number*)this)->value, ((Number*)other)->value);
         return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
-    return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
-}
-std::pair<Number*, Error*> Number::multipliedby(Number* other) {
-    double val = value * other->value;
-    if (this->type == FLOAT || other->type == FLOAT)
-        return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
-    return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
-}
-std::pair<Number*, Error*> Number::dividedby(Number* other) {
-    double val = value / other->value;
-    if (other->value == 0)
-        return std::make_pair(nullptr, (Error*)(new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Division by zero", context)));
-    return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
-}
-std::pair<Number*, Error*> Number::powedby(Number* other) {
-    double val = pow(value, other->value);
-    return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));;
 }
 
-Number* Number::setContext(Context* context = nullptr){
+Value* Value::setContext(Context* context = nullptr){
     this->context = context;
     return this;
 }
 
-Number* RuntimeResult::registerResult(RuntimeResult* res){
+Value* RuntimeResult::registerResult(RuntimeResult* res){
     if (res->error)
         error = res->error;
     return res->value;
 }
-RuntimeResult* RuntimeResult::success(Number* value){
+RuntimeResult* RuntimeResult::success(Value* value){
     if (value){
     this->value = value;
     this->type = value->type;
@@ -302,7 +366,7 @@ unsigned int SymbolTable::symHash(std::string id){
     return val%symtab.size();
 }
 
-void SymbolTable::set(std::string id, Number* val){
+void SymbolTable::set(std::string id, Value* val){
     std::size_t index = symHash(id);
     auto atIndex = symtab[index];
     if (atIndex){
@@ -323,14 +387,14 @@ void SymbolTable::set(std::string id, Number* val){
     }
 }
 
-Number* SymbolTable::get(std::string id){
+Value* SymbolTable::get(std::string id){
     std::size_t index = symHash(id);
     auto atIndex = symtab[index];
     if (atIndex){
         while (atIndex->name != id && atIndex->next)
             atIndex = atIndex->next;
         if (atIndex->name == id){
-            return &atIndex->value;
+            return atIndex->value;
         }
         else if (parent)
             return parent->get(id);
@@ -405,43 +469,112 @@ std::string RuntimeError::generateTraceback(){
     return "Traceback (most recent call last):\n" + result;
 }
 
-std::pair<Number*, Error*> Number::getComparisonEQ(Number* other){
-    double val = value == other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::getComparisonEQ(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value == ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::getComparisonNotEq(Number* other){
-    double val = value != other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::getComparisonNotEq(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value != ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::getComparisonLT(Number* other){
-    double val = value < other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::getComparisonLT(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value < ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::getComparisonGT(Number* other){
-    double val = value > other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::getComparisonGT(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value > ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::getComparisonLTE(Number* other){
-    double val = value <= other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::getComparisonLTE(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value <= ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::getComparisonGTE(Number* other){
-    double val = value >= other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::getComparisonGTE(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value >= ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::logicalAnd(Number* other){
-    double val = value && other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::logicalAnd(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value && ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::logicalOr(Number* other){
-    double val = value || other->value;
-    return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+std::pair<Value*, Error*> Value::logicalOr(Value* other){
+    if (other->type == INTEGER || other->type == FLOAT){
+        double val = ((Number*)this)->value || ((Number*)other)->value;
+        return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
+    }
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
-std::pair<Number*, Error*> Number::logicalNot(){
-    double val = !value;
+std::pair<Value*, Error*> Value::logicalNot(){
+    double val = !(((Number*)this)->value);
     return std::make_pair((new Number(val, INTEGER))->setContext(this->context), nullptr);
 }
 
-bool Number::isTrue(){
-    return value != 0;
+bool Value::isTrue(){
+    return ((Number*)this)->value != 0;
+}
+
+Error* Value::IllegalOperation(Value* other){
+    if (!other)
+        other = this;
+    return (Error*)new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Illegal operation", other->context);
+}
+
+RuntimeResult* Function::execute(std::vector<Value*> args){
+    auto res = new RuntimeResult();
+    auto interpreter = new Interpreter();
+    Context* newContext = new Context(name, context, posStart);
+    newContext->symTab = new SymbolTable(100, newContext->parent->symTab);
+
+    if (args.size() > argNames.size())
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, (args.size() - argNames.size() + " too many args into " + name), context));
+    if (args.size() < argNames.size())
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, (argNames.size() - args.size() + " too few args into " + name), context));
+
+    for (int i = 0; i < args.size(); i++){
+        auto argName = argNames[i];
+        auto argValue = args[i];
+        argValue->setContext(newContext);
+        newContext->symTab->set(argName, argValue);
+    }
+    auto value = res->registerResult(interpreter->visit(BodyNode, newContext));
+    if (res->error) return res;
+
+    return res->success(value);
+}
+
+std::ostream& operator<<(std::ostream& os , const Function* func){
+    return os << "<function " + func->name + ">";
+}
+
+Value* copyValue(Value* val){
+    switch (val->type)
+    {
+    case INTEGER: case FLOAT:
+        return new Number(((Number*)val)->value, val->type);
+    case FUNCDEF:
+        return new Function(((Function*)val));
+    default:
+        return nullptr;
+    }
 }

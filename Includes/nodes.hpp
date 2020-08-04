@@ -58,7 +58,7 @@ enum Type : short{
 
 struct Token
 {
-    short type;
+    Type type;
     std::string value;
     Position* posStart;
     Position* posEnd;
@@ -133,7 +133,7 @@ public:
     Position* posStart;
     Position* posEnd;
     Token* op;
-    binOpNode(Type nodeType, astNode* l, Token* op, astNode* r) : nodeType(nodeType), left(l), right(r), posStart(l->posStart), posEnd(r->posEnd), op(op) {};
+    binOpNode(Type nodeType, astNode* l, Token* op, astNode* r) : nodeType(nodeType), left(l), right(r), posStart(l->posStart), posEnd(r->posEnd), op(new Token(*op)) {};
     ~binOpNode() {delete left; delete right; delete op;};
     void doThis(){
     };
@@ -159,7 +159,7 @@ public:
     Position* posStart;
     Position* posEnd;
     Token* varNameTok;
-    VarAccessNode(Token* varNameTok) : nodeType(VARACCESSNODE), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(varNameTok) {};
+    VarAccessNode(Token* varNameTok) : nodeType(VARACCESSNODE), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(new Token(*varNameTok)) {};
 };
 
 class VarAssignNode{
@@ -170,7 +170,7 @@ public:
     Position* posStart;
     Position* posEnd;
     Token* varNameTok;
-    VarAssignNode(Token* varNameTok, astNode* nodeVal) : nodeType(ASSIGNMENTOP), left(nodeVal), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(varNameTok) {};
+    VarAssignNode(Token* varNameTok, astNode* nodeVal) : nodeType(ASSIGNMENTOP), left(nodeVal), posStart(varNameTok->posStart), posEnd(varNameTok->posEnd), varNameTok(new Token(*varNameTok)) {};
 };
 
 class IfNode : public astNode{
@@ -209,7 +209,7 @@ public:
     Token* varNameTok;
     std::vector<Token> argNameToks;
     astNode* bodyNode;
-    FuncDefNode(Token *vnt, std::vector<Token> ant, astNode* bn) : varNameTok(vnt), argNameToks(ant), bodyNode(bn), astNode(FUNCDEF) {
+    FuncDefNode(Token *vnt, std::vector<Token> ant, astNode* bn) : varNameTok(new Token(*vnt)), argNameToks(ant), bodyNode(bn), astNode(FUNCDEF) {
         if (varNameTok) posStart = varNameTok->posStart;
         else if (argNameToks.size()) posStart = argNameToks[0].posStart;
         else posStart = bodyNode->posStart;

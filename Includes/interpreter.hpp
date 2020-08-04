@@ -9,40 +9,58 @@ class astNode;
 class Context;
 class Error;
 
-class Number{
+class Value{
 public:
     Type type;
-    double value;
     Position* posStart;
     Position* posEnd;
     Context* context;
-    Number(double val, Type t = INTEGER) : type(t), value(val) {setPos();};
-    Number(Number* num) : type(num->type), value(num->value), posStart((num->posStart)?new Position(*num->posStart):nullptr), posEnd((num->posEnd)?new Position(*num->posEnd):nullptr) {};
-    Number* setPos(Position* start = nullptr, Position* end = nullptr);
-    Number* setContext(Context* context);
-    std::pair<Number*, Error*> addedTo(Number* other);
-    std::pair<Number*, Error*> subtractedBy(Number* other);
-    std::pair<Number*, Error*> multipliedby(Number* other);
-    std::pair<Number*, Error*> dividedby(Number* other);
-    std::pair<Number*, Error*> powedby(Number* other);
-    std::pair<Number*, Error*> getComparisonEQ(Number* other);
-    std::pair<Number*, Error*> getComparisonNotEq(Number* other);
-    std::pair<Number*, Error*> getComparisonLT(Number* other);
-    std::pair<Number*, Error*> getComparisonGT(Number* other);
-    std::pair<Number*, Error*> getComparisonLTE(Number* other);
-    std::pair<Number*, Error*> getComparisonGTE(Number* other);
-    std::pair<Number*, Error*> logicalAnd(Number* other);
-    std::pair<Number*, Error*> logicalOr(Number* other);
-    std::pair<Number*, Error*> logicalNot();
+    Value(Type t) : type(t) {setPos();};
+    Value(Value* val) : type(val->type), posStart((val->posStart)?new Position(*val->posStart):nullptr), posEnd((val->posEnd)?new Position(*val->posEnd):nullptr), context(val->context) {};
+    Value* setPos(Position* start = nullptr, Position* end = nullptr);
+    Value* setContext(Context* context);
+    std::pair<Value*, Error*> addedTo(Value* other);
+    std::pair<Value*, Error*> subtractedBy(Value* other);
+    std::pair<Value*, Error*> multipliedby(Value* other);
+    std::pair<Value*, Error*> dividedby(Value* other);
+    std::pair<Value*, Error*> powedby(Value* other);
+    std::pair<Value*, Error*> getComparisonEQ(Value* other);
+    std::pair<Value*, Error*> getComparisonNotEq(Value* other);
+    std::pair<Value*, Error*> getComparisonLT(Value* other);
+    std::pair<Value*, Error*> getComparisonGT(Value* other);
+    std::pair<Value*, Error*> getComparisonLTE(Value* other);
+    std::pair<Value*, Error*> getComparisonGTE(Value* other);
+    std::pair<Value*, Error*> logicalAnd(Value* other);
+    std::pair<Value*, Error*> logicalOr(Value* other);
+    std::pair<Value*, Error*> logicalNot();
     bool isTrue();
+    Error* IllegalOperation(Value* other);
+};
+
+class Number : public Value{
+public:
+    double value;
+    Number(double val, Type t = INTEGER) : value(val), Value(t) {setPos();};
+    Number(Number* num) : value(num->value), Value(num) {};
+};
+
+class Function : public Value{
+public:
+    std::string name;
+    astNode* BodyNode;
+    std::vector<std::string> argNames;
+    Function(std::string name, astNode* body, std::vector<std::string> argNames) : name(name), BodyNode(body), argNames(argNames), Value(FUNCDEF) {setPos();};
+    Function(Function* fun) : name(fun->name), BodyNode(fun->BodyNode), argNames(fun->argNames), Value(fun) {setPos();};
+    RuntimeResult* execute(std::vector<Value*> argNames);
+    friend std::ostream& operator<<(std::ostream& os , const Function* func);
 };
 
 class SymNode{
 public:
     std::string name;
-    Number value;
+    Value* value;
     SymNode* next;
-    SymNode(std::string id, Number* val) : name(id), value(val), next(nullptr) {};
+    SymNode(std::string id, Value* val) : name(id), value(val), next(nullptr) {};
 };
 
 class SymbolTable{
@@ -51,8 +69,8 @@ public:
     std::size_t numOfSyms; // for when I have time to implement dynamic size tables
     SymbolTable* parent;
     unsigned int symHash(std::string id);
-    Number* get(std::string id);
-    void set(std::string id, Number* val);
+    Value* get(std::string id);
+    void set(std::string id, Value* val);
     SymbolTable(std::size_t tableSize, SymbolTable* parent = nullptr) 
         {for (std::size_t i = 0; i < tableSize; i++) symtab.push_back(nullptr); this->parent = parent; numOfSyms = 0;}
     ~SymbolTable() {
@@ -146,16 +164,21 @@ public:
     RuntimeResult* visitIfNode(astNode* node, Context* context);
     RuntimeResult* visitForNode(astNode* node, Context* context);
     RuntimeResult* visitWhileNode(astNode* node, Context* context);
+    RuntimeResult* visitFuncDefNode(astNode* node, Context* context);
+    RuntimeResult* visitCallNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
+    Interpreter() : node(nullptr) {};
 };
 
 class RuntimeResult{
 public:
     Type type;
-    Number* value;
+    Value* value;
     Error* error;
     RuntimeResult() : type(INVALID), value(nullptr), error(nullptr) {};
-    Number* registerResult(RuntimeResult* value);
-    RuntimeResult* success(Number* value);
+    Value* registerResult(RuntimeResult* value);
+    RuntimeResult* success(Value* value);
     RuntimeResult* failure(Error* error);
 };
+
+Value* copyValue(Value* val);

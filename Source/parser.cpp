@@ -12,6 +12,7 @@ ParseResult* Parser::call(){
     auto res = new ParseResult();
     Token* tok = &tokens[tokIndex];
     auto atom = res->registerResult(this->atom());
+    tok++;
     if (res->error) return res;
 
     std::vector<astNode*> argNodes;
@@ -39,6 +40,7 @@ ParseResult* Parser::call(){
 
                 argNodes.push_back(res->registerResult(expr()));
                 if (res->error) return res;
+                tok = &tokens[tokIndex];
             }
             if (tok->value != ")")
                 return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ',' or ')'")));
@@ -464,7 +466,7 @@ ParseResult* Parser::expr(){
     astNode* right;
     
     opToken = &tokens[tokIndex];
-    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then")
+    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then" || opToken->value == "," || opToken->value == ")")
         return res->success(left);
     res->registerAdvancement();
     advance();

@@ -18,7 +18,7 @@ void getSourceCode(std::string path, std::string &sourceCode){
 
 static SymbolTable globalSymTab(100);
 
-std::pair<Number*, Error*> run(std::string code, std::string fn){
+std::pair<Value*, Error*> run(std::string code, std::string fn){
     
     
     Lexer lex(code, fn);
@@ -64,7 +64,8 @@ int main(int argc, char* argv[]){
                     else
                         std::cout << res.second->toString() << std::endl;
                 else if (res.first)
-                    std::cout << "= " << res.first->value << std::endl;
+                    if (res.first->type == INTEGER || res.first->type == FLOAT)
+                        std::cout << "= " << ((Number*)res.first)->value << std::endl;
             }
         else if(opt == "-h" || opt == "-hjälp")
         {
