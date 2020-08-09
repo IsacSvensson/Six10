@@ -8,8 +8,8 @@ DELETE := del
 CPP := g++
 CPPFLAGS := -g -std=c++17
 
-$(EXECUTABLE): $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o
-	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o -o $(EXECUTABLE)
+$(EXECUTABLE): $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o $(BUILD)test.o
+	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o $(BUILD)test.o -o $(EXECUTABLE)
 
 $(BUILD)main.o: $(SOURCE)main.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)main.cpp -I$(INCLUDES) -o $(BUILD)main.o
@@ -25,6 +25,9 @@ $(BUILD)helpers.o: $(SOURCE)helpers.cpp
 
 $(BUILD)interpreter.o: $(SOURCE)interpreter.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)interpreter.cpp -I$(INCLUDES) -o $(BUILD)interpreter.o
+
+$(BUILD)test.o: $(SOURCE)test.cpp
+	$(CPP) $(CPPFLAGS) -c $(SOURCE)test.cpp -I$(INCLUDES) -o $(BUILD)test.o
 
 clean:
 	-$(DELETE) $(EXECUTABLE)

@@ -3,6 +3,7 @@
 #include "interpreter.hpp"
 #include "nodes.hpp"
 #include "parser.hpp"
+#include "test.hpp"
 #include <fstream>
 
 void getSourceCode(std::string path, std::string &sourceCode){
@@ -19,8 +20,6 @@ void getSourceCode(std::string path, std::string &sourceCode){
 static SymbolTable globalSymTab(100);
 
 std::pair<Value*, Error*> run(std::string code, std::string fn){
-    
-    
     Lexer lex(code, fn);
     auto tokens = lex.makeTokens();
 
@@ -66,7 +65,8 @@ int main(int argc, char* argv[]){
                 else if (res.first)
                     if (res.first->type == INTEGER || res.first->type == FLOAT)
                         std::cout << "= " << ((Number*)res.first)->value << std::endl;
-            }
+        } else if (opt == "-test")
+            testAllFunc();
         else if(opt == "-h" || opt == "-hjälp")
         {
             std::cout << "\nOptions:\n----------------------------------------------------------------\n" 

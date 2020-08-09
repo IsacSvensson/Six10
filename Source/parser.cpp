@@ -12,7 +12,7 @@ ParseResult* Parser::call(){
     auto res = new ParseResult();
     Token* tok = &tokens[tokIndex];
     auto atom = res->registerResult(this->atom());
-    tok++;
+    tok = &tokens[tokIndex];
     if (res->error) return res;
 
     std::vector<astNode*> argNodes;
