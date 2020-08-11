@@ -231,7 +231,7 @@ ParseResult* Parser::forExpr(){
     if (res->error) return res;
 
     astNode* stepVal = nullptr;
-    if (tok->value == "step"){
+    if (tokens[tokIndex].value == "step"){
         res->registerAdvancement();
         advance();
         if (tokIndex < tokens.size()) tok++;
@@ -466,7 +466,7 @@ ParseResult* Parser::expr(){
     astNode* right;
     
     opToken = &tokens[tokIndex];
-    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then" || opToken->value == "," || opToken->value == ")")
+    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then" || opToken->value == "step" || opToken->value == "," || opToken->value == ")")
         return res->success(left);
     res->registerAdvancement();
     advance();

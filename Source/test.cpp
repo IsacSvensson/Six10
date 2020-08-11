@@ -281,49 +281,322 @@ bool testCompareAndLogic(){
 }
 
 bool testIfStat(){
-    return false;
+    bool finalSuccess = true;
+    std::cout << "\tTest 3.1 - True/False:" << std::endl;
+    std::string code[4]{"if True then 1 elif False then 2 elif False then 3 else 4", "if False then 1 elif True then 2 elif False then 3 else 4",
+        "if False then 1 elif False then 2 elif True then 3 else 4", "if False then 1 elif False then 2 elif False then 3 else 4"};
+    double expVal[4]{1,2,3,4};
+    bool success = true;
+    for (int i = 0; i < 4; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest 3.1 - Success\n" << std::endl;
+    else
+        std::cout << "\tTest 3.1 - Fail\n" << std::endl;
+
+    std::cout << "\tTest 3.2 - Eval expr and Nested If Statement:" << std::endl;
+    std::string codeExpr[4]{"if 1-1 then 0 else 1", "if 1-2 then 2 else 0",
+        "if 0+3 then 3 else 0", "if (if True then 1 else 0) then 4 else 0"};
+    double expValExpr[4]{1,2,3,4};
+    success = true;
+    for (int i = 0; i < 4; i++){
+        std::cout << "\t\t" << codeExpr[i] << " = " << expValExpr[i] << ":";
+        if (testCode(codeExpr[i], expValExpr[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest 3.2 - Success" << std::endl;
+    else
+        std::cout << "\tTest 3.2 - Fail" << std::endl;
+    return finalSuccess;
 }
 
 bool testForLoop(){
-    return false;
+    bool finalSuccess = true;
+    std::cout << "\tTest 4.1 - Single Line For-Loop:" << std::endl;
+    std::cout << "\tCreating variable x = 0\n\n\tProceeding to testing:\n";
+    testCode("var x = 0", 0);
+    std::string code[2]{"for i = 0 to 6 then var x = x + i", "for i = 0 to 100 step 10 then var x = x + i"};
+    double expVal[2]{15, 450};
+    bool success = true;
+    for (int i = 0; i < 2; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        testCode(code[i], 0);
+        if (testCode("x", expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+        std::cout << "\tResetting variable x to 0\n";
+        testCode("var x = 0", 0);
+    }
+    if (success)
+        std::cout << "\tTest 4.1 - Success\n" << std::endl;
+    else
+        std::cout << "\tTest 4.1 - Fail\n" << std::endl;
+
+    std::cout << "\tTest 4.2 - Multi Line For-Loops:" << std::endl;
+    std::string codeExpr[2]{"for i = 0 to 6 then\n\t\tvar x = x + i \n\t\tvar x = x * i\t\t", "for i = 0 to 30 step 10 then\n\t\tvar x = x + i \n\t\tvar x = x * x\t\t"};
+    double expValExpr[2]{645, 14400};
+    success = true;
+    for (int i = 0; i < 2; i++){
+        std::cout << "\t\t" << codeExpr[i] << " = " << expValExpr[i] << ":";
+        if (testCode(codeExpr[i], expValExpr[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest 4.2 - Success" << std::endl;
+    else
+        std::cout << "\tTest 4.2 - Fail" << std::endl;
+    return finalSuccess;
 }
 
 bool testWhileLoop(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testSingleLineFunction(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testMultilineFunction(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testList(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testStrings(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testVariables(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testBuiltInFunctions(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testMultiLineStat(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testReturnStat(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
 
 bool testReadScript(){
+    /* bool finalSuccess = true;
+    std::cout << "\tTest x.x - xxx:" << std::endl;
+    std::string code[]{};
+    double expVal[]{};
+    bool success = true;
+    for (int i = 0; i < 18; i++){
+        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        if (testCode(code[i], expVal[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest x.x - Success\n" << std::endl;
+    else
+        std::cout << "\tTest x.x - Fail\n" << std::endl; */
     return false;
 }
