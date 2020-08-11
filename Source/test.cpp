@@ -82,15 +82,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Single Line Function:" << std::endl;
-    if(testSingleLineFunction()){
-        std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
-        successfulTests++;
-    }
-    else
-        std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
-
-    std::cout << "\nTest " << testNum << " - Multi Line Function:" << std::endl;
-    if(testMultilineFunction()){
+    if(testFunction()){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -123,14 +115,6 @@ bool testAllFunc(){
 
     std::cout << "\nTest " << testNum << " - Built-In Functions:" << std::endl;
     if(testBuiltInFunctions()){
-        std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
-        successfulTests++;
-    }
-    else
-        std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
-
-    std::cout << "\nTest " << testNum << " - Multi Line Statments:" << std::endl;
-    if(testMultiLineStat()){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -351,7 +335,7 @@ bool testForLoop(){
         std::cout << "\tTest 4.1 - Fail\n" << std::endl;
 
     std::cout << "\tTest 4.2 - Multi Line For-Loops:" << std::endl;
-    std::string codeExpr[2]{"for i = 0 to 6 then\n\t\tvar x = x + i \n\t\tvar x = x * i\t\t", "for i = 0 to 30 step 10 then\n\t\tvar x = x + i \n\t\tvar x = x * x\t\t"};
+    std::string codeExpr[2]{"for i = 0 to 6 then\n\t\tvar x = x + i \n\t\tvar x = x * i\t\t", "\n\t\tfor i = 0 to 30 step 10 then\n\t\tvar x = x + i \n\t\tvar x = x * x\t\t"};
     double expValExpr[2]{645, 14400};
     success = true;
     for (int i = 0; i < 2; i++){
@@ -394,30 +378,7 @@ bool testWhileLoop(){
     return false;
 }
 
-bool testSingleLineFunction(){
-    /* bool finalSuccess = true;
-    std::cout << "\tTest x.x - xxx:" << std::endl;
-    std::string code[]{};
-    double expVal[]{};
-    bool success = true;
-    for (int i = 0; i < 18; i++){
-        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
-            std::cout << " Success" << std::endl;
-        else
-        {
-            std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
-        }
-    }
-    if (success)
-        std::cout << "\tTest x.x - Success\n" << std::endl;
-    else
-        std::cout << "\tTest x.x - Fail\n" << std::endl; */
-    return false;
-}
-
-bool testMultilineFunction(){
+bool testFunction(){
     /* bool finalSuccess = true;
     std::cout << "\tTest x.x - xxx:" << std::endl;
     std::string code[]{};
@@ -510,29 +471,6 @@ bool testVariables(){
 }
 
 bool testBuiltInFunctions(){
-    /* bool finalSuccess = true;
-    std::cout << "\tTest x.x - xxx:" << std::endl;
-    std::string code[]{};
-    double expVal[]{};
-    bool success = true;
-    for (int i = 0; i < 18; i++){
-        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
-            std::cout << " Success" << std::endl;
-        else
-        {
-            std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
-        }
-    }
-    if (success)
-        std::cout << "\tTest x.x - Success\n" << std::endl;
-    else
-        std::cout << "\tTest x.x - Fail\n" << std::endl; */
-    return false;
-}
-
-bool testMultiLineStat(){
     /* bool finalSuccess = true;
     std::cout << "\tTest x.x - xxx:" << std::endl;
     std::string code[]{};
