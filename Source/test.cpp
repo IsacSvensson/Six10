@@ -32,6 +32,8 @@ bool testCode(std::string code, double expectedResult){
     }
     if (result->type == INTEGER || result->type == FLOAT)
         return ((Number*)(result->value))->value == expectedResult;
+    else if(result->type == FUNCDEF && expectedResult == -9999)
+        return true;
     return false;
 }
 
@@ -148,6 +150,7 @@ bool testArithm(){
     double expVal[5]{10, 23, 9, 2.5, 25};
     bool success = true;
     for (int i = 0; i < 5; i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -167,6 +170,7 @@ bool testArithm(){
     double expValMO[5] = {7, 40, 27, 5, 9};
     success = true;
     for (int i = 0; i < 5; i++){
+        success = true;
         std::cout << "\t\t" << codeMO[i] << " = " << expValMO[i] << ":";
         if (testCode(codeMO[i], expValMO[i]))
             std::cout << " Success" << std::endl;
@@ -186,6 +190,7 @@ bool testArithm(){
     double expValNN[5] = {0, -21, 51, -1000, -1};
     success = true;
     for (int i = 0; i < 5; i++){
+        success = true;
         std::cout << "\t\t" << codeNN[i] << " = " << expValNN[i] << ":";
         if (testCode(codeNN[i], expValNN[i]))
             std::cout << " Success" << std::endl;
@@ -205,6 +210,7 @@ bool testArithm(){
     double expValIO[3] = {-9999, -9999, -9999};
     success = true;
     for (int i = 0; i < 3; i++){
+        success = true;
         std::cout << "\t\t" << codeIO[i] << " = " << "Runtime Error: Division by 0 not allowed" << ":";
         if (testCode(codeIO[i], expValIO[i]))
             std::cout << " Success" << std::endl;
@@ -228,7 +234,8 @@ bool testCompareAndLogic(){
         "5 >= 5", "5 >= -1", "5 >= 10", "5 == 5", "5 == -1", "5 == 10", "5 != 5", "5 != -1", "5 != 10"};
     double expVal[18]{0,0,1,0,1,0,1,0,1,1,1,0,1,0,0,0,1,1};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -248,6 +255,7 @@ bool testCompareAndLogic(){
     double expValLogic[16]{0,1,0,0,1,0,1,1,0,1,1,0,1,0,1,0};
     success = true;
     for (int i = 0; i < 16; i++){
+        success = true;
         std::cout << "\t\t" << codeLogic[i] << " = " << expValLogic[i] << ":";
         if (testCode(codeLogic[i], expValLogic[i]))
             std::cout << " Success" << std::endl;
@@ -272,6 +280,7 @@ bool testIfStat(){
     double expVal[4]{1,2,3,4};
     bool success = true;
     for (int i = 0; i < 4; i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -292,6 +301,7 @@ bool testIfStat(){
     double expValExpr[4]{1,2,3,4};
     success = true;
     for (int i = 0; i < 4; i++){
+        success = true;
         std::cout << "\t\t" << codeExpr[i] << " = " << expValExpr[i] << ":";
         if (testCode(codeExpr[i], expValExpr[i]))
             std::cout << " Success" << std::endl;
@@ -317,6 +327,7 @@ bool testForLoop(){
     double expVal[2]{15, 450};
     bool success = true;
     for (int i = 0; i < 2; i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         testCode(code[i], 0);
         if (testCode("x", expVal[i]))
@@ -334,11 +345,12 @@ bool testForLoop(){
     else
         std::cout << "\tTest 4.1 - Fail\n" << std::endl;
 
-    std::cout << "\tTest 4.2 - Multi Line For-Loops:" << std::endl;
+    /* std::cout << "\tTest 4.2 - Multi Line For-Loops:" << std::endl;
     std::string codeExpr[2]{"for i = 0 to 6 then\n\t\tvar x = x + i \n\t\tvar x = x * i\t\t", "\n\t\tfor i = 0 to 30 step 10 then\n\t\tvar x = x + i \n\t\tvar x = x * x\t\t"};
     double expValExpr[2]{645, 14400};
     success = true;
     for (int i = 0; i < 2; i++){
+        success = true;
         std::cout << "\t\t" << codeExpr[i] << " = " << expValExpr[i] << ":";
         if (testCode(codeExpr[i], expValExpr[i]))
             std::cout << " Success" << std::endl;
@@ -351,19 +363,21 @@ bool testForLoop(){
     if (success)
         std::cout << "\tTest 4.2 - Success" << std::endl;
     else
-        std::cout << "\tTest 4.2 - Fail" << std::endl;
+        std::cout << "\tTest 4.2 - Fail" << std::endl; */
     return finalSuccess;
 }
 
 bool testWhileLoop(){
-    /* bool finalSuccess = true;
-    std::cout << "\tTest x.x - xxx:" << std::endl;
-    std::string code[]{};
-    double expVal[]{};
+    bool finalSuccess = true;
+    std::cout << "\tTest 5.1 - Single Line While Loop:" << std::endl;
+    std::string code[3]{"while False then var x = x + 10", "while x < 10 then var x = x + 1", "while not x == 0 then var x = x - 1"};
+    double expVal[3]{0, 10, 0};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        testCode(code[i], 0);
+        if (testCode("x", expVal[i]))
             std::cout << " Success" << std::endl;
         else
         {
@@ -372,20 +386,22 @@ bool testWhileLoop(){
         }
     }
     if (success)
-        std::cout << "\tTest x.x - Success\n" << std::endl;
+        std::cout << "\tTest 5.1 - Success\n" << std::endl;
     else
-        std::cout << "\tTest x.x - Fail\n" << std::endl; */
-    return false;
+        std::cout << "\tTest 5.1 - Fail\n" << std::endl;
+    return finalSuccess;
 }
 
 bool testFunction(){
-    /* bool finalSuccess = true;
-    std::cout << "\tTest x.x - xxx:" << std::endl;
-    std::string code[]{};
-    double expVal[]{};
+    bool finalSuccess = true;
+    std::cout << "\tTest 6.1 - Single Line Function:" << std::endl;
+    std::string code[6]{"def test() -> 100", "def max(a,b) -> if a >= b then a else b", "def sqrt(number) -> number^0.5", "test()", "max(-1, 5)", "sqrt(121)"};
+    double expVal[6]{-9999,-9999,-9999, 100, 5, 11};
     bool success = true;
-    for (int i = 0; i < 18; i++){
-        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+
+    for (int i = 0; i < sizeof(code)/sizeof(code[0])/2; i++){
+        success = true;
+        std::cout << "\t\t" << code[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
         else
@@ -393,12 +409,23 @@ bool testFunction(){
             std::cout << " Failed" << std::endl;
             finalSuccess = success = false;
         }
+        std::cout << "\t\t" << code[i+3] << " = " << expVal[i+3] << ":";
+        if (testCode(code[i+3], expVal[i+3]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+        if (i < (sizeof(code)/sizeof(code[0])/2)-1)
+            std::cout << std::endl;
+
     }
     if (success)
-        std::cout << "\tTest x.x - Success\n" << std::endl;
+        std::cout << "\tTest 6.1 - Success\n" << std::endl;
     else
-        std::cout << "\tTest x.x - Fail\n" << std::endl; */
-    return false;
+        std::cout << "\tTest 6.1 - Fail\n" << std::endl;
+    return finalSuccess;
 }
 
 bool testList(){
@@ -407,7 +434,8 @@ bool testList(){
     std::string code[]{};
     double expVal[]{};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -430,7 +458,8 @@ bool testStrings(){
     std::string code[]{};
     double expVal[]{};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -453,7 +482,8 @@ bool testVariables(){
     std::string code[]{};
     double expVal[]{};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -476,7 +506,8 @@ bool testBuiltInFunctions(){
     std::string code[]{};
     double expVal[]{};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -499,7 +530,8 @@ bool testReturnStat(){
     std::string code[]{};
     double expVal[]{};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
@@ -522,7 +554,8 @@ bool testReadScript(){
     std::string code[]{};
     double expVal[]{};
     bool success = true;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
         std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
