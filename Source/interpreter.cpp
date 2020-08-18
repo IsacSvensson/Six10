@@ -43,6 +43,9 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     case FUNCCALL:
         return visitCallNode(node, context);
         break;
+    case STRING:
+        return visitString(node, context);
+        break;
     default:
         break;
     }
@@ -57,6 +60,16 @@ RuntimeResult* Interpreter::visitInteger(astNode* node, Context* context){
     toRet->success(num);
     return toRet;
 }
+
+RuntimeResult* Interpreter::visitString(astNode* node, Context* context){
+    auto val = new String(((StringNode*)node)->tok.value);
+    val->setPos(((StringNode*)node)->tok.posStart, ((StringNode*)node)->tok.posEnd);
+    val->setContext(context);
+    auto toRet = new RuntimeResult(); 
+    toRet->success(val);
+    return toRet;
+}
+
 
 RuntimeResult* Interpreter::visitFloat(astNode* node, Context* context){
     auto num = new Number(std::stod(((numberNode*)node)->tok.value), FLOAT);
@@ -297,6 +310,10 @@ std::pair<Value*, Error*> Value::addedTo(Value* other) {
             return std::make_pair(((Value*)new Number(val, FLOAT))->setContext(this->context), nullptr);
         return std::make_pair(((Value*)new Number(int(val)))->setContext(this->context), nullptr);
     }
+    else if (other->type == STRING && this->type == STRING){
+        std::string newString = ((String*)this)->value + ((String*)other)->value;
+        return std::make_pair(((Value*)new String(newString))->setContext(this->context), nullptr);
+    }
     return std::make_pair(nullptr, IllegalOperation(other));;
 }
 std::pair<Value*, Error*> Value::subtractedBy(Value* other) {
@@ -314,6 +331,10 @@ std::pair<Value*, Error*> Value::multipliedby(Value* other) {
         if (this->type == FLOAT || other->type == FLOAT)
             return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
         return std::make_pair((new Number(int(val)))->setContext(this->context), nullptr);
+    }
+    else if ((other->type == STRING && this->type == INTEGER) || (other->type == INTEGER && this->type == STRING)){
+        std::string newString = ((String*)this)->value + ((String*)other)->value;
+        return std::make_pair(((Value*)new String(newString))->setContext(this->context), nullptr);
     }
     return std::make_pair(nullptr, IllegalOperation(other));;
 }
@@ -417,8 +438,6 @@ std::pair<std::vector<Token>, Error*> Lexer::makeTokens(){
             return std::make_pair(tokens, (Error*) new IllegalCharError(filename, ch, posStart, Position(pos)));
             }
         tokens.push_back(Token(token, it, &pos));
-        for(int i = 0; i < token.second; i++)
-            advance();
     }
     tokens.push_back(Token(EOF_, std::string(), &pos, &pos));
     return std::make_pair(tokens, nullptr);

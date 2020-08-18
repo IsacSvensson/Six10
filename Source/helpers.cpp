@@ -144,10 +144,17 @@ std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end)
         return std::make_pair(IDENTIFIER, len);
     }
     else if (*it == '"'){
+        bool escChar = false;
         while (notFound && newIt < end)
         {
-            if ((*newIt == '"') && len > 1)
-                notFound = false;
+            if (*newIt == '\\')
+                escChar = !escChar;
+            else
+            {
+                if ((*newIt == '"') && len > 1 && !escChar)
+                    notFound = false;
+                escChar = false;
+            }
             newIt++;
             len++;
         }

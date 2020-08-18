@@ -65,6 +65,8 @@ int main(int argc, char* argv[]){
                 else if (res.first)
                     if (res.first->type == INTEGER || res.first->type == FLOAT)
                         std::cout << "= " << ((Number*)res.first)->value << std::endl;
+                    else if (res.first->type == STRING)
+                        std::cout << ((String*)res.first)->value << std::endl;
         } else if (opt == "-test")
             testAllFunc();
         else if(opt == "-h" || opt == "-hjälp")

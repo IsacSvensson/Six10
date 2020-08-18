@@ -34,6 +34,10 @@ bool testCode(std::string code, double expectedResult){
         return ((Number*)(result->value))->value == expectedResult;
     else if(result->type == FUNCDEF && expectedResult == -9999)
         return true;
+    else if(result->type == STRING)
+        if (expectedResult == 0){
+            return ((String*)result->value)->value == "\t";
+        }
     return false;
 }
 
@@ -453,10 +457,10 @@ bool testList(){
 }
 
 bool testStrings(){
-    /* bool finalSuccess = true;
-    std::cout << "\tTest x.x - xxx:" << std::endl;
-    std::string code[]{};
-    double expVal[]{};
+    bool finalSuccess = true;
+    std::cout << "\tTest 8.1 - xxx:" << std::endl;
+    std::string code[1]{"\n"};
+    int expVal[1]{0};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
         success = true;
@@ -470,9 +474,9 @@ bool testStrings(){
         }
     }
     if (success)
-        std::cout << "\tTest x.x - Success\n" << std::endl;
+        std::cout << "\tTest 8.1 - Success\n" << std::endl;
     else
-        std::cout << "\tTest x.x - Fail\n" << std::endl; */
+        std::cout << "\tTest 8.1 - Fail\n" << std::endl;
     return false;
 }
 

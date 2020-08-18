@@ -44,6 +44,13 @@ public:
     Number(Number* num) : value(num->value), Value(num) {};
 };
 
+class String : public Value{
+public:
+    std::string value;
+    String(std::string val, Type t = STRING) : value(val), Value(t) {setPos();};
+    String(String* num) : value(num->value), Value(num) {};
+};
+
 class Function : public Value{
 public:
     std::string name;
@@ -166,6 +173,7 @@ public:
     RuntimeResult* visitWhileNode(astNode* node, Context* context);
     RuntimeResult* visitFuncDefNode(astNode* node, Context* context);
     RuntimeResult* visitCallNode(astNode* node, Context* context);
+    RuntimeResult* visitString(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
     Interpreter() : node(nullptr) {};
 };

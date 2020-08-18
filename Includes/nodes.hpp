@@ -85,14 +85,40 @@ struct Token
             }
         }
 
-        
-        for (int c = 0; c < tokenPair.second; c++)
-            value += *i++;
-        if (value == "\n")
-            value = "\\n";
-        else if (value == "    ")
-            value = "\t";
-        i -= tokenPair.second;
+        int cond = tokenPair.second;
+        if (type == STRING){
+            cond = cond - 2;
+            i++;
+            }
+
+        for (int c = 0; c < cond; c++){
+            if (*i == '\\'){
+                c++;
+                i++;
+                switch (*i)
+                {
+                case 't':
+                    value += '\t';
+                    break;
+                case 'n':
+                    value += '\n';
+                    break;
+                case '"':
+                    value += '\"';
+                    break;
+                case '\\':
+                    value += '\\';
+                    break;
+                default:
+                    break;
+                }
+                i++;
+            }
+            else
+                value += *i++;
+            }
+        if (type == STRING)
+            i++;
     };
     ~Token(){
     }
@@ -121,6 +147,21 @@ public:
     numberNode(Type nodeType, Token* token) : 
         nodeType(nodeType), left(nullptr), right(nullptr), posStart(token->posStart), posEnd(token->posEnd), tok(*token) {};
     numberNode(numberNode* node) : 
+        nodeType(node->nodeType), left(node->left), right(node->right), posStart(node->posStart), posEnd(node->posEnd), tok(node->tok) {};
+    Token* getToken() { return &tok; };
+};
+
+class StringNode{
+public:
+    Type nodeType;
+    astNode* left;
+    astNode* right;
+    Position* posStart;
+    Position* posEnd;
+    Token tok;
+    StringNode(Type nodeType, Token* token) : 
+        nodeType(nodeType), left(nullptr), right(nullptr), posStart(token->posStart), posEnd(token->posEnd), tok(*token) {};
+    StringNode(StringNode* node) : 
         nodeType(node->nodeType), left(node->left), right(node->right), posStart(node->posStart), posEnd(node->posEnd), tok(node->tok) {};
     Token* getToken() { return &tok; };
 };

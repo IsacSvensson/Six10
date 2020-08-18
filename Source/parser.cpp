@@ -64,6 +64,12 @@ ParseResult* Parser::atom(){
         auto toReturn = new numberNode((Type)tok->type, tok);
         return res->success((astNode*)toReturn);
     }
+    else if (tok->type == STRING){
+        res->registerAdvancement();
+        advance();
+        auto toReturn = new StringNode((Type)tok->type, tok);
+        return res->success((astNode*)toReturn);
+    }
     else if (tok->type == PARENTHESES && tok->value == "(")
     {
         res->registerAdvancement();
