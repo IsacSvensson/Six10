@@ -36,8 +36,33 @@ bool testCode(std::string code, double expectedResult){
         return true;
     else if(result->type == STRING)
         if (expectedResult == 0){
-            return ((String*)result->value)->value == "\t";
+            return ((String*)result->value)->value == "\n";
         }
+    return false;
+}
+
+bool testCode(std::string code, std::string expectedResult){
+    Lexer lex(code, "Test module");
+    auto tokens = lex.makeTokens();
+
+    if(tokens.second){
+        return false;
+    }
+
+    Parser p(tokens.first);
+    auto res = p.parse();
+    if (res->error){
+            return false;
+    }
+
+    Interpreter interpreter(res->node);
+    Context context("<program>");
+    context.symTab = &symtab;
+    auto result = interpreter.visit(res->node, &context);
+    if (result->error)
+        return false;
+    if (result->type == STRING)
+        return ((String*)(result->value))->value == expectedResult;
     return false;
 }
 
@@ -458,13 +483,14 @@ bool testList(){
 
 bool testStrings(){
     bool finalSuccess = true;
-    std::cout << "\tTest 8.1 - xxx:" << std::endl;
-    std::string code[1]{"\n"};
-    int expVal[1]{0};
+    std::cout << "\tTest 8.1 - Special characters:" << std::endl;
+    std::string code[3]{"\"\n\"", "\"\t\"", "\"\\\\\""};
+    std::string toPrint[3]{"\"\\n\"", "\"\\t\"", "\"\\\\\""};
+    std::string expVal[3]{"\n", "\t", "\\"};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
         success = true;
-        std::cout << "\t\t" << code[i] << " = " << expVal[i] << ":";
+        std::cout << "\t\t" << toPrint[i] << ":";
         if (testCode(code[i], expVal[i]))
             std::cout << " Success" << std::endl;
         else
@@ -477,7 +503,7 @@ bool testStrings(){
         std::cout << "\tTest 8.1 - Success\n" << std::endl;
     else
         std::cout << "\tTest 8.1 - Fail\n" << std::endl;
-    return false;
+    return finalSuccess;
 }
 
 bool testVariables(){

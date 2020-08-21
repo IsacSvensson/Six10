@@ -1,6 +1,7 @@
 #include <string>
 
 bool testCode(std::string code, double expectedResult);
+bool testCode(std::string code, std::string expectedResult);
 bool testAllFunc();
 bool testArithm();
 bool testCompareAndLogic();
