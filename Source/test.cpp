@@ -503,7 +503,68 @@ bool testStrings(){
         std::cout << "\tTest 8.1 - Success\n" << std::endl;
     else
         std::cout << "\tTest 8.1 - Fail\n" << std::endl;
+    
+    std::cout << "\tTest 8.2 - Letters as strings:" << std::endl;
+    std::string codeLetters[3]{"\"Lorem Bacon\"", "\"A\"", "\"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\""};
+    std::string expValLetters[3]{"Lorem Bacon", "A", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+    success = true;
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
+        std::cout << "\t\t" << codeLetters[i] << ":";
+        if (testCode(codeLetters[i], expValLetters[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest 8.2 - Success\n" << std::endl;
+    else
+        std::cout << "\tTest 8.2 - Fail\n" << std::endl;
+
+    std::cout << "\tTest 8.3 - Number strings:" << std::endl;
+    std::string codeNumber[3]{"\"0\"", "\"123\"", "\"999999999999999999999999999999999999\""};
+    std::string expValNumbers[3]{"0", "123", "999999999999999999999999999999999999"};
+    success = true;
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
+        std::cout << "\t\t" << codeNumber[i] << ":";
+        if (testCode(codeNumber[i], expValNumbers[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest 8.3 - Success\n" << std::endl;
+    else
+        std::cout << "\tTest 8.3 - Fail\n" << std::endl;
+
+    std::cout << "\tTest 8.4 - Random strings:" << std::endl;
+    std::string codeRandom[3]{"\"ksG34|\"", "\"+%hwS=r\"", "\"#slF  %lW\""};
+    std::string expValRandoms[3]{"ksG34|", "+%hwS=r", "#slF  %lW"};
+    success = true;
+    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
+        success = true;
+        std::cout << "\t\t" << codeRandom[i] << ":";
+        if (testCode(codeRandom[i], expValRandoms[i]))
+            std::cout << " Success" << std::endl;
+        else
+        {
+            std::cout << " Failed" << std::endl;
+            finalSuccess = success = false;
+        }
+    }
+    if (success)
+        std::cout << "\tTest 8.4 - Success\n" << std::endl;
+    else
+        std::cout << "\tTest 8.4 - Fail\n" << std::endl;
     return finalSuccess;
+
 }
 
 bool testVariables(){

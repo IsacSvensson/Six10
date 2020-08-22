@@ -13,14 +13,17 @@ factor      : (PLUS|MINUS) factor
 
 power       : call (POW factor)*
 
-call        : atom (LEFTPARENTHESIS (expr (COMMA expr)*) RIGHTPARENTHESIS)?
+call        : atom (LEFTPARENTHESIS (expr (COMMA expr)*)? RIGHTPARENTHESIS)?
 
 atom        : IDENTIFIER|INT|FLOAT
             | LEFTPARENTHESIS expr RIGHTPARENTHESIS
+            | list-expr
             | if-expr
             | for-expr
             | while-expr
             | func-def
+
+list-expr   : LEFTSQUAREPARENTHESIS (LEFTPARENTHESIS (expr (COMMA expr)*)? RIGTHSQUAREPARENTHESIS
 
 if-expr     : Keyword:if expr Keyword:then expr
               (Keyword:elif expr Keyword:then expr)*
