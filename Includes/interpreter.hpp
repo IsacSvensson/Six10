@@ -37,6 +37,17 @@ public:
     Error* IllegalOperation(Value* other);
 };
 
+class List : public Value{
+public:
+    std::vector<Value*> elements;
+    List(std::vector<Value*> elements, Type t = LIST) : elements(elements), Value(t) {setPos();};
+    List(List* list) : elements(list->elements), Value(list) {};
+    std::pair<Value*, Error*> addedTo(Value* other);
+    std::pair<Value*, Error*> subtractedBy(Value* other);
+    std::pair<Value*, Error*> multipliedby(Value* other);
+    std::pair<Value*, Error*> dividedby(Value* other);
+};
+
 class Number : public Value{
 public:
     double value;
@@ -174,6 +185,7 @@ public:
     RuntimeResult* visitFuncDefNode(astNode* node, Context* context);
     RuntimeResult* visitCallNode(astNode* node, Context* context);
     RuntimeResult* visitString(astNode* node, Context* context);
+    RuntimeResult* visitListNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
     Interpreter() : node(nullptr) {};
 };

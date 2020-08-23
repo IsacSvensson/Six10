@@ -46,6 +46,9 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     case STRING:
         return visitString(node, context);
         break;
+    case LIST:
+        return visitListNode(node, context);
+        break;
     default:
         break;
     }
@@ -165,9 +168,9 @@ RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
         value->setPos(node->posStart, node->posEnd);
     }
 
-    if (content && (content->type == FUNCDEF)){
+    if (content && (content->type == FUNCDEF || content->type == LIST)){
         value = copyValue(content);
-        value->setPos(node->posStart, node->posEnd);
+        value->setPos((node)->posStart, (node)->posEnd);
     }
 
     if (!value)
@@ -212,6 +215,7 @@ RuntimeResult* Interpreter::visitIfNode(astNode* node, Context* context){
 
 RuntimeResult* Interpreter::visitForNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
+    std::vector<Value*> elements;
 
     auto startVal = (Number*)res->registerResult(visit((((ForNode*)node)->startValueNode), context));
     if (res->error) return res;
@@ -233,7 +237,7 @@ RuntimeResult* Interpreter::visitForNode(astNode* node, Context* context){
             context->symTab->set(((ForNode*)node)->varNameTok.value, new Number(i));
             i += stepVal->value;
 
-            res->registerResult(visit(((ForNode*)node)->bodyNode, context));
+            elements.push_back(res->registerResult(visit(((ForNode*)node)->bodyNode, context)));
             if (res->error) return res;
         }
     else
@@ -241,23 +245,25 @@ RuntimeResult* Interpreter::visitForNode(astNode* node, Context* context){
             context->symTab->set(((ForNode*)node)->varNameTok.value, new Number(i));
             i += stepVal->value;
 
-            res->registerResult(visit(((ForNode*)node)->bodyNode, context));
+            elements.push_back(res->registerResult(visit(((ForNode*)node)->bodyNode, context)));
             if (res->error) return res;
         }
-    return res->success(nullptr);
+    return res->success((Value*)(new List(elements))->setContext(context)->setPos(((ForNode*)node)->posStart, ((ForNode*)node)->posEnd));
 }
 
 RuntimeResult* Interpreter::visitWhileNode(astNode* node, Context* context){
     auto res = new RuntimeResult();
+    std::vector<Value*> elements;
+
     while (true)
     {
         auto condition = res->registerResult(visit(((WhileNode*)node)->conditionNode, context));
         if (!condition->isTrue()) break;
 
-        res->registerResult(visit(((WhileNode*)node)->bodyNode, context));
+        elements.push_back(res->registerResult(visit(((WhileNode*)node)->bodyNode, context)));
         if (res->error) return res;
     }
-    return res->success(nullptr);
+    return res->success((Value*)(new List(elements))->setContext(context)->setPos(((ForNode*)node)->posStart, ((ForNode*)node)->posEnd));
 }
 
 RuntimeResult* Interpreter::visitFuncDefNode(astNode* node, Context* context){
@@ -298,6 +304,17 @@ RuntimeResult* Interpreter::visitCallNode(astNode* node, Context* context){
     return res->success(returnVal);
 }
 
+RuntimeResult* Interpreter::visitListNode(astNode* node, Context* context){
+    auto res = new RuntimeResult();
+    std::vector<Value*> elements;
+
+    for (auto &element : ((ListNode*)node)->elementNodes){
+        elements.push_back(res->registerResult(visit(element, context)));
+        if (res->error) return res;
+    }
+    return res->success((Value*)(new List(elements))->setContext(context)->setPos(((ListNode*)node)->posStart, ((ListNode*)node)->posEnd));
+}
+
 Value* Value::setPos(Position* start, Position* end) {
         posStart = start;
         posEnd = end;
@@ -314,6 +331,13 @@ std::pair<Value*, Error*> Value::addedTo(Value* other) {
         std::string newString = ((String*)this)->value + ((String*)other)->value;
         return std::make_pair(((Value*)new String(newString))->setContext(this->context), nullptr);
     }
+    else if (this->type == LIST)
+    {
+        auto newList = (List*)this;
+        newList->elements.push_back(other);
+        return std::make_pair(newList, nullptr);
+    }
+    
     return std::make_pair(nullptr, IllegalOperation(other));;
 }
 std::pair<Value*, Error*> Value::subtractedBy(Value* other) {
@@ -323,6 +347,17 @@ std::pair<Value*, Error*> Value::subtractedBy(Value* other) {
             return std::make_pair(((Value*)new Number(val, FLOAT))->setContext(this->context), nullptr);
         return std::make_pair(((Value*)new Number(int(val)))->setContext(this->context), nullptr);
     }
+    else if (this->type == LIST && (other->type == INTEGER || other->type == FLOAT)){
+        auto newList = (List*)this;
+        if (newList->elements.size() > ((Number*)other)->value){
+            newList->elements.erase(newList->elements.begin()+int(((Number*)other)->value));
+            return std::make_pair(newList, nullptr);
+        }
+        else
+        {
+            return std::make_pair(nullptr, (Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, 
+                "Element at this index could not be removed because index is out of bounds", context));
+        }}
     return std::make_pair(nullptr, IllegalOperation(other));;
 }
 std::pair<Value*, Error*> Value::multipliedby(Value* other) {
@@ -336,6 +371,13 @@ std::pair<Value*, Error*> Value::multipliedby(Value* other) {
         std::string newString = ((String*)this)->value + ((String*)other)->value;
         return std::make_pair(((Value*)new String(newString))->setContext(this->context), nullptr);
     }
+    else if (this->type == LIST && other->type == LIST)
+    {
+        auto newList = (List*)this;
+        newList->elements.insert(newList->elements.end(), ((List*)other)->elements.begin(), ((List*)other)->elements.end() );
+        return std::make_pair(newList, nullptr);
+    }
+    
     return std::make_pair(nullptr, IllegalOperation(other));;
 }
 std::pair<Value*, Error*> Value::dividedby(Value* other) {
@@ -345,6 +387,17 @@ std::pair<Value*, Error*> Value::dividedby(Value* other) {
             return std::make_pair(nullptr, (Error*)(new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Division by zero", context)));
         return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
     }
+    else if (this->type == LIST && (other->type == INTEGER || other->type == FLOAT)){
+    if (((List*)this)->elements.size() > ((Number*)other)->value){
+        return std::make_pair(((List*)this)->elements[int(((Number*)other)->value)], nullptr);
+    }
+    else
+    {
+        return std::make_pair(nullptr, (Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, 
+            "Element at this index could not be retrieved because index is out of bounds", context));
+    }
+}
+    
     return std::make_pair(nullptr, IllegalOperation(other));;
 }
 std::pair<Value*, Error*> Value::powedby(Value* other) {
@@ -352,7 +405,7 @@ std::pair<Value*, Error*> Value::powedby(Value* other) {
         double val = pow(((Number*)this)->value, ((Number*)other)->value);
         return std::make_pair((new Number(val, FLOAT))->setContext(this->context), nullptr);
     }
-    return std::make_pair(nullptr, IllegalOperation(other));;
+    return std::make_pair(nullptr, IllegalOperation(other));
 }
 
 Value* Value::setContext(Context* context = nullptr){
@@ -593,6 +646,8 @@ Value* copyValue(Value* val){
         return new Number(((Number*)val)->value, val->type);
     case FUNCDEF:
         return new Function(((Function*)val));
+    case LIST:
+        return new List(((List*)val));
     default:
         return nullptr;
     }

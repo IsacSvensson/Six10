@@ -30,6 +30,7 @@ private:
     ParseResult* arithmExpr();
     ParseResult* compExpr();
     ParseResult* expr();
+    ParseResult* listExpr();
     ParseResult* ifExpr();
     ParseResult* forExpr();
     ParseResult* whileExpr();

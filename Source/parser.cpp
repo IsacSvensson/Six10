@@ -86,6 +86,13 @@ ParseResult* Parser::atom(){
             return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ')'")));
         }
     }
+    else if (tok->value == "[")
+    {
+        auto listExpr = res->registerResult(this->listExpr());
+        if (res->error) return res;
+        return res->success(listExpr);
+    }
+    
     else if (tok->type == IDENTIFIER){
         res->registerAdvancement();
         advance();
@@ -347,7 +354,53 @@ ParseResult* Parser::ifExpr(){
             return res;
     }
     return res->success((astNode*)new IfNode(cases, elseCase));
+}
 
+ParseResult* Parser::listExpr(){
+    auto res = new ParseResult();
+    std::vector<astNode*> elementNodes;
+    Position* posStart = tokens[tokIndex].posStart;
+    Position* posEnd = posStart;
+
+    if (tokens[tokIndex].value != "[")
+        return res->failure((Error*)new InvalidSyntaxError(posStart->filename, *posStart, *posEnd, "Expected '['"));
+    res->registerAdvancement();
+    advance();
+    
+    if (tokens[tokIndex].value == "]")
+    {
+        posEnd = tokens[tokIndex].posEnd;
+        res->registerAdvancement();
+        advance();
+    }
+    else
+    {
+        elementNodes.push_back(res->registerResult(expr()));
+        if (res->error)
+            return res->failure((Error*)(new InvalidSyntaxError(tokens[tokIndex].posEnd->filename, *tokens[tokIndex].posStart, *tokens[tokIndex].posEnd,
+            "'+', '-', var, int, for, while, def, float or an identifier")));
+        Token* tok = &tokens[tokIndex];
+        while(tok->value == ","){
+            res->registerAdvancement();
+            advance();
+
+            elementNodes.push_back(res->registerResult(expr()));
+            if (res->error) return res;
+            tok = &tokens[tokIndex];
+        }
+        if (tok->value != "]")
+            return res->failure((Error*)(new InvalidSyntaxError(tok->posStart->filename, *tok->posStart, *tok->posEnd, "Expected ',' or ']'")));
+        else
+        {
+            posEnd = tok->posEnd;
+        }
+        
+
+        res->registerAdvancement();
+        advance();
+    }
+    auto toReturn = new ListNode(elementNodes, posStart, posEnd);
+    return res->success((astNode*)toReturn);
 }
 
 ParseResult* Parser::power(){
@@ -472,7 +525,7 @@ ParseResult* Parser::expr(){
     astNode* right;
     
     opToken = &tokens[tokIndex];
-    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then" || opToken->value == "step" || opToken->value == "," || opToken->value == ")")
+    if (opToken->type == EOL || opToken->type == EOF_ || opToken->value == "elif" || opToken->value == "else" || opToken->value == "to" || opToken->value == "then" || opToken->value == "step" || opToken->value == "," || opToken->value == ")" || opToken->value == "]")
         return res->success(left);
     res->registerAdvancement();
     advance();

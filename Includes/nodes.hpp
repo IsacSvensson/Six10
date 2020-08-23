@@ -47,6 +47,7 @@ enum Type : short{
     WHILELOOP,
     FUNCDEF,
     FUNCCALL,
+    LIST,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done
@@ -134,6 +135,17 @@ public:
     astNode(Type nodeType, astNode* l = nullptr, astNode* r = nullptr) : 
         nodeType(nodeType), left(l), right(r), posStart(nullptr), posEnd(nullptr) {};
     friend std::ostream& operator<<(std::ostream& os , const astNode* node);
+};
+
+class ListNode{
+public:
+    Type nodeType;
+    astNode* left;
+    astNode* right;
+    Position* posStart;
+    Position* posEnd;
+    std::vector<astNode*> elementNodes;
+    ListNode(std::vector<astNode*> elements, Position* start = nullptr, Position* end = nullptr) : nodeType(LIST), elementNodes(elements), posStart(start), posEnd(end) {};
 };
 
 class numberNode{

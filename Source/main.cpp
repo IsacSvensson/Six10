@@ -5,6 +5,26 @@
 #include "parser.hpp"
 #include "test.hpp"
 #include <fstream>
+#include <sstream>
+
+std::string printValue(Value* res){
+    std::stringstream ss;
+
+    if (res->type == INTEGER || res->type == FLOAT)
+        ss << ((Number*)res)->value;
+    else if (res->type == STRING)
+        ss << ((String*)res)->value;
+    else if (res->type == LIST){
+        ss << "[";
+        for (int i = 0; i < ((List*)res)->elements.size(); i++){
+            ss << printValue(((List*)res)->elements[i]);
+            if (i+1 < ((List*)res)->elements.size())
+                ss << ", ";
+        }
+        ss << "]";
+    }
+    return ss.str();
+}
 
 void getSourceCode(std::string path, std::string &sourceCode){
     std::ifstream ifs(path);
@@ -63,10 +83,8 @@ int main(int argc, char* argv[]){
                     else
                         std::cout << res.second->toString() << std::endl;
                 else if (res.first)
-                    if (res.first->type == INTEGER || res.first->type == FLOAT)
-                        std::cout << "= " << ((Number*)res.first)->value << std::endl;
-                    else if (res.first->type == STRING)
-                        std::cout << ((String*)res.first)->value << std::endl;
+                    std::cout << printValue(res.first) << std::endl;
+                    
         } else if (opt == "-test")
             testAllFunc();
         else if(opt == "-h" || opt == "-hjälp")
