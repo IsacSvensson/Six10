@@ -4,38 +4,7 @@
 #include "nodes.hpp"
 #include "parser.hpp"
 #include "test.hpp"
-#include <fstream>
-#include <sstream>
-
-std::string printValue(Value* res){
-    std::stringstream ss;
-
-    if (res->type == INTEGER || res->type == FLOAT)
-        ss << ((Number*)res)->value;
-    else if (res->type == STRING)
-        ss << ((String*)res)->value;
-    else if (res->type == LIST){
-        ss << "[";
-        for (int i = 0; i < ((List*)res)->elements.size(); i++){
-            ss << printValue(((List*)res)->elements[i]);
-            if (i+1 < ((List*)res)->elements.size())
-                ss << ", ";
-        }
-        ss << "]";
-    }
-    return ss.str();
-}
-
-void getSourceCode(std::string path, std::string &sourceCode){
-    std::ifstream ifs(path);
-    if (ifs)
-        sourceCode.assign((std::istreambuf_iterator<char>(ifs)),
-                        (std::istreambuf_iterator<char>()));
-    else{
-        std::cout << "Error: Could not open path: " << path;
-        abort();
-    }
-}
+#include "helpers.hpp"
 
 static SymbolTable globalSymTab(100);
 

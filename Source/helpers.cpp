@@ -2,6 +2,8 @@
 #include "interpreter.hpp"
 #include <sstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 std::string stringWithArrows(std::string text, Position* start, Position* end){
     std::stringstream ss;
@@ -398,5 +400,36 @@ std::string getType(Type t){
     default:
         return "invalid type";
         break;
+    }
+}
+
+std::string printValue(Value* res){
+    std::stringstream ss;
+
+    if (res->type == INTEGER || res->type == FLOAT)
+        ss << ((Number*)res)->value;
+    else if (res->type == STRING)
+        ss << ((String*)res)->value;
+    else if (res->type == LIST){
+        ss << "[";
+    for (int i = 0; i < ((List*)res)->elements.size(); i++){
+            ss << printValue(((List*)res)->elements[i]);
+            if (i+1 < ((List*)res)->elements.size())
+                ss << ", ";
+        }
+        ss << "]";
+    }
+    std::string toRet = ss.str();
+    return toRet;
+}
+
+void getSourceCode(std::string path, std::string &sourceCode){
+    std::ifstream ifs(path);
+    if (ifs)
+        sourceCode.assign((std::istreambuf_iterator<char>(ifs)),
+                        (std::istreambuf_iterator<char>()));
+    else{
+        std::cout << "Error: Could not open path: " << path;
+        abort();
     }
 }
