@@ -8,3 +8,8 @@ There are lots of bigger and smaller differences in the languages, but the main 
 * When I started working on the code I struggled with memory management. So this resulted not doing any clean up (Thinking I'm doing that later).. So now 3000 lines later - It's a mess.
 * Most of the code is not pretty at all.. like I wrote above, It's a mess. Focus has been on making it work and learning how a programming language works.
 * The language is far from done in any way. If you want to contribute, report issues, for the repo or what ever. Feel free to do so!
+## Commands
+There are in this moment three modes to run the application in:
+* "-test" to test all functionallity
+* "-shell" to run interpreter
+* "folder\example.six10" to run a file.
