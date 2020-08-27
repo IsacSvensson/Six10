@@ -135,14 +135,6 @@ bool testAllFunc(){
     else
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
-    std::cout << "\nTest " << testNum << " - Variables:" << std::endl;
-    if(testVariables()){
-        std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
-        successfulTests++;
-    }
-    else
-        std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
-
     std::cout << "\nTest " << testNum << " - Built-In Functions:" << std::endl;
     if(testBuiltInFunctions()){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
@@ -604,30 +596,6 @@ bool testStrings(){
         std::cout << "\tTest 8.4 - Fail\n" << std::endl;
     return finalSuccess;
 
-}
-
-bool testVariables(){
-    /* bool finalSuccess = true;
-    std::cout << "\tTest x.x - xxx:" << std::endl;
-    std::string code[]{};
-    double expVal[]{};
-    bool success = true;
-    for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
-        std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
-            std::cout << " Success" << std::endl;
-        else
-        {
-            std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
-        }
-    }
-    if (success)
-        std::cout << "\tTest x.x - Success\n" << std::endl;
-    else
-        std::cout << "\tTest x.x - Fail\n" << std::endl; */
-    return false;
 }
 
 bool testBuiltInFunctions(){

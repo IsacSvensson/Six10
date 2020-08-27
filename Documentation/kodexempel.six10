@@ -1,10 +1,8 @@
-aNewVariable = 12
-aNewVariable += 86
+VAR aNewVariable = 12
+VAR aNewVariable = aNewVariable + 86
 
-aNewVariable <= 100
-
-foreach number in range(0, 10):
-    output("Printing number: " + str(number))
+while aNewVariable <= 100 then
+    var aNewVariable = aNewVariable + 1
 
 # if statements are ended with an "end"-statement
 if number == 10:
