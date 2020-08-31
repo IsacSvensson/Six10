@@ -40,7 +40,7 @@ RuntimeResult* Interpreter::visit(astNode* node, Context* context){
     case FUNCDEF:
         return visitFuncDefNode(node, context);
         break;
-    case FUNCCALL:
+    case FUNCCALL: case FUNC: case BUILTINFUNC:
         return visitCallNode(node, context);
         break;
     case STRING:
@@ -168,7 +168,7 @@ RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
         value->setPos(node->posStart, node->posEnd);
     }
 
-    if (content && (content->type == FUNCDEF || content->type == LIST)){
+    if (content && (content->type == FUNCDEF || content->type == FUNC || content->type == BUILTINFUNC || content->type == LIST)){
         value = copyValue(content);
         value->setPos((node)->posStart, (node)->posEnd);
     }
@@ -275,7 +275,7 @@ RuntimeResult* Interpreter::visitFuncDefNode(astNode* node, Context* context){
     for (int i = 0; i < ((FuncDefNode*)node)->argNameToks.size(); i++){
         argNames.push_back(((FuncDefNode*)node)->argNameToks[i].value);
     }
-    Function* funcValue = new Function(funcName, bodyNode, argNames);
+    Function* funcValue = new Function(bodyNode, argNames, funcName);
     funcValue->setContext(context)->setPos(node->posStart, node->posEnd);
 
     if (((FuncDefNode*)node)->varNameTok)
@@ -612,27 +612,55 @@ Error* Value::IllegalOperation(Value* other){
     return (Error*)new RuntimeError(other->posStart->filename, *other->posStart, *other->posEnd, "Illegal operation", other->context);
 }
 
-RuntimeResult* Function::execute(std::vector<Value*> args){
-    auto res = new RuntimeResult();
-    auto interpreter = new Interpreter();
+Context* BaseFunction::generateNewContext(){
     Context* newContext = new Context(name, context, posStart);
     newContext->symTab = new SymbolTable(100, newContext->parent->symTab);
+}
+RuntimeResult* BaseFunction::checkArgs(std::vector<std::string> argNames, std::vector<Value*> args){
+    auto res = new RuntimeResult();
 
     if (args.size() > argNames.size())
         return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, (args.size() - argNames.size() + " too many args into " + name), context));
     if (args.size() < argNames.size())
         return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, (argNames.size() - args.size() + " too few args into " + name), context));
 
+    return res->success(nullptr);
+}
+void BaseFunction::populateArgs(std::vector<std::string> argNames, std::vector<Value*> args, Context* execCtx){
     for (int i = 0; i < args.size(); i++){
         auto argName = argNames[i];
         auto argValue = args[i];
-        argValue->setContext(newContext);
-        newContext->symTab->set(argName, argValue);
+        argValue->setContext(execCtx);
+        execCtx->symTab->set(argName, argValue);
     }
-    auto value = res->registerResult(interpreter->visit(BodyNode, newContext));
+}
+RuntimeResult* BaseFunction::checkAndPopulateArgs(std::vector<std::string> argNames, std::vector<Value*> args, Context* execCtx){
+    auto res = new RuntimeResult();
+    res->registerResult(checkArgs(argNames, args));
+    if (res->error) return res;
+    populateArgs(argNames, args, execCtx);
+    return res->success(nullptr);
+}
+
+RuntimeResult* Function::execute(std::vector<Value*> args){
+    auto res = new RuntimeResult();
+    auto interpreter = new Interpreter();
+    auto execCtx = generateNewContext();
+
+    res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+    if (res->error) return res;
+
+    auto value = res->registerResult(interpreter->visit(BodyNode, execCtx));
     if (res->error) return res;
 
     return res->success(value);
+}
+
+RuntimeResult* BuiltInFunction::execute(std::vector<Value*> args){
+    auto res = new RuntimeResult();
+    auto execCtx = generateNewContext();
+
+    if (name == "print");
 }
 
 std::ostream& operator<<(std::ostream& os , const Function* func){
@@ -644,7 +672,7 @@ Value* copyValue(Value* val){
     {
     case INTEGER: case FLOAT:
         return new Number(((Number*)val)->value, val->type);
-    case FUNCDEF:
+    case FUNC:
         return new Function(((Function*)val));
     case LIST:
         return new List(((List*)val));

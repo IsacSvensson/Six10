@@ -50,6 +50,8 @@ enum Type : short{
     FUNCDEF,
     FUNCCALL,
     LIST,
+    FUNC,
+    BUILTINFUNC,
     // WHITESPACE
     SPACE, // done
     WIN_EOL, // done

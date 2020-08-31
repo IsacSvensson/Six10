@@ -62,16 +62,33 @@ public:
     String(String* num) : value(num->value), Value(num) {};
 };
 
-class Function : public Value{
+class BaseFunction : public Value{
 public:
     std::string name;
+    BaseFunction(Type type, std::string name = "<anonymous>") : name(name), Value(type) {};
+    BaseFunction(BaseFunction* fun) : name(fun->name), Value(fun) {};
+    Context* generateNewContext();
+    RuntimeResult* checkArgs(std::vector<std::string> argNames, std::vector<Value*> args);
+    void populateArgs(std::vector<std::string> argNames, std::vector<Value*> args, Context* execCtx);
+    RuntimeResult* checkAndPopulateArgs(std::vector<std::string> argNames, std::vector<Value*> args, Context* execCtx);
+};
+
+class Function : public BaseFunction{
+public:
     astNode* BodyNode;
     std::vector<std::string> argNames;
-    Function(std::string name, astNode* body, std::vector<std::string> argNames) : name(name), BodyNode(body), argNames(argNames), Value(FUNCDEF) {setPos();};
-    Function(Function* fun) : name(fun->name), BodyNode(fun->BodyNode), argNames(fun->argNames), Value(fun) {setPos();};
-    RuntimeResult* execute(std::vector<Value*> argNames);
+    Function(astNode* body, std::vector<std::string> argNames, std::string name = "<anonymous>") : BodyNode(body), argNames(argNames), BaseFunction(FUNC, name) {setPos();};
+    Function(Function* fun) : BodyNode(fun->BodyNode), argNames(fun->argNames), BaseFunction(fun) {setPos();};
+    RuntimeResult* execute(std::vector<Value*> args);
     friend std::ostream& operator<<(std::ostream& os , const Function* func);
 };
+
+class BuiltInFunction : public BaseFunction{
+public:
+    BuiltInFunction(std::string name) : BaseFunction(BUILTINFUNC, name) {setPos();};
+    RuntimeResult* execute(std::vector<Value*> args);
+};
+
 
 class SymNode{
 public:

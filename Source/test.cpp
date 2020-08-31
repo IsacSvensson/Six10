@@ -31,12 +31,13 @@ bool testCode(std::string code, double expectedResult, SymbolTable* symtab){
     }
     if (result->type == INTEGER || result->type == FLOAT)
         return ((Number*)(result->value))->value == expectedResult;
-    else if(result->type == FUNCDEF && expectedResult == -9999)
-        return true;
-    else if(result->type == STRING)
+    else if(result->type == STRING){
         if (expectedResult == 0){
             return ((String*)result->value)->value == "\n";
         }
+    }
+    else if(result->type == FUNC)
+        return expectedResult == FUNC;
     return false;
 }
 
@@ -411,7 +412,7 @@ bool testFunction(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 6.1 - Single Line Function:" << std::endl;
     std::string code[6]{"def test() -> 100", "def max(a,b) -> if a >= b then a else b", "def sqrt(number) -> number^0.5", "test()", "max(-1, 5)", "sqrt(121)"};
-    double expVal[6]{-9999,-9999,-9999, 100, 5, 11};
+    double expVal[6]{FUNC, FUNC , FUNC, 100, 5, 11};
     bool success = true;
 
     for (int i = 0; i < sizeof(code)/sizeof(code[0])/2; i++){
