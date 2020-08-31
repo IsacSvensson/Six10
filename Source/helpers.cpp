@@ -153,7 +153,7 @@ std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end)
                 escChar = !escChar;
             else
             {
-                if ((*newIt == '"') && len > 1 && !escChar)
+                if ((*newIt == '"') && len >= 1 && !escChar)
                     notFound = false;
                 escChar = false;
             }

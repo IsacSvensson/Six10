@@ -20,7 +20,7 @@ public:
 class Parser{
 private:
     std::vector<Token> tokens;
-    std::size_t tokIndex = 0;
+    std::size_t tokIndex;
     Token* advance();
     ParseResult* atom();
     ParseResult* call();
@@ -36,7 +36,8 @@ private:
     ParseResult* whileExpr();
     ParseResult* funcDef();
 public:
-    Parser(std::vector<Token> tokens) : tokens(tokens) {};
+    Parser() : tokIndex(0) {};
+    Parser(std::vector<Token> tokens) : tokens(tokens), tokIndex(0) {};
     ParseResult* parse();
-    void printTree(astNode* tree);
+    void reset(std::vector<Token> tokens);
 };

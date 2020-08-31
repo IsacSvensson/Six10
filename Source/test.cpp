@@ -6,9 +6,7 @@
 #include "interpreter.hpp"
 #include "helpers.hpp"
 
-static SymbolTable symtab(10); 
-
-bool testCode(std::string code, double expectedResult){
+bool testCode(std::string code, double expectedResult, SymbolTable* symtab){
     Lexer lex(code, "Test module");
     auto tokens = lex.makeTokens();
 
@@ -24,7 +22,7 @@ bool testCode(std::string code, double expectedResult){
 
     Interpreter interpreter(res->node);
     Context context("<program>");
-    context.symTab = &symtab;
+    context.symTab = symtab;
     auto result = interpreter.visit(res->node, &context);
     if (result->error){
         if (expectedResult == -9999)
@@ -42,7 +40,7 @@ bool testCode(std::string code, double expectedResult){
     return false;
 }
 
-bool testCode(std::string code, std::string expectedResult){
+bool testCode(std::string code, std::string expectedResult, SymbolTable* symtab){
     Lexer lex(code, "Test module");
     auto tokens = lex.makeTokens();
 
@@ -58,21 +56,18 @@ bool testCode(std::string code, std::string expectedResult){
 
     Interpreter interpreter(res->node);
     Context context("<program>");
-    context.symTab = &symtab;
+    context.symTab = symtab;
     auto result = interpreter.visit(res->node, &context);
     if (result->error)
         return false;
     return printValue(result->value) == expectedResult;
 }
 
-bool testAllFunc(){
-    symtab.set("null", new Number(0, INTEGER));
-    symtab.set("True", new Number(1, INTEGER));
-    symtab.set("False", new Number(0, INTEGER));
+bool testAllFunc(SymbolTable* symtab){
     int testNum = 1;
     int successfulTests = 0;
     std::cout << "Test " << testNum << " - Numbers and arithmetic operations:" << std::endl;
-    if(testArithm()){
+    if(testArithm(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -80,7 +75,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Comparison Operations and Logic Operators:" << std::endl;
-    if(testCompareAndLogic()){
+    if(testCompareAndLogic(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -88,7 +83,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - If-Statments:" << std::endl;
-    if(testIfStat()){
+    if(testIfStat(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -96,7 +91,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - For-Loops:" << std::endl;
-    if(testForLoop()){
+    if(testForLoop(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -104,7 +99,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - While-Loops:" << std::endl;
-    if(testWhileLoop()){
+    if(testWhileLoop(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -112,7 +107,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Single Line Function:" << std::endl;
-    if(testFunction()){
+    if(testFunction(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -120,7 +115,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Lists:" << std::endl;
-    if(testList()){
+    if(testList(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -128,7 +123,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Strings:" << std::endl;
-    if(testStrings()){
+    if(testStrings(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -136,7 +131,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Built-In Functions:" << std::endl;
-    if(testBuiltInFunctions()){
+    if(testBuiltInFunctions(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -144,7 +139,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Return Statments:" << std::endl;
-    if(testReturnStat()){
+    if(testReturnStat(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -152,7 +147,7 @@ bool testAllFunc(){
         std::cout << "Result - Test " << testNum++ << ": Failed" << std::endl;
 
     std::cout << "\nTest " << testNum << " - Reading files:" << std::endl;
-    if(testReadScript()){
+    if(testReadScript(symtab)){
         std::cout << "Result - Test " << testNum++ << ": Success" << std::endl;
         successfulTests++;
     }
@@ -163,21 +158,21 @@ bool testAllFunc(){
     return testNum == successfulTests;
 }
 
-bool testArithm(){
+bool testArithm(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 1.1 - Basic Operations ('+', '-', '*', '/' and '^'):" << std::endl;;
     std::string code[5]{"5 + 5", "33 - 10", "3 * 3", "10 / 4", "5 ^ 2"};
     double expVal[5]{10, 23, 9, 2.5, 25};
     bool success = true;
     for (int i = 0; i < 5; i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -190,14 +185,14 @@ bool testArithm(){
     double expValMO[5] = {7, 40, 27, 5, 9};
     success = true;
     for (int i = 0; i < 5; i++){
-        success = true;
         std::cout << "\t\t" << codeMO[i] << " == " << expValMO[i] << ":";
-        if (testCode(codeMO[i], expValMO[i]))
+        if (testCode(codeMO[i], expValMO[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -210,14 +205,14 @@ bool testArithm(){
     double expValNN[5] = {0, -21, 51, -1000, -1};
     success = true;
     for (int i = 0; i < 5; i++){
-        success = true;
         std::cout << "\t\t" << codeNN[i] << " == " << expValNN[i] << ":";
-        if (testCode(codeNN[i], expValNN[i]))
+        if (testCode(codeNN[i], expValNN[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -230,14 +225,14 @@ bool testArithm(){
     double expValIO[3] = {-9999, -9999, -9999};
     success = true;
     for (int i = 0; i < 3; i++){
-        success = true;
         std::cout << "\t\t" << codeIO[i] << " == " << "Runtime Error: Division by 0 not allowed" << ":";
-        if (testCode(codeIO[i], expValIO[i]))
+        if (testCode(codeIO[i], expValIO[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -247,7 +242,7 @@ bool testArithm(){
     return finalSuccess;
 }
 
-bool testCompareAndLogic(){
+bool testCompareAndLogic(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 2.1 - Comparison Operators ('<', '>', '<=', '>=', '==', and '!='):" << std::endl;
     std::string code[18]{"5 < 5", "5 < -1", "5 < 10", "5 > 5", "5 > -1", "5 > 10", "5 <= 5", "5 <= -1", "5 <= 10", 
@@ -255,14 +250,14 @@ bool testCompareAndLogic(){
     double expVal[18]{0,0,1,0,1,0,1,0,1,1,1,0,1,0,0,0,1,1};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -275,14 +270,14 @@ bool testCompareAndLogic(){
     double expValLogic[16]{0,1,0,0,1,0,1,1,0,1,1,0,1,0,1,0};
     success = true;
     for (int i = 0; i < 16; i++){
-        success = true;
         std::cout << "\t\t" << codeLogic[i] << " == " << expValLogic[i] << ":";
-        if (testCode(codeLogic[i], expValLogic[i]))
+        if (testCode(codeLogic[i], expValLogic[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -292,7 +287,7 @@ bool testCompareAndLogic(){
     return finalSuccess;
 }
 
-bool testIfStat(){
+bool testIfStat(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 3.1 - True/False:" << std::endl;
     std::string code[4]{"if True then 1 elif False then 2 elif False then 3 else 4", "if False then 1 elif True then 2 elif False then 3 else 4",
@@ -300,14 +295,14 @@ bool testIfStat(){
     double expVal[4]{1,2,3,4};
     bool success = true;
     for (int i = 0; i < 4; i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -321,14 +316,14 @@ bool testIfStat(){
     double expValExpr[4]{1,2,3,4};
     success = true;
     for (int i = 0; i < 4; i++){
-        success = true;
         std::cout << "\t\t" << codeExpr[i] << " == " << expValExpr[i] << ":";
-        if (testCode(codeExpr[i], expValExpr[i]))
+        if (testCode(codeExpr[i], expValExpr[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -338,27 +333,27 @@ bool testIfStat(){
     return finalSuccess;
 }
 
-bool testForLoop(){
+bool testForLoop(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 4.1 - Single Line For-Loop:" << std::endl;
     std::cout << "\tCreating variable x = 0\n\n\tProceeding to testing:\n";
-    testCode("var x = 0", 0);
+    testCode("var x = 0", 0, symtab);
     std::string code[2]{"for i = 0 to 6 then var x = x + i", "for i = 0 to 100 step 10 then var x = x + i"};
     double expVal[2]{15, 450};
     bool success = true;
     for (int i = 0; i < 2; i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        testCode(code[i], 0);
-        if (testCode("x", expVal[i]))
+        testCode(code[i], 0, symtab);
+        if (testCode("x", expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
         std::cout << "\tResetting variable x to 0\n";
-        testCode("var x = 0", 0);
+        testCode("var x = 0", 0,symtab);
     }
     if (success)
         std::cout << "\tTest 4.1 - Success\n" << std::endl;
@@ -370,14 +365,14 @@ bool testForLoop(){
     double expValExpr[2]{645, 14400};
     success = true;
     for (int i = 0; i < 2; i++){
-        success = true;
         std::cout << "\t\t" << codeExpr[i] << " == " << expValExpr[i] << ":";
-        if (testCode(codeExpr[i], expValExpr[i]))
+        if (testCode(codeExpr[i], expValExpr[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -387,22 +382,22 @@ bool testForLoop(){
     return finalSuccess;
 }
 
-bool testWhileLoop(){
+bool testWhileLoop(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 5.1 - Single Line While Loop:" << std::endl;
     std::string code[3]{"while False then var x = x + 10", "while x < 10 then var x = x + 1", "while not x == 0 then var x = x - 1"};
     double expVal[3]{0, 10, 0};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        testCode(code[i], 0);
-        if (testCode("x", expVal[i]))
+        testCode(code[i], 0, symtab);
+        if (testCode("x", expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -412,7 +407,7 @@ bool testWhileLoop(){
     return finalSuccess;
 }
 
-bool testFunction(){
+bool testFunction(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 6.1 - Single Line Function:" << std::endl;
     std::string code[6]{"def test() -> 100", "def max(a,b) -> if a >= b then a else b", "def sqrt(number) -> number^0.5", "test()", "max(-1, 5)", "sqrt(121)"};
@@ -420,22 +415,23 @@ bool testFunction(){
     bool success = true;
 
     for (int i = 0; i < sizeof(code)/sizeof(code[0])/2; i++){
-        success = true;
         std::cout << "\t\t" << code[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
         std::cout << "\t\t" << code[i+3] << " == " << expVal[i+3] << ":";
-        if (testCode(code[i+3], expVal[i+3]))
+        if (testCode(code[i+3], expVal[i+3], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
         if (i < (sizeof(code)/sizeof(code[0])/2)-1)
             std::cout << std::endl;
@@ -448,21 +444,21 @@ bool testFunction(){
     return finalSuccess;
 }
 
-bool testList(){
+bool testList(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 7.1 - List cycle:" << std::endl;
     std::string code[6]{"var test = []", "var test = test + 3 + 2 + 1 + 0", "test - 0", "var test = test - 2 - 1", "var test = test - 1 - 0", "var test = [0, 1, 2, 3, 4]"};
     std::string expVal[6]{"[]", "[3, 2, 1, 0]", "[2, 1, 0]", "[3, 0]", "[]", "[0, 1, 2, 3, 4]"};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -475,14 +471,14 @@ bool testList(){
     std::string expValOp[4]{"[0, 1, 2, 3, 4, One, Two, Three, Four]", "[One, Two, Three, Four, 0, 1, 2, 3, 4]", "0", "4"};
     success = true;
     for (int i = 0; i < sizeof(codeOp)/sizeof(codeOp[0]); i++){
-        success = true;
         std::cout << "\t\t" << codeOp[i] << " == " << expValOp[i] << ":";
-        if (testCode(codeOp[i], expValOp[i]))
+        if (testCode(codeOp[i], expValOp[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -495,14 +491,14 @@ bool testList(){
     std::string expValNested[1]{"[List obj, [Nested list obj]]"};
     success = true;
     for (int i = 0; i < sizeof(codeNested)/sizeof(codeNested[0]); i++){
-        success = true;
         std::cout << "\t\t" << codeNested[i] << " == " << expValNested[i] << ":";
-        if (testCode(codeNested[i], expValNested[i]))
+        if (testCode(codeNested[i], expValNested[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -512,7 +508,7 @@ bool testList(){
     return finalSuccess;
 }
 
-bool testStrings(){
+bool testStrings(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 8.1 - Special characters:" << std::endl;
     std::string code[3]{"\"\n\"", "\"\t\"", "\"\\\\\""};
@@ -520,14 +516,14 @@ bool testStrings(){
     std::string expVal[3]{"\n", "\t", "\\"};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << toPrint[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -536,18 +532,18 @@ bool testStrings(){
         std::cout << "\tTest 8.1 - Fail\n" << std::endl;
     
     std::cout << "\tTest 8.2 - Letters as strings:" << std::endl;
-    std::string codeLetters[3]{"\"Lorem Bacon\"", "\"A\"", "\"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\""};
-    std::string expValLetters[3]{"Lorem Bacon", "A", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+    std::string codeLetters[3]{"\"Lorem Bacon\"", "\"\"", "\"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\""};
+    std::string expValLetters[3]{"Lorem Bacon", "", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};
     success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << codeLetters[i] << ":";
-        if (testCode(codeLetters[i], expValLetters[i]))
+        if (testCode(codeLetters[i], expValLetters[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -560,14 +556,14 @@ bool testStrings(){
     std::string expValNumbers[3]{"0", "123", "999999999999999999999999999999999999"};
     success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << codeNumber[i] << ":";
-        if (testCode(codeNumber[i], expValNumbers[i]))
+        if (testCode(codeNumber[i], expValNumbers[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -580,14 +576,14 @@ bool testStrings(){
     std::string expValRandoms[3]{"ksG34|", "+%hwS=r", "#slF  %lW"};
     success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << codeRandom[i] << ":";
-        if (testCode(codeRandom[i], expValRandoms[i]))
+        if (testCode(codeRandom[i], expValRandoms[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -598,21 +594,21 @@ bool testStrings(){
 
 }
 
-bool testBuiltInFunctions(){
+bool testBuiltInFunctions(SymbolTable* symtab){
     /* bool finalSuccess = true;
     std::cout << "\tTest x.x - xxx:" << std::endl;
     std::string code[]{};
     double expVal[]{};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -622,21 +618,21 @@ bool testBuiltInFunctions(){
     return false;
 }
 
-bool testReturnStat(){
+bool testReturnStat(SymbolTable* symtab){
     /* bool finalSuccess = true;
     std::cout << "\tTest x.x - xxx:" << std::endl;
     std::string code[]{};
     double expVal[]{};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)
@@ -646,21 +642,21 @@ bool testReturnStat(){
     return false;
 }
 
-bool testReadScript(){
+bool testReadScript(SymbolTable* symtab){
     /* bool finalSuccess = true;
     std::cout << "\tTest x.x - xxx:" << std::endl;
     std::string code[]{};
     double expVal[]{};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
-        success = true;
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
-        if (testCode(code[i], expVal[i]))
+        if (testCode(code[i], expVal[i], symtab))
             std::cout << " Success" << std::endl;
         else
         {
             std::cout << " Failed" << std::endl;
-            finalSuccess = success = false;
+            finalSuccess = false; 
+            success = false;
         }
     }
     if (success)

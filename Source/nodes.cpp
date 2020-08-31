@@ -30,6 +30,9 @@ std::ostream& operator<<(std::ostream& os , const astNode* node){
     return os << getType(((numberNode*)node)->tok);
 }
 
+Position::Position(){
+};
+
 void Position::advance(char currentChar){
     index++;
     col++;
@@ -46,4 +49,12 @@ std::string Position::getPos(){
     std::string pos;
     pos = ss.str();
     return pos;
+}
+
+void Position::set(std::string fn, std::string ftxt){
+    index =0;
+    line = 0;
+    col = 0;
+    filename = fn;
+    filetext = ftxt;
 }

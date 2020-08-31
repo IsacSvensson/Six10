@@ -569,3 +569,10 @@ ParseResult* ParseResult::failure(Error* error){
         this->error = error;
     return this;
 }
+
+void Parser::reset(std::vector<Token> tokens){
+    tokIndex = 0;
+    while (!this->tokens.empty())
+        this->tokens.clear();
+    this->tokens = tokens;
+}

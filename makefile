@@ -8,8 +8,8 @@ DELETE := del
 CPP := g++
 CPPFLAGS := -g -std=c++17
 
-$(EXECUTABLE): $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o $(BUILD)test.o
-	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o $(BUILD)test.o -o $(EXECUTABLE)
+$(EXECUTABLE): $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o $(BUILD)test.o $(BUILD)six10.o
+	$(CPP) $(CPPFLAGS) $(BUILD)main.o $(BUILD)parser.o $(BUILD)nodes.o $(BUILD)helpers.o $(BUILD)interpreter.o $(BUILD)test.o $(BUILD)six10.o -o $(EXECUTABLE)
 
 $(BUILD)main.o: $(SOURCE)main.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)main.cpp -I$(INCLUDES) -o $(BUILD)main.o
@@ -28,6 +28,9 @@ $(BUILD)interpreter.o: $(SOURCE)interpreter.cpp
 
 $(BUILD)test.o: $(SOURCE)test.cpp
 	$(CPP) $(CPPFLAGS) -c $(SOURCE)test.cpp -I$(INCLUDES) -o $(BUILD)test.o
+	
+$(BUILD)six10.o: $(SOURCE)six10.cpp
+	$(CPP) $(CPPFLAGS) -c $(SOURCE)six10.cpp -I$(INCLUDES) -o $(BUILD)six10.o
 
 clean:
 	-$(DELETE) $(EXECUTABLE)
@@ -36,4 +39,5 @@ clean:
 	-$(DELETE) $(BUILD)nodes.o
 	-$(DELETE) $(BUILD)helpers.o
 	-$(DELETE) $(BUILD)interpreter.o
-	
+	-$(DELETE) $(BUILD)test.o
+	-$(DELETE) $(BUILD)six10.o

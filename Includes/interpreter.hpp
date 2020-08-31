@@ -89,6 +89,13 @@ public:
     unsigned int symHash(std::string id);
     Value* get(std::string id);
     void set(std::string id, Value* val);
+    SymbolTable() 
+        {for (std::size_t i = 0; i < 100; i++) 
+            symtab.push_back(nullptr); 
+        this->parent = nullptr; numOfSyms = 0;
+        set("null", new Number(0, INTEGER));
+        set("True", new Number(1, INTEGER));
+        set("False", new Number(0, INTEGER));}
     SymbolTable(std::size_t tableSize, SymbolTable* parent = nullptr) 
         {for (std::size_t i = 0; i < tableSize; i++) symtab.push_back(nullptr); this->parent = parent; numOfSyms = 0;}
     ~SymbolTable() {
@@ -165,8 +172,10 @@ class Lexer{
     std::vector<struct Token> tokens;
     void advance();
 public:
+    Lexer() : sourceCode(""), pos(), filename(""), it(sourceCode.begin()) {};
     Lexer(std::string sc, std::string fn) : sourceCode(sc), pos(fn, sourceCode), filename(fn), it(sourceCode.begin()) {};
     std::pair<std::vector<struct Token>, Error*> makeTokens();
+    void reset(std::string sc, std::string fn);
 };
 
 class Interpreter{
@@ -188,6 +197,7 @@ public:
     RuntimeResult* visitListNode(astNode* node, Context* context);
     Interpreter(astNode* n) : node(n) {};
     Interpreter() : node(nullptr) {};
+    void setNode(astNode* node);
 };
 
 class RuntimeResult{

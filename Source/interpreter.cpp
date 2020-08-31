@@ -652,3 +652,15 @@ Value* copyValue(Value* val){
         return nullptr;
     }
 }
+
+void Lexer::reset(std::string sc, std::string fn){
+    this->filename = fn;
+    this->sourceCode = sc;
+    this->it = sourceCode.begin();
+    this->pos.set(fn, sc);
+    tokens.clear();
+}
+
+void Interpreter::setNode(astNode* node){
+    this->node = node;
+}

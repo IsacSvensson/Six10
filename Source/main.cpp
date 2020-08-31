@@ -5,47 +5,23 @@
 #include "parser.hpp"
 #include "test.hpp"
 #include "helpers.hpp"
-
-static SymbolTable globalSymTab(100);
-
-std::pair<Value*, Error*> run(std::string code, std::string fn){
-    Lexer lex(code, fn);
-    auto tokens = lex.makeTokens();
-
-    if(tokens.second){
-        return std::make_pair(nullptr, tokens.second);
-    }
-
-    Parser p(tokens.first);
-    auto res = p.parse();
-    if (res->error){
-            return std::make_pair(nullptr, res->error);
-        }
-
-    Interpreter interpreter(res->node);
-    Context* context = new Context("<program>");
-    context->symTab = &globalSymTab;
-    auto result = interpreter.visit(res->node, context);
-    
-    return std::make_pair(result->value, result->error);
-}
+#include "six10.hpp"
 
 int main(int argc, char* argv[]){
-    globalSymTab.set("null", new Number(0, INTEGER));
-    globalSymTab.set("True", new Number(1, INTEGER));
-    globalSymTab.set("False", new Number(0, INTEGER));
     if (argc > 1){
         std::string opt = argv[1];
-        if (opt == "-shell")
+        if (opt == "-shell"){
+            Six10 obj;
+            obj = Six10();
+            std::string text;
+            std::string cli = "Command line interface";
             while (true)
             {
-                std::string text;
                 printf(">> ");
                 std::getline(std::cin, text);
                 if (text == "q")
                     return 0;
-                std::string cli = "Command line interface";
-                auto res = run(text, cli);
+                auto res = obj.run(text, cli);
                 if (res.second)
                     if (res.second->type == RTERROR)
                         std::cout << ((RuntimeError*)res.second)->toString();
@@ -53,22 +29,27 @@ int main(int argc, char* argv[]){
                         std::cout << res.second->toString() << std::endl;
                 else if (res.first)
                     std::cout << printValue(res.first) << std::endl;
-                    
-        } else if (opt == "-test")
-            testAllFunc();
-        else if(opt == "-h" || opt == "-hjälp")
-        {
-            std::cout << "\nOptions:\n----------------------------------------------------------------\n" 
+            } }
+        else if (opt == "-test"){ 
+            auto symtab = new SymbolTable();
+            testAllFunc(symtab);
+            delete symtab;
+        }
+        else if(opt == "-h" || opt == "-help"){
+            std::cout << "\nSix10 - Programming Language\n\nOptions:\n----------------------------------------------------------------\n" 
                 << " -h, -help\t\tHelp, show this display\n"
-                << " -shell\t\t\tOpens CLI\n" << " filename\t\tReads local file to lexer and parser\n" 
+                << " -shell\t\t\tOpens CLI\n" << " filename.six10\t\tRuns local file\n"
+                << " -test\t\t\tRuns all unit tests\n"
                 << "----------------------------------------------------------------\n"
                 << "   Github repo: https://github.com/IsacSvensson/Six10\n";
         }
         else
         {
+            Six10 obj;
+            obj = Six10();
             std::string sourceCode;
             getSourceCode(opt, sourceCode);
-            run(sourceCode, opt);
+            obj.run(sourceCode, opt);
         }
     }
     else
