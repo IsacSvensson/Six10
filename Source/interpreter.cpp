@@ -163,12 +163,7 @@ RuntimeResult* Interpreter::visitVarAccessNode(astNode* node, Context* context){
     auto name = ((VarAccessNode*)node)->varNameTok->value;
     auto content = context->symTab->get(name);
     Value* value = nullptr;
-    if (content && (content->type == INTEGER || content->type == FLOAT)){
-        value = new Number((Number*)content);
-        value->setPos(node->posStart, node->posEnd);
-    }
-
-    if (content && (content->type == FUNCDEF || content->type == FUNC || content->type == BUILTINFUNC || content->type == LIST)){
+    if (content){
         value = copyValue(content);
         value->setPos((node)->posStart, (node)->posEnd);
     }
@@ -298,7 +293,11 @@ RuntimeResult* Interpreter::visitCallNode(astNode* node, Context* context){
         if (res->error) return res;
     }
 
-    auto returnVal = res->registerResult(((Function*)valueToCall)->execute(args));
+    Value* returnVal;
+    if (valueToCall->type == BUILTINFUNC)
+        returnVal = res->registerResult(((BuiltInFunction*)valueToCall->setContext(context))->execute(args));
+    else
+        returnVal = res->registerResult(((Function*)valueToCall)->execute(args));
     if (res->error) return res;
 
     return res->success(returnVal);
@@ -458,6 +457,7 @@ void SymbolTable::set(std::string id, Value* val){
     }
     else{
         symtab[index] = new SymNode(id, val);
+        numOfSyms++;
     }
 }
 
@@ -656,13 +656,6 @@ RuntimeResult* Function::execute(std::vector<Value*> args){
     return res->success(value);
 }
 
-RuntimeResult* BuiltInFunction::execute(std::vector<Value*> args){
-    auto res = new RuntimeResult();
-    auto execCtx = generateNewContext();
-
-    if (name == "print");
-}
-
 std::ostream& operator<<(std::ostream& os , const Function* func){
     return os << "<function " + func->name + ">";
 }
@@ -671,11 +664,15 @@ Value* copyValue(Value* val){
     switch (val->type)
     {
     case INTEGER: case FLOAT:
-        return new Number(((Number*)val)->value, val->type);
+        return (new Number(((Number*)val)->value, val->type))->setContext();
     case FUNC:
-        return new Function(((Function*)val));
+        return (new Function(((Function*)val)))->setContext();
+    case BUILTINFUNC:
+        return (new BuiltInFunction(((BuiltInFunction*)val)))->setContext();
     case LIST:
-        return new List(((List*)val));
+        return (new List(((List*)val)))->setContext();
+        case STRING:
+        return (new String(((String*)val)))->setContext();
     default:
         return nullptr;
     }
@@ -691,4 +688,168 @@ void Lexer::reset(std::string sc, std::string fn){
 
 void Interpreter::setNode(astNode* node){
     this->node = node;
+}
+
+RuntimeResult* BuiltInFunction::execute(std::vector<Value*> args){
+    auto res = new RuntimeResult();
+    auto execCtx = generateNewContext();
+    std::vector<std::string> argNames;
+
+    if (name == "print"){
+        argNames.push_back("value");
+
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executePrint(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "printRet"){
+        argNames.push_back("value");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executePrintRet(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "input"){
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeInput(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "inputInt"){
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeInputInt(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "clear"){
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeClear(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "isNumber"){
+        argNames.push_back("value");
+
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeIsNumber(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "isString"){
+        argNames.push_back("value");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeIsString(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "isList"){
+        argNames.push_back("value");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeIsList(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "isFunction"){
+        argNames.push_back("value");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeIsFunction(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "extend"){
+        argNames.push_back("listA");
+        argNames.push_back("listB");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeExtend(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "pop"){
+        argNames.push_back("list");
+        argNames.push_back("index");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executePop(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+    else if (name == "append"){
+        argNames.push_back("list");
+        argNames.push_back("value");
+        
+        res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
+        if (res->error) return res;
+
+        auto returnValue = res->registerResult(executeAppend(execCtx));
+        if (res->error) return res;
+        return res->success(returnValue);
+    }
+        std::string errorMessage = "No execute" + name + " method defined.";
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, errorMessage));
+    
+}
+RuntimeResult* BuiltInFunction::executePrint(Context* execCtx){
+    std::cout << printValue(execCtx->symTab->get("value")) << std::endl;
+    return (new RuntimeResult())->success(new Number(0, INTEGER));
+}
+RuntimeResult* BuiltInFunction::executePrintRet(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeInput(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeInputInt(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeClear(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeIsNumber(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeIsString(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeIsList(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeIsFunction(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeAppend(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executePop(Context* execCtx){
+    
+}
+RuntimeResult* BuiltInFunction::executeExtend(Context* execCtx){
+    
 }

@@ -86,7 +86,20 @@ public:
 class BuiltInFunction : public BaseFunction{
 public:
     BuiltInFunction(std::string name) : BaseFunction(BUILTINFUNC, name) {setPos();};
+    BuiltInFunction(BuiltInFunction* func) : BaseFunction(BUILTINFUNC, func->name) {setPos();};
     RuntimeResult* execute(std::vector<Value*> args);
+    RuntimeResult* executePrint(Context* execCtx);
+    RuntimeResult* executePrintRet(Context* execCtx);
+    RuntimeResult* executeInput(Context* execCtx);
+    RuntimeResult* executeInputInt(Context* execCtx);
+    RuntimeResult* executeClear(Context* execCtx);
+    RuntimeResult* executeIsNumber(Context* execCtx);
+    RuntimeResult* executeIsString(Context* execCtx);
+    RuntimeResult* executeIsList(Context* execCtx);
+    RuntimeResult* executeIsFunction(Context* execCtx);
+    RuntimeResult* executeAppend(Context* execCtx);
+    RuntimeResult* executePop(Context* execCtx);
+    RuntimeResult* executeExtend(Context* execCtx);
 };
 
 
@@ -112,7 +125,8 @@ public:
         this->parent = nullptr; numOfSyms = 0;
         set("null", new Number(0, INTEGER));
         set("True", new Number(1, INTEGER));
-        set("False", new Number(0, INTEGER));}
+        set("False", new Number(0, INTEGER));
+        set("print", new BuiltInFunction("print"));}
     SymbolTable(std::size_t tableSize, SymbolTable* parent = nullptr) 
         {for (std::size_t i = 0; i < tableSize; i++) symtab.push_back(nullptr); this->parent = parent; numOfSyms = 0;}
     ~SymbolTable() {

@@ -27,8 +27,6 @@ int main(int argc, char* argv[]){
                         std::cout << ((RuntimeError*)res.second)->toString();
                     else
                         std::cout << res.second->toString() << std::endl;
-                else if (res.first)
-                    std::cout << printValue(res.first) << std::endl;
             } }
         else if (opt == "-test"){ 
             auto symtab = new SymbolTable();
