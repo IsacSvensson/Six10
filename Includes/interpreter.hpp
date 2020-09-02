@@ -91,7 +91,7 @@ public:
     RuntimeResult* executePrint(Context* execCtx);
     RuntimeResult* executePrintRet(Context* execCtx);
     RuntimeResult* executeInput(Context* execCtx);
-    RuntimeResult* executeInputInt(Context* execCtx);
+    RuntimeResult* executeInputNumber(Context* execCtx);
     RuntimeResult* executeClear(Context* execCtx);
     RuntimeResult* executeIsNumber(Context* execCtx);
     RuntimeResult* executeIsString(Context* execCtx);
@@ -126,7 +126,10 @@ public:
         set("null", new Number(0, INTEGER));
         set("True", new Number(1, INTEGER));
         set("False", new Number(0, INTEGER));
-        set("print", new BuiltInFunction("print"));}
+        set("print", new BuiltInFunction("print"));
+        set("input", new BuiltInFunction("input"));
+        set("inputNumber", new BuiltInFunction("inputNumber"));
+        set("clear", new BuiltInFunction("clear"));}
     SymbolTable(std::size_t tableSize, SymbolTable* parent = nullptr) 
         {for (std::size_t i = 0; i < tableSize; i++) symtab.push_back(nullptr); this->parent = parent; numOfSyms = 0;}
     ~SymbolTable() {

@@ -16,3 +16,4 @@ std::string getType(Type t);
 std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end);
 void getSourceCode(std::string path, std::string &sourceCode);
 std::string printValue(Value* res);
+void clearScreen();

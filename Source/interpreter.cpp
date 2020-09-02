@@ -5,6 +5,7 @@
 #include <cmath>
 #include <utility>
 #include <sstream>
+#include <string>
 #include <iostream>
 
 RuntimeResult* Interpreter::visit(astNode* node, Context* context){
@@ -723,11 +724,11 @@ RuntimeResult* BuiltInFunction::execute(std::vector<Value*> args){
         if (res->error) return res;
         return res->success(returnValue);
     }
-    else if (name == "inputInt"){
+    else if (name == "inputNumber"){
         res->registerResult(checkAndPopulateArgs(argNames, args, execCtx));
         if (res->error) return res;
 
-        auto returnValue = res->registerResult(executeInputInt(execCtx));
+        auto returnValue = res->registerResult(executeInputNumber(execCtx));
         if (res->error) return res;
         return res->success(returnValue);
     }
@@ -821,16 +822,35 @@ RuntimeResult* BuiltInFunction::executePrint(Context* execCtx){
     return (new RuntimeResult())->success(new Number(0, INTEGER));
 }
 RuntimeResult* BuiltInFunction::executePrintRet(Context* execCtx){
-    
+    return (new RuntimeResult())->success(new String(printValue(execCtx->symTab->get("value"))));
 }
 RuntimeResult* BuiltInFunction::executeInput(Context* execCtx){
-    
+    std::string text;
+    std::getline(std::cin, text);
+    return (new RuntimeResult())->success(new String(text));
 }
-RuntimeResult* BuiltInFunction::executeInputInt(Context* execCtx){
+RuntimeResult* BuiltInFunction::executeInputNumber(Context* execCtx){
+    std::string input;
+    while (true)
+    {
+        std::getline(std::cin, input);
+        auto result = isType(input.begin(), input.end());
+        if (result.first == INTEGER || result.first == FLOAT)
+            if (result.second != input.length())
+                std::cout << "'" << input << "' must be a number. Try again." << std::endl;
+            else
+            {
+                double val = std::stof(input);
+                if (val-int(val) > 0)
+                    return (new RuntimeResult())->success(new Number(val, FLOAT));
+                return (new RuntimeResult())->success(new Number(val, INTEGER));
+            }
+    }
     
 }
 RuntimeResult* BuiltInFunction::executeClear(Context* execCtx){
-    
+    clearScreen();
+    return (new RuntimeResult())->success(new Number(0, INTEGER));
 }
 RuntimeResult* BuiltInFunction::executeIsNumber(Context* execCtx){
     

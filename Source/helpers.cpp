@@ -433,3 +433,7 @@ void getSourceCode(std::string path, std::string &sourceCode){
         abort();
     }
 }
+
+void clearScreen(){
+    std::cout << std::string( 100, '\n' );
+}
