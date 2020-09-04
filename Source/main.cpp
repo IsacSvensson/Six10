@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
             Six10 obj;
             obj = Six10();
             std::string text;
-            std::string cli = "Command line interface";
+            std::string cli = "<Command line interface>";
             while (true)
             {
                 printf(">> ");

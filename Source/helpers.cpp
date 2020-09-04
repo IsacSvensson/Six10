@@ -406,19 +406,32 @@ std::string getType(Type t){
 std::string printValue(Value* res){
     std::stringstream ss;
 
-    if (res->type == INTEGER || res->type == FLOAT)
+    switch (res->type)
+    {
+    case INTEGER: case FLOAT:
         ss << ((Number*)res)->value;
-    else if (res->type == STRING)
+        break;
+    case STRING:
         ss << ((String*)res)->value;
-    else if (res->type == LIST){
+        break;
+    case LIST:
         ss << "[";
-    for (int i = 0; i < ((List*)res)->elements.size(); i++){
-            ss << printValue(((List*)res)->elements[i]);
-            if (i+1 < ((List*)res)->elements.size())
-                ss << ", ";
-        }
-        ss << "]";
+        for (int i = 0; i < ((List*)res)->elements.size(); i++){
+                ss << printValue(((List*)res)->elements[i]);
+                if (i+1 < ((List*)res)->elements.size())
+                    ss << ", ";
+            }
+            ss << "]";
+        break;
+    case FUNC:
+        ss << "<Function: " << ((Function*)res)->name << ">";
+        break;
+    case BUILTINFUNC:
+        ss << "<Built In Function: " << ((Function*)res)->name << ">";
+    default:
+        break;
     }
+
     std::string toRet = ss.str();
     return toRet;
 }

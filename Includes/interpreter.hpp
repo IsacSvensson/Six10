@@ -129,7 +129,13 @@ public:
         set("print", new BuiltInFunction("print"));
         set("input", new BuiltInFunction("input"));
         set("inputNumber", new BuiltInFunction("inputNumber"));
-        set("clear", new BuiltInFunction("clear"));}
+        set("clear", new BuiltInFunction("clear"));
+        set("isNumber", new BuiltInFunction("isNumber"));
+        set("isString", new BuiltInFunction("isString"));
+        set("isString", new BuiltInFunction("isList"));
+        set("isString", new BuiltInFunction("isFunction"));
+        set("pop", new BuiltInFunction("pop"));
+        set("append", new BuiltInFunction("append"));}
     SymbolTable(std::size_t tableSize, SymbolTable* parent = nullptr) 
         {for (std::size_t i = 0; i < tableSize; i++) symtab.push_back(nullptr); this->parent = parent; numOfSyms = 0;}
     ~SymbolTable() {

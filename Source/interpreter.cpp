@@ -298,7 +298,7 @@ RuntimeResult* Interpreter::visitCallNode(astNode* node, Context* context){
     if (valueToCall->type == BUILTINFUNC)
         returnVal = res->registerResult(((BuiltInFunction*)valueToCall->setContext(context))->execute(args));
     else
-        returnVal = res->registerResult(((Function*)valueToCall)->execute(args));
+        returnVal = res->registerResult(((Function*)valueToCall->setContext(context))->execute(args));
     if (res->error) return res;
 
     return res->success(returnVal);
@@ -474,6 +474,8 @@ Value* SymbolTable::get(std::string id){
         else if (parent)
             return parent->get(id);
     }
+    else if(parent)
+        return parent->get(id);
     return nullptr;
 }
 
@@ -671,8 +673,8 @@ Value* copyValue(Value* val){
     case BUILTINFUNC:
         return (new BuiltInFunction(((BuiltInFunction*)val)))->setContext();
     case LIST:
-        return (new List(((List*)val)))->setContext();
-        case STRING:
+        return val;
+    case STRING:
         return (new String(((String*)val)))->setContext();
     default:
         return nullptr;
@@ -853,22 +855,58 @@ RuntimeResult* BuiltInFunction::executeClear(Context* execCtx){
     return (new RuntimeResult())->success(new Number(0, INTEGER));
 }
 RuntimeResult* BuiltInFunction::executeIsNumber(Context* execCtx){
-    
+    auto val = execCtx->symTab->get("value");
+    if (val->type == INTEGER || val->type == FLOAT)
+        return (new RuntimeResult())->success(execCtx->symTab->get("True"));
+    return (new RuntimeResult())->success(execCtx->symTab->get("False"));
 }
 RuntimeResult* BuiltInFunction::executeIsString(Context* execCtx){
-    
+    auto val = execCtx->symTab->get("value");
+    if (val->type == STRING)
+        return (new RuntimeResult())->success(execCtx->symTab->get("True"));
+    return (new RuntimeResult())->success(execCtx->symTab->get("False"));
 }
 RuntimeResult* BuiltInFunction::executeIsList(Context* execCtx){
-    
+    auto val = execCtx->symTab->get("value");
+    if (val->type == LIST)
+        return (new RuntimeResult())->success(execCtx->symTab->get("True"));
+    return (new RuntimeResult())->success(execCtx->symTab->get("False"));
 }
 RuntimeResult* BuiltInFunction::executeIsFunction(Context* execCtx){
-    
+    auto val = execCtx->symTab->get("value");
+    if (val->type == FUNC || val->type == BUILTINFUNC)
+        return (new RuntimeResult())->success(execCtx->symTab->get("True"));
+    return (new RuntimeResult())->success(execCtx->symTab->get("False"));
 }
 RuntimeResult* BuiltInFunction::executeAppend(Context* execCtx){
-    
+    auto res = new RuntimeResult();
+    auto list = execCtx->symTab->get("list");
+    auto val = execCtx->symTab->get("value");
+
+    if (list->type != LIST)
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "First argument must be list", execCtx));
+    ((List*)list)->elements.push_back(val);
+    return res->success(execCtx->symTab->get("null"));
 }
 RuntimeResult* BuiltInFunction::executePop(Context* execCtx){
-    
+    auto res = new RuntimeResult();
+    auto list = execCtx->symTab->get("list");
+    auto index = execCtx->symTab->get("index");
+    double indexVal = ((Number*)index)->value;
+
+    if (list->type != LIST)
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "First argument must be list", execCtx));
+
+    if (index->type != INTEGER && index->type == FLOAT)
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "Second argument must be number", execCtx));
+
+    if (indexVal > ((List*)list)->elements.size() || ((List*)list)->elements.empty())
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "Element at this index could not be removed from list because index is out of bounds", execCtx));
+
+    auto element = ((List*)list)->elements[int(indexVal)];
+    ((List*)list)->elements.erase(((List*)list)->elements.begin()+int(indexVal));
+
+    return res->success(element);
 }
 RuntimeResult* BuiltInFunction::executeExtend(Context* execCtx){
     
