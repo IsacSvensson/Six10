@@ -135,7 +135,8 @@ public:
         set("isString", new BuiltInFunction("isList"));
         set("isString", new BuiltInFunction("isFunction"));
         set("pop", new BuiltInFunction("pop"));
-        set("append", new BuiltInFunction("append"));}
+        set("append", new BuiltInFunction("append"));
+        set("extend", new BuiltInFunction("extend"));}
     SymbolTable(std::size_t tableSize, SymbolTable* parent = nullptr) 
         {for (std::size_t i = 0; i < tableSize; i++) symtab.push_back(nullptr); this->parent = parent; numOfSyms = 0;}
     ~SymbolTable() {

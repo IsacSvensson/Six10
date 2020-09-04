@@ -618,6 +618,7 @@ Error* Value::IllegalOperation(Value* other){
 Context* BaseFunction::generateNewContext(){
     Context* newContext = new Context(name, context, posStart);
     newContext->symTab = new SymbolTable(100, newContext->parent->symTab);
+    return newContext;
 }
 RuntimeResult* BaseFunction::checkArgs(std::vector<std::string> argNames, std::vector<Value*> args){
     auto res = new RuntimeResult();
@@ -817,11 +818,10 @@ RuntimeResult* BuiltInFunction::execute(std::vector<Value*> args){
     }
         std::string errorMessage = "No execute" + name + " method defined.";
         return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, errorMessage));
-    
 }
 RuntimeResult* BuiltInFunction::executePrint(Context* execCtx){
     std::cout << printValue(execCtx->symTab->get("value")) << std::endl;
-    return (new RuntimeResult())->success(new Number(0, INTEGER));
+    return (new RuntimeResult())->success(nullptr);
 }
 RuntimeResult* BuiltInFunction::executePrintRet(Context* execCtx){
     return (new RuntimeResult())->success(new String(printValue(execCtx->symTab->get("value"))));
@@ -852,7 +852,7 @@ RuntimeResult* BuiltInFunction::executeInputNumber(Context* execCtx){
 }
 RuntimeResult* BuiltInFunction::executeClear(Context* execCtx){
     clearScreen();
-    return (new RuntimeResult())->success(new Number(0, INTEGER));
+    return (new RuntimeResult())->success(nullptr);
 }
 RuntimeResult* BuiltInFunction::executeIsNumber(Context* execCtx){
     auto val = execCtx->symTab->get("value");
@@ -886,7 +886,7 @@ RuntimeResult* BuiltInFunction::executeAppend(Context* execCtx){
     if (list->type != LIST)
         return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "First argument must be list", execCtx));
     ((List*)list)->elements.push_back(val);
-    return res->success(execCtx->symTab->get("null"));
+    return res->success(nullptr);
 }
 RuntimeResult* BuiltInFunction::executePop(Context* execCtx){
     auto res = new RuntimeResult();
@@ -909,5 +909,17 @@ RuntimeResult* BuiltInFunction::executePop(Context* execCtx){
     return res->success(element);
 }
 RuntimeResult* BuiltInFunction::executeExtend(Context* execCtx){
-    
+    auto res = new RuntimeResult();
+    auto listA = execCtx->symTab->get("listA");
+    auto listB = execCtx->symTab->get("listB");
+
+    if (listA->type != LIST)
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "First argument must be list", execCtx));
+    if (listB->type != LIST)
+        return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, "Second argument must be list", execCtx));
+
+    ((List*)listA)->elements.reserve(((List*)listA)->elements.size() + distance(((List*)listB)->elements.begin(),((List*)listB)->elements.end()));
+    ((List*)listA)->elements.insert(((List*)listA)->elements.end(),((List*)listB)->elements.begin(),((List*)listB)->elements.end());
+
+    return res->success(nullptr);
 }
