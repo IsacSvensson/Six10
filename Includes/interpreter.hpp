@@ -17,6 +17,14 @@ public:
     Context* context;
     Value(Type t) : type(t) {setPos();};
     Value(Value* val) : type(val->type), posStart((val->posStart)?new Position(*val->posStart):nullptr), posEnd((val->posEnd)?new Position(*val->posEnd):nullptr), context(val->context) {};
+    ~Value() {
+        if (posStart)
+            delete posStart;
+        if (posEnd)
+            delete posEnd;
+        if (context)
+            delete context;
+    };
     Value* setPos(Position* start = nullptr, Position* end = nullptr);
     Value* setContext(Context* context);
     std::pair<Value*, Error*> addedTo(Value* other);
@@ -42,6 +50,9 @@ public:
     std::vector<Value*> elements;
     List(std::vector<Value*> elements, Type t = LIST) : elements(elements), Value(t) {setPos();};
     List(List* list) : elements(list->elements), Value(list) {};
+    ~List() {
+
+    }
     std::pair<Value*, Error*> addedTo(Value* other);
     std::pair<Value*, Error*> subtractedBy(Value* other);
     std::pair<Value*, Error*> multipliedby(Value* other);
@@ -109,6 +120,12 @@ public:
     Value* value;
     SymNode* next;
     SymNode(std::string id, Value* val) : name(id), value(val), next(nullptr) {};
+    ~SymNode() {
+        if (value)
+            delete value;
+        if (next)
+            delete next;
+    }
 };
 
 class SymbolTable{
@@ -142,12 +159,6 @@ public:
     ~SymbolTable() {
                         for (std::size_t i = 0; i < symtab.size(); i++)
                             if (symtab[i]){
-                                auto next = symtab[i]->next;
-                                while (next){
-                                    auto cpy = next;
-                                    next = next->next;
-                                    delete cpy;
-                                }
                                 delete symtab[i];
                             }
                     }

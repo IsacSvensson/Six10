@@ -12,6 +12,6 @@ private:
     Interpreter interpreter;
 public:
     Six10(SymbolTable* symtab = new SymbolTable());
-    ~Six10();
+    ~Six10() {if (symtab) delete symtab;};
     std::pair<Value*, Error*> run(std::string code, std::string fn);
 };
