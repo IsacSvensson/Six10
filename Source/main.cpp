@@ -12,7 +12,6 @@ int main(int argc, char* argv[]){
         std::string opt = argv[1];
         if (opt == "-shell"){
             Six10 obj;
-            obj = Six10();
             std::string text;
             std::string cli = "<Command line interface>";
             while (true)
@@ -21,12 +20,19 @@ int main(int argc, char* argv[]){
                 std::getline(std::cin, text);
                 if (text == "q")
                     return 0;
+                else if (text == "")
+                    continue;
                 auto res = obj.run(text, cli);
                 if (res.second)
                     if (res.second->type == RTERROR)
                         std::cout << ((RuntimeError*)res.second)->toString();
                     else
                         std::cout << res.second->toString() << std::endl;
+                else
+                    if ((((List*)(res.first))->elements.size() == 1) && ((List*)(res.first))->elements[0])
+                        std::cout << returnValue(((List*)(res.first))->elements[0]) << std::endl;
+                    else if (((List*)(res.first))->elements.size() > 1)
+                        std::cout << returnValue(res.first) << std::endl;
             } }
         else if (opt == "-test"){ 
             auto symtab = new SymbolTable();

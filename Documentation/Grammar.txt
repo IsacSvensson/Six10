@@ -1,3 +1,5 @@
+statements  : NEWLINE* expr (NEWLINE+ expr)* NEWLINE
+
 expr        : Keyword:var IDENTIFIER ASSIGNMENTOP expr
             | comp-expr ((("&&" | "||") | (Keyword:and | Keyword:or))comp-expr)*
 
@@ -25,15 +27,28 @@ atom        : IDENTIFIER|INT|FLOAT
 
 list-expr   : LEFTSQUAREPARENTHESIS (LEFTPARENTHESIS (expr (COMMA expr)*)? RIGTHSQUAREPARENTHESIS
 
-if-expr     : Keyword:if expr Keyword:then expr
-              (Keyword:elif expr Keyword:then expr)*
-              (Keyword:else expr)?
+if-expr     : Keyword:if expr Keyword:then
+              (expr if-expr-b|if-expr-c?)
+            | (NEWLINE statements Keyword:end|if-expr-b|if-expr-c)
+
+if-expr-b   : Keyword:elif expr Keyword:then
+              (expr if-expr-b|if-expr-c?)
+            | (NEWLINE statements Keyword:end|if-expr-b|if-expr-c)
+
+if-expr-c   : Keyword:else 
+              expr
+            | (NEWLINE statements Keyword:end)
 
 for-expr    : Keyword:for IDENTIFIER ASSIGNMENTOP expr Keyword:to expr
-              (Keyword:step expr)? Keyword:then expr
+              (Keyword:step expr)? Keyword:then 
+              expr
+            | (NEWLINE statements Keyword:end)
 
-while-expr  : Keyword:while expr Keyword:then expr  
+while-expr  : Keyword:while expr Keyword:then 
+              expr
+            | (NEWLINE statements Keyword:end)
 
 func-def    : Keyword:def IDENTIFIER? LEFTPARENTHESIS 
               (IDENTIFIER (COMMA IDENTIFIER)*)? RIGHTPARENTHESIS
-              ARROW expr
+              (ARROW expr)
+            | (NEWLINE statements Keyword:end)

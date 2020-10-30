@@ -300,7 +300,7 @@ RuntimeResult* Interpreter::visitCallNode(astNode* node, Context* context){
     else
         returnVal = res->registerResult(((Function*)valueToCall->setContext(context))->execute(args));
     if (res->error) return res;
-
+    
     return res->success(returnVal);
 }
 
@@ -309,7 +309,8 @@ RuntimeResult* Interpreter::visitListNode(astNode* node, Context* context){
     std::vector<Value*> elements;
 
     for (auto &element : ((ListNode*)node)->elementNodes){
-        elements.push_back(res->registerResult(visit(element, context)));
+        if (element)
+            elements.push_back(res->registerResult(visit(element, context)));
         if (res->error) return res;
     }
     return res->success((Value*)(new List(elements))->setContext(context)->setPos(((ListNode*)node)->posStart, ((ListNode*)node)->posEnd));
@@ -820,11 +821,11 @@ RuntimeResult* BuiltInFunction::execute(std::vector<Value*> args){
         return res->failure((Error*)new RuntimeError(posStart->filename, *posStart, *posEnd, errorMessage));
 }
 RuntimeResult* BuiltInFunction::executePrint(Context* execCtx){
-    std::cout << printValue(execCtx->symTab->get("value")) << std::endl;
+    std::cout << returnValue(execCtx->symTab->get("value")) << std::endl;
     return (new RuntimeResult())->success(nullptr);
 }
 RuntimeResult* BuiltInFunction::executePrintRet(Context* execCtx){
-    return (new RuntimeResult())->success(new String(printValue(execCtx->symTab->get("value"))));
+    return (new RuntimeResult())->success(new String(returnValue(execCtx->symTab->get("value"))));
 }
 RuntimeResult* BuiltInFunction::executeInput(Context* execCtx){
     std::string text;

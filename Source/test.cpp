@@ -61,7 +61,7 @@ bool testCode(std::string code, std::string expectedResult, SymbolTable* symtab)
     auto result = interpreter.visit(res->node, &context);
     if (result->error)
         return false;
-    return printValue(result->value) == expectedResult;
+    return returnValue(result->value) == expectedResult;
 }
 
 bool testAllFunc(SymbolTable* symtab){
@@ -448,8 +448,8 @@ bool testFunction(SymbolTable* symtab){
 bool testList(SymbolTable* symtab){
     bool finalSuccess = true;
     std::cout << "\tTest 7.1 - List cycle:" << std::endl;
-    std::string code[6]{"var test = []", "var test = test + 3 + 2 + 1 + 0", "test - 0", "var test = test - 2 - 1", "var test = test - 1 - 0", "var test = [0, 1, 2, 3, 4]"};
-    std::string expVal[6]{"[]", "[3, 2, 1, 0]", "[2, 1, 0]", "[3, 0]", "[]", "[0, 1, 2, 3, 4]"};
+    std::string code[6]{"var test = []", "var test = test + 3 + 2 + 1 + 0", "test - 0", "var test = test - 2 - 1", "var test = test - 0", "var test = [0, 1, 2, 3, 4]"};
+    std::string expVal[6]{"[]", "[3, 2, 1, 0]", "[2, 1, 0]", "[2]", "[]", "[0, 1, 2, 3, 4]"};
     bool success = true;
     for (int i = 0; i < sizeof(code)/sizeof(code[0]); i++){
         std::cout << "\t\t" << code[i] << " == " << expVal[i] << ":";
@@ -469,7 +469,7 @@ bool testList(SymbolTable* symtab){
     
     std::cout << "\tTest 7.2 - Operations:" << std::endl;
     std::string codeOp[4]{"test * [\"One\", \"Two\", \"Three\" ,\"Four\"]", "[\"One\", \"Two\", \"Three\" ,\"Four\"] * test", "test/0", "test/4"};
-    std::string expValOp[4]{"[0, 1, 2, 3, 4, One, Two, Three, Four]", "[One, Two, Three, Four, 0, 1, 2, 3, 4]", "0", "4"};
+    std::string expValOp[4]{"[0, 1, 2, 3, 4, One, Two, Three, Four]", "[One, Two, Three, Four, 0, 1, 2, 3, 4, One, Two, Three, Four]", "0", "4"};
     success = true;
     for (int i = 0; i < sizeof(codeOp)/sizeof(codeOp[0]); i++){
         std::cout << "\t\t" << codeOp[i] << " == " << expValOp[i] << ":";

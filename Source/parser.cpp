@@ -1,11 +1,24 @@
 #include "interpreter.hpp"
 #include "parser.hpp"
 
+Token* Parser::reverse(int amount){
+    tokIndex -= amount;
+    return &tokens[tokIndex];
+}
+
 Token* Parser::advance(){
     tokIndex++;
     if (tokIndex < tokens.size())
         return &tokens[tokIndex];
     return nullptr;
+}
+
+astNode* ParseResult::tryRegister(ParseResult* res){
+    if (res->error){ 
+        toReverseCount = res->advanceCount;
+        return nullptr;
+    }
+    return this->registerResult(res);
 }
 
 ParseResult* Parser::call(){
@@ -537,8 +550,45 @@ ParseResult* Parser::expr(){
     return res->success(left);
 }
 
+ParseResult* Parser::statements(){
+    auto res = new ParseResult();
+    std::vector<astNode*> statements;
+    auto posStart = new Position(*tokens[tokIndex].posStart);
+    
+    while (tokens[tokIndex].type == EOL)
+    {
+        res->registerAdvancement();
+        this->advance();
+    }
+    auto statement = res->registerResult(expr());
+    if (res->error) return res;
+    statements.push_back(statement);
+
+    bool moreStatments = true;
+
+    while (moreStatments){
+        int newlineCount = 0;
+        while (tokens[tokIndex].type == EOL)
+        {
+            res->registerAdvancement();
+            this->advance();
+            newlineCount++;
+        }
+        if (newlineCount == 0)
+            moreStatments = false;
+        statement = res->tryRegister(expr());
+        if (!statement){
+            this->reverse(res->toReverseCount);
+            moreStatments = false;
+        }
+        statements.push_back(statement);
+    }
+
+    return res->success((astNode*)(new ListNode(statements, posStart, tokens[tokIndex].posEnd)));
+}
+
 ParseResult* Parser::parse(){
-    auto res = expr();
+    auto res = statements();
     if (res->error){
         return res;
     }
@@ -550,13 +600,15 @@ ParseResult* Parser::parse(){
 }
 
 astNode* ParseResult::registerResult(ParseResult* res){
-    advanceCount++;
+    lastRegisteredAdvanceCount = res->advanceCount;
+    advanceCount += res->advanceCount;
     if(res->error)
         error = res->error;
     return res->node;
 }
 
 void ParseResult::registerAdvancement(){
+    lastRegisteredAdvanceCount = 1;
     advanceCount++;
 }
 

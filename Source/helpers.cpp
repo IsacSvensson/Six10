@@ -36,7 +36,7 @@ std::string stringWithArrows(std::string text, Position* start, Position* end){
     return result;
 }
 
-std::string keywords[16]{"var", "and", "or", "not", "for", "to", "while", "in", "if", "elif", "else", "then", "is", "equal", "step", "def"};
+std::string keywords[17]{"var", "and", "or", "not", "for", "to", "while", "in", "if", "elif", "else", "then", "is", "equal", "step", "def", "end"};
 std::string datatypes[5]{"int", "float", "bool", "char", "str"};
 std::string assignmentOperators[7]{"=", "+=", "-=", "*=", "/=", "%=", "->"};
 std::string arithmeticOperators[9]{"+", "-", "/", "*", "^", "%", "**", "++", "--"};
@@ -121,7 +121,7 @@ bool isDataType(std::string str){
     return result;
 }
 
-std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end){
+std::pair<Type, int>isType(std::string::iterator it, std::string::iterator end){
     int len = 0;
     auto newIt = it;
     bool notFound = true;
@@ -195,7 +195,7 @@ std::pair<Type, int> isType(std::string::iterator it, std::string::iterator end)
     }
     else if (*it == '\t')
         return std::make_pair(TAB, 1);
-    else if (*it == '\n')
+    else if (*it == '\n' || *it == ';')
         return std::make_pair(EOL, 1);
     else if (*it == '\r' && *(it+1) == '\n')
         return std::make_pair(WIN_EOL, 2);
@@ -403,7 +403,7 @@ std::string getType(Type t){
     }
 }
 
-std::string printValue(Value* res){
+std::string returnValue(Value* res){
     std::stringstream ss;
 
     switch (res->type)
@@ -417,7 +417,7 @@ std::string printValue(Value* res){
     case LIST:
         ss << "[";
         for (int i = 0; i < ((List*)res)->elements.size(); i++){
-                ss << printValue(((List*)res)->elements[i]);
+                ss << returnValue(((List*)res)->elements[i]);
                 if (i+1 < ((List*)res)->elements.size())
                     ss << ", ";
             }

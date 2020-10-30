@@ -2,10 +2,6 @@
 
 Six10::Six10(SymbolTable* symtab) : symtab(symtab), parser(), lexer(), interpreter() {}
 
-Six10::~Six10()
-{
-}
-
 std::pair<Value*, Error*> Six10::run(std::string code, std::string fn){
     lexer.reset(code, fn);
     auto tokens = lexer.makeTokens();

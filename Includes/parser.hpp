@@ -10,8 +10,11 @@ public:
     Error* error;
     astNode* node;
     int advanceCount;
-    ParseResult() : error(nullptr), node(nullptr), advanceCount(0) {};
+    int lastRegisteredAdvanceCount;
+    int toReverseCount;
+    ParseResult() : error(nullptr), node(nullptr), advanceCount(0), lastRegisteredAdvanceCount(0), toReverseCount(0) {};
     astNode* registerResult(ParseResult* res);
+    astNode* tryRegister(ParseResult* res);
     void registerAdvancement();
     ParseResult* success(astNode* node);
     ParseResult* failure(Error* error);
@@ -35,6 +38,8 @@ private:
     ParseResult* forExpr();
     ParseResult* whileExpr();
     ParseResult* funcDef();
+    ParseResult* statements();
+    Token* reverse(int amount = 1);
 public:
     Parser() : tokIndex(0) {};
     Parser(std::vector<Token> tokens) : tokens(tokens), tokIndex(0) {};
