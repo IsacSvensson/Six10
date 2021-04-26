@@ -1,0 +1,77 @@
+@startuml
+
+enum Type {
+}
+
+class Lexer{
+    * sourceCode: str
+    * filename: str
+    * currentRow: int
+    * currentChar: int
+    * indentLevel: int
+    * currentToken: str
+    * tokens: Token
+    --
+    # advance(): None
+    # makeTokens(): list, Error
+}
+
+class Token{
+    * type: Type
+    * value: str
+    * startPosition: Position
+    * endPosition: Position
+}
+
+class Position{
+    * index: int
+    * line: int
+    * col: int
+    * filename: str
+    --
+    # advance(): None
+    # getPosition: str
+}
+
+class Error{
+    * type: ErrorType
+    * errorName: str
+    * filename: str
+    * details: str
+    * startPosition: Position
+    * endPosition: Position
+    # toString(): str
+}
+
+class SymbolTable <<singleton>>{
+    * rootScope: Scope
+    * currentScope: Scope
+    # enterScope(): None
+    # exitScope(): None
+    # put(str: key, Variable: var): Error
+    # lookup(str: key): Variable
+    # printTable(): None
+    # resetTable():
+}
+
+class Scope{
+}
+
+class Variable{
+}
+
+class ClassInstance <<Variable>>{
+}
+
+class Method <<Variable>>{
+}
+
+Lexer <-- Token
+Type -> Token
+Position -> Token
+Variable .. ClassInstance
+Variable .. Method
+Scope <-- Variable
+SymbolTable <-- Scope
+
+@enduml
