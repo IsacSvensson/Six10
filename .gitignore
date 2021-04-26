@@ -1,10 +1,5 @@
 # Folders #
 ##################
-/Build/*
-/Bin/*
-/.vscode/*
-/out/*
 
 # Files #
-
-/Documentation/classdiagram.puml
+##################
