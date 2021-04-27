@@ -7,8 +7,8 @@ program : statments EOF
 
 statments : statment+
 
-statment : small_stmt
-    | compound_stmt
+statment : small_stmt NEW_LINE
+    | compound_stmt NEW_LINE
 
 small_stmt:
       assignment
