@@ -1,6 +1,34 @@
 @startuml
 
 enum Type {
+    . STRING
+    . INTEGER
+    . FLOAT
+    . IDENTIFIER
+    . TAB
+    . LEFTPARENTHESES
+    . RIGHTPARENTHESES
+    . COLON
+    . SINGLELINECOMMENT
+    . MULTILINECOMMENT
+    . COMMA
+    . DATATYPE
+    . ASSIGNMENTOP
+    . MEMBEROP
+    . ARITHMETICOP
+    . RELATIONALOP
+    . LOGICALOP
+    . BITWISEOP
+    . UNARYOP
+    . VARACCESSNODE
+    . IF
+    . FOR
+    . WHILE
+    . SPACE
+    . WIN_EOL
+    . EOL
+    . EOF
+    . INVALID
 }
 
 class Lexer{
@@ -54,24 +82,406 @@ class SymbolTable <<singleton>>{
     # resetTable():
 }
 
-class Scope{
+class Scope{}
+
+class Record{
+    * id: str
+    * type: str
+    # getID(): str
+    # getType(): str
+    # printRecord(): None
 }
 
-class Variable{
+class Variable <<Record>>{
+    * value: Value
 }
 
-class ClassInstance <<Variable>>{
+class Class <<Record>>{
+    * methods: dict
+    * variables: dict
+    # addVariable(Variable: variable): None 
+    # addMethod(Method: method): None
+    # lookupVariable(str: key): Variable 
+    # lookupMethod(str: key): Method
 }
 
-class Method <<Variable>>{
+class Method <<Record>>{
+    * parameters: dict
+    * variables: dict
+    # addVariable(Variable: variable): None 
+    # addParameter(Variable: variable): None
+    # lookupVariable(str: key): Variable 
+    # lookupMethod(str: key): Method
+    # getParameterCount(): int
 }
 
-Lexer <-- Token
-Type -> Token
+class ParseResult{
+    * node: AstNode
+    * advanceCount: int
+    * lastRegisteredAdvanceCount: int
+    * toReverseCount: int
+    # registerResult(ParseResult: result): AstNode
+    # tryRegister(ParseResult: result): AstNode:
+    # advance(): None
+    # success(AstNode: node): ParseResult
+    # failure(Error: error): ParseResult
+}
+
+class Parser{
+    * tokens: list
+    * tokenIndex: int
+    * lastRegisteredAdvanceCount: int
+    * toReverseCount: int
+    # advance(): Token
+    # Parse(): ParseResult
+}
+
+class Interpreter{
+
+}
+
+class AstNode{
+    * id: str
+    * startPosition: Position
+    * endPosition: Position
+    * children: list
+    # generateTree(): Error
+    # checkSemantics(): Error
+    # BuildSymbolTable(): Error
+    # generateIR(currentBlock: BBlock, symTab: SymbolTable): list
+}
+
+package ChildClasses{
+    class ProgramNode{}
+
+    class ClassDeclNode{}
+
+    class TypeNode{}
+
+    class ListNode{}
+
+    class ExpressionNode{}
+    class ProgramNode{}
+
+    class ClassDeclNode{}
+
+    class TypeNode{}
+
+    class ListNode{}
+
+    class ExpressionNode{}
+
+    class ExpressionListNode{}
+
+    class ParamDeclListNode{}
+
+    class StatmentNode{}
+
+    class StatmentListNode{}
+
+    class IntNode{}
+
+    class FloatNode{}
+
+    class StringNode{}
+
+    class ListVisitNode{}
+
+    class VariableAssignNode{}
+
+    class VariableAccessFloatNode{}
+
+    class ClassInitNode{}
+
+    class IfNode{}
+
+    class WhileNode{}
+
+    class ForNode{}
+
+    class PrintNode{}
+
+    class FunctionCallNode{}
+
+    class FunctionDefinitionNode{}
+
+    class BinaryOpNode{}
+
+    class UnaryOpNode{}
+
+
+    class ParamDeclListNode{}
+
+    class StatmentNode{}
+
+    class StatmentListNode{}
+
+    class IntNode{}
+
+    class FloatNode{}
+
+    class StringNode{}
+
+    class ListVisitNode{}
+
+    class VariableAssignNode{}
+
+    class VariableAccessFloatNode{}
+
+    class ClassInitNode{}
+
+    class IfNode{}
+    class ProgramNode{}
+
+    class ClassDeclNode{}
+
+    class ParamDeclListNode{}
+
+    class StatmentNode{}
+
+    class StatmentListNode{}
+
+    class IntNode{}
+
+    class FloatNode{}
+
+    class StringNode{}
+
+    class ListVisitNode{}
+
+    class VariableAssignNode{}
+
+    class VariableAccessFloatNode{}
+
+    class ClassInitNode{}
+
+    class IfNode{}
+
+    class WhileNode{}
+
+    class ForNode{}
+
+    class PrintNode{}
+
+    class FunctionCallNode{}
+
+    class FunctionDefinitionNode{}
+
+    class BinaryOpNode{}
+
+    class UnaryOpNode{}
+
+
+    class WhileNode{}
+
+    class ForNode{}
+
+    class PrintNode{}
+    class ProgramNode{}
+
+    class ClassDeclNode{}
+
+    class TypeNode{}
+
+    class ListNode{}
+
+    class ExpressionNode{}
+
+    class ExpressionListNode{}
+
+    class ParamDeclListNode{}
+
+    class StatmentNode{}
+
+    class StatmentListNode{}
+
+    class IntNode{}
+
+    class FloatNode{}
+
+    class StringNode{}
+
+    class ListVisitNode{}
+
+    class VariableAssignNode{}
+
+    class VariableAccessFloatNode{}
+
+    class ClassInitNode{}
+
+    class IfNode{}
+
+    class WhileNode{}
+
+    class ForNode{}
+
+    class PrintNode{}
+
+    class FunctionCallNode{}
+
+    class FunctionDefinitionNode{}
+
+    class BinaryOpNode{}
+
+    class UnaryOpNode{}
+
+
+    class FunctionCallNode{}
+
+    class FunctionDefinitionNode{}
+
+    class ProgramNode{}
+
+    class ClassDeclNode{}
+
+    class TypeNode{}
+
+    class ListNode{}
+
+    class ExpressionNode{}
+
+    class ExpressionListNode{}
+
+    class ParamDeclListNode{}
+
+    class StatmentNode{}
+
+    class StatmentListNode{}
+
+    class IntNode{}
+
+    class FloatNode{}
+
+    class StringNode{}
+
+    class ListVisitNode{}
+
+    class VariableAssignNode{}
+
+    class VariableAccessFloatNode{}
+
+    class ClassInitNode{}
+
+    class IfNode{}
+
+    class WhileNode{}
+
+    class ForNode{}
+
+    class PrintNode{}
+
+    class FunctionCallNode{}
+
+    class FunctionDefinitionNode{}
+
+    class BinaryOpNode{}
+
+    class UnaryOpNode{}
+
+    class BinaryOpNode{}
+
+    class UnaryOpNode{}
+
+    class ProgramNode{}
+
+    class ClassDeclNode{}
+
+    class TypeNode{}
+
+    class ListNode{}
+
+    class ExpressionNode{}
+
+    class ExpressionListNode{}
+
+    class ParamDeclListNode{}
+
+    class StatmentNode{}
+
+    class StatmentListNode{}
+
+    class IntNode{}
+    
+    class VariableAccessFloatNode{}
+
+    class ClassInitNode{}
+
+    class IfNode{}
+
+    class WhileNode{}
+
+    class ForNode{}
+
+    class PrintNode{}
+
+    class FunctionCallNode{}
+
+    class FunctionDefinitionNode{}
+
+    class BinaryOpNode{}
+
+    class UnaryOpNode{}
+}
+
+class Value{
+    * startPosition: Position
+    * endPosition: Position
+    * context: Context
+    # setPosition(Position: start=None, Position: End=None): Value
+    # setContext(Context: context): Value
+}
+
+package ValueChildren {
+    class ClassInstance{
+        classId: str
+        node: AstNode
+    }
+
+    class List{
+        * elements: List
+    }
+
+    class Number{
+        * value: int/float
+    }
+
+    class String{
+        * value: str
+    }
+
+    class FunctionBase{
+        * id: str
+        # generateNewContext(): Context
+        # checkArgs(List: args, List: argNames): Error
+        # populateParameters(List: args, List: argNames, Context:FunctionContext)
+        # checkAndPopulate(List: args, List: argNames, Context:FunctionContext)
+    }
+
+    class Function <<FunctionBase>>{
+        * node: AstNode
+        * argNames: str
+    }
+
+    class Dictionary{
+        * keys: str
+        * value: any
+    }
+}
+
+Lexer --> Token
+Token <- Type
 Position -> Token
-Variable .. ClassInstance
-Variable .. Method
-Scope <-- Variable
+ParseResult <- AstNode
+
+Value .. ValueChildren
+AstNode .. ChildClasses
+Record .. Class
+Record .. Method
+Scope <-- Record
+Record .. Variable
 SymbolTable <-- Scope
+Parser <-- ParseResult
+Parser <-- Token
+
 
 @enduml
