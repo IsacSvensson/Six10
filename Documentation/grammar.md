@@ -222,6 +222,6 @@ scope_block:
     NEWLINE INDENT statements DEDENT
 
 class_definition:
-    'class' NAME ('(' arguments? ')')? ':' scope_block 
+    'class' IDENTIFIER ('(' arguments? ')')? ':' scope_block 
 
 ```
