@@ -45,13 +45,12 @@ small_stmt:
   | SINGLE_LINE_COMMENT
 
 compound_stmt:
-    function_def
+    function_definition
   | if_stmt
   | for_stmt
   | while_stmt
-  | class_stmt
+  | class_definition
   | switch_stmt
-  | MULTI_LINE_COMMENT
 
 assignment:
     expression assignment_operator expression
@@ -223,5 +222,24 @@ scope_block:
 
 class_definition:
     'class' IDENTIFIER ('(' arguments? ')')? ':' scope_block 
+
+if_stmt:
+    'if' expression ':' scope_block elif_part?
+
+elif_part:
+    'elif' ':' scope_block elif_part?
+  | else_part
+
+else_part:
+    'else' ':' scope_block
+
+for_stmt:
+
+while_stmt:
+
+class_definition:
+
+switch_stmt:
+
 
 ```
