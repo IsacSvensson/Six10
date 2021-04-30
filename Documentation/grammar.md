@@ -224,16 +224,17 @@ class_definition:
     'class' IDENTIFIER ('(' arguments? ')')? ':' scope_block 
 
 if_stmt:
-    'if' expression ':' scope_block elif_part?
+    'if' expression ':' scope_block elif_block?
 
-elif_part:
-    'elif' ':' scope_block elif_part?
-  | else_part
+elif_block:
+    'elif' ':' scope_block elif_block?
+  | else_block
 
-else_part:
+else_block:
     'else' ':' scope_block
 
 for_stmt:
+    'for' targets 'in' expression ':' scope_block else_block?
 
 while_stmt:
 
