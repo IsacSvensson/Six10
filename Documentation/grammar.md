@@ -185,7 +185,12 @@ literal:
   | NUMBER
 
 tuple:
-    '(' expression ',' expression_list ')'
+    '(' ')'
+  | '(' expression tuple_end
+
+tuple_end:
+    ',' ')'
+  | (',' expression)+ ')'
 
 expression_list:
     expression (',' expression)*
