@@ -242,6 +242,9 @@ else_block:
 for_stmt:
     'for' targets 'in' expression ':' scope_block else_block?
 
+targets:
+    IDENTIFIER (',' IDENTIFIER)*
+
 while_stmt:
 
 class_definition:
