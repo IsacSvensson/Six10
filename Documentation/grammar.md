@@ -171,15 +171,18 @@ slice:
 
 atom:
     IDENTIFIER
-  | 'True'
-  | 'False'
-  | 'None'
-  | STRING
-  | NUMBER
+  | literal
   | tuple
   | list
   | (dict | set)
   | '(' expression ')'
+
+literal:
+    'True'
+  | 'False'
+  | 'None'
+  | STRING
+  | NUMBER
 
 tuple:
     '(' expression ',' expression_list ')'
