@@ -205,10 +205,7 @@ kv_pair:
     expression ':' expression
 
 arguments:
-    argument (',' arguments)* 
-
-argument:
-    expression
+    expression (',' expression)* 
 
 function_definition:
     'def' IDENTIFIER '(' parameters? ')' ':' dockstring? scope_block
