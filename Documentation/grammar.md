@@ -252,6 +252,6 @@ class_definition:
     'class' IDENTIFIER '(' arguments* ')' ':' scope_block 
 
 switch_stmt:
-
+    'switch' expression ':' NEWLINE INDENT ('case' literal ':' scope_block)+ DEDENT
 
 ```
