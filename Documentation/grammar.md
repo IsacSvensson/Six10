@@ -249,6 +249,7 @@ while_stmt:
     'while' expression ':' scope_block else_block?
 
 class_definition:
+    'class' IDENTIFIER '(' arguments* ')' ':' scope_block 
 
 switch_stmt:
 
