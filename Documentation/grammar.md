@@ -224,6 +224,7 @@ dockstring:
 
 scope_block:
     NEWLINE INDENT statements DEDENT
+  | small_stmt
 
 class_definition:
     'class' IDENTIFIER ('(' arguments? ')')? ':' scope_block 
