@@ -246,6 +246,7 @@ targets:
     IDENTIFIER (',' IDENTIFIER)*
 
 while_stmt:
+    'while' expression ':' scope_block else_block?
 
 class_definition:
 
