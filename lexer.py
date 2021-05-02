@@ -20,6 +20,19 @@ class Lexer:
         self.position = Position(-1, 0, -1)
         self.current_character = None
         self.tokens = []
+        self.advance()
+
+    def advance(self):
+        """
+        Advances current_token to next character in source code. 
+        Changes Position-object to new postion in code.
+        """
+        self.position.advance()
+
+        if self.position.index < len(self.source_code):
+            self.current_character = self.source_code[self.position.index] 
+        else: 
+            None
 class Position:
     """
     Keeps track on position in code. 
