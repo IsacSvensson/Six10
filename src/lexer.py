@@ -1,3 +1,5 @@
+import terminal_tokens
+
 class Lexer:
     """
     Lexer class that handles lexical analysis of the source code.
