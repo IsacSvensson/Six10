@@ -13,14 +13,12 @@ class Lexer:
     """
     def __init__(self, source_code, filename):
         """
-        Inits class with source code and filename, sets all values to 0. 
+        Inits class with source code and filename, init a Position object and gets first character.
         """
-        self.index = 0
-        self.row = 0
-        self.column = 0
         self.filename = filename
         self.source_code = source_code
-        self.current_indent_lvl = 0
+        self.position = Position(-1, 0, -1)
+        self.current_character = None
         self.tokens = []
 class Position:
     """
