@@ -62,4 +62,7 @@ class Position:
         return self
 
     def copy(self):
+        """
+        Returns a copy of the object.
+        """
         return Position(self.index, self.row, self.column, self.indent)
