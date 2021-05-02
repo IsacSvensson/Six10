@@ -156,10 +156,14 @@ term:
 factor:
     '+' factor 
   | '-' factor 
-  | primary '++'
-  | primary '--'
-  | '++' primary 
-  | '--' primary 
+  | power '++'
+  | power '--'
+  | '++' power 
+  | '--' power 
+  | power
+
+power:
+    primary ** factor
   | primary
 
 primary:
