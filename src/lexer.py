@@ -1,4 +1,4 @@
-import terminal_tokens
+import terminal_tokens as tt
 
 class Lexer:
     """
