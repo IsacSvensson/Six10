@@ -83,19 +83,19 @@ delete_stmt:
     'delete' expression
    
 expression:
-    expression IF expression ELSE expression
+    expression 'if' expression 'else' expression
   | disjunction
 
 disjunction:
-    conjunction (OR conjunction)+
+    conjunction ('or' conjunction)+
   | conjunction
 
 conjunction:
-    invertion (AND invertion)+
+    invertion ('and' invertion)+
   | invertion
 
 invertion:
-    NOT invertion
+    'not' invertion
   | comparison
 
 comparison:
@@ -156,9 +156,11 @@ term:
 factor:
     '+' factor 
   | '-' factor 
-  | power
-power:
-    primary
+  | primary '++'
+  | primary '--'
+  | '++' primary 
+  | '--' primary 
+  | primary
 
 primary:
     primary '.' IDENTIFIER 
