@@ -36,6 +36,15 @@ class Lexer:
         else: 
             None
 
+    def make_tokens():
+        """
+        Preforms the lexical analysis on the source code and breaks it down to terminal tokens.
+
+        RETURNS:
+            list, containing token-objects 
+        """
+        pass
+
 class Position:
     """
     Keeps track on position in code. 
