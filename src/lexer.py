@@ -20,7 +20,7 @@ class Lexer:
         """
         self.filename = filename
         self.source_code = source_code
-        self.position = Position(-1, 0, -1)
+        self.position = Position(-1, 0, -1, filename)
         self.current_character = None
         self.tokens = []
         self.advance()
