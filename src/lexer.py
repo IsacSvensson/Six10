@@ -37,6 +37,18 @@ class Lexer:
         else: 
             None
 
+    def look_ahead(count = 1):
+        """
+        Looks ahead on comming characters in the source code.
+
+        PARAMS:
+            count: int - Specifies how many characters to fetch
+        RETURNS:
+            str: the following characters
+        """
+        next_char = self.position.index + 1
+        return self.source_code[next_char : next_char + count]
+
     def make_tokens():
         """
         Preforms the lexical analysis on the source code and breaks it down to terminal tokens.
