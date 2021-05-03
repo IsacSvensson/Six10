@@ -3,6 +3,14 @@ class Position:
     """
     Keeps track on position in code. 
     Saves index in code, row, column and indentation level.
+
+    Attributes:
+        index: int - The index of the source code string where the position-object starts.
+        row: int - What row the position object starts at.
+        column: int - What column the position object starts at.
+        indent: int - The indent level of the object specified by the position-object.
+        filename: str - Name of the file.
+        code_snippet: str - The code snippet which the position-object concerns 
     """
     def __init__(self, index, row, column, indent, filename = None, code_snippet = None):
         """
@@ -18,6 +26,9 @@ class Position:
     def advance(self, current_character=None):
         """
         Advances the position-object to next index in code.
+
+        PARAMS:
+            current_character: str - If this is a '\n'-characted the position moves to the start of the next row.
         """
         self.index += 1
         self.column += 1
