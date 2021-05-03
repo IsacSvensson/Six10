@@ -4,6 +4,9 @@ A list of all terminal tokens in the language.
 
 _INT = 'int'
 _FLOAT = 'float'
+_BIN = 'bin'
+_OCT = 'oct'
+_HEX = 'hex'
 _STRING = 'string'
 _IDENTIFIER = 'identifier'
 _RETURN = 'return'
