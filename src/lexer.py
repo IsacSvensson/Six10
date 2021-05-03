@@ -56,4 +56,18 @@ class Lexer:
         RETURNS:
             list, containing token-objects 
         """
+    def make_number():
+        if self.current_character == '0' and self.look_ahead().lower() == 'b':
+            return make_binary()
+        elif self.current_character == '0' and self.look_ahead().lower() == 'o':
+            return make_octodecimal()
+        elif self.current_character == '0' and self.look_ahead().lower() == 'x':
+            return make_hexadecimal()
+        
+
+    def make_binary():
+        pass
+    def make_octodecimal():
+        pass
+    def make_hexadecimal():
         pass
