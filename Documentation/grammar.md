@@ -14,7 +14,11 @@ This grammar is loosly based on BNF and describes the grammar that is intended f
 |`BREAK`      |Terminal token, 'break'|
 |`CONTINUE`   |Terminal token, 'continue'|
 |`STRING`     |Terminal token, ['"][.]['"]|
-|`NUMBER`     |Terminal token, '-'? [0] ('.' [0-9]\*)?  \|  '-'? [1-9] [0-9]* ('.' [0-9]\*)? |
+|`DECIMAL_INT`|Terminal token, ('+' \| '-')? [0] \|  ('+' \| '-')? [1-9] [0-9]* |
+|`DECIMAL_FLOAT`|Terminal token, ('+' \| '-')? [0-9]+ '.' [0-9]*  \|  '-'? [1-9] [0-9]* ('.' [0-9]\*)? |
+|`BINARY_INT` |Terminal token, '0' ('b' \| 'B') [0-1]+ |
+|`OCT_INT`    |Terminal token, '0' ('o' \| 'O') [0-7]+ |
+|`HEX_INT`    |Terminal token, '0' ('x' \| 'X') [0-9a-fA-F]+ |
 |`SINGLE_LINE_COMMENT`|Terminal token, '#' `STRING`|
 |`MULTI_LINE_COMMENT`|Terminal token, ' """ ' `STRING` ' """ '|
 |`INDENT`|Terminal token, adds four spaces to current indentation level|
@@ -188,7 +192,14 @@ literal:
   | 'False'
   | 'None'
   | STRING
-  | NUMBER
+  | number
+
+number:
+    DECIMAL_INT
+  | DECIMAL_FLOAT
+  | BINARY_INT
+  | OCT_INT
+  | HEX_INT
 
 tuple:
     '(' ')'
