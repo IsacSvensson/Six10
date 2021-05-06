@@ -35,7 +35,7 @@ class Lexer:
         if self.position.index < len(self.source_code):
             self.current_character = self.source_code[self.position.index] 
         else: 
-            None
+            self.current_character = None
 
     def look_ahead(count = 1):
         """
