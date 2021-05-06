@@ -56,8 +56,11 @@ class Lexer:
         RETURNS:
             list, containing token-objects 
         """
+        while self.current_character:
         if self.current_character in range(0,10):
-            make_number()
+                tokens.append(make_number())
+            
+            self.advance()
 
     def make_number():
         next_character = self.look_ahead().lower()
