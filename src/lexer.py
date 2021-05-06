@@ -60,12 +60,14 @@ class Lexer:
             make_number()
 
     def make_number():
-        if self.current_character == '0' and self.look_ahead().lower() == 'b':
+        next_character = self.look_ahead().lower()
+        if self.current_character == '0' and next_character == 'b':
             return make_binary()
-        elif self.current_character == '0' and self.look_ahead().lower() == 'o':
+        elif self.current_character == '0' and next_character == 'o':
             return make_octodecimal()
-        elif self.current_character == '0' and self.look_ahead().lower() == 'x':
+        elif self.current_character == '0' and next_character == 'x':
             return make_hexadecimal()
+        elif self.current_character == '0' and next_character != '.':
         
 
     def make_binary():
