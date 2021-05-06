@@ -56,6 +56,9 @@ class Lexer:
         RETURNS:
             list, containing token-objects 
         """
+        if self.current_character in range(0,10):
+            make_number()
+
     def make_number():
         if self.current_character == '0' and self.look_ahead().lower() == 'b':
             return make_binary()
