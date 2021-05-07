@@ -61,7 +61,12 @@ class Lexer:
             self.advance()
 
     def make_number(self):
+        """
+        Reads characters from source code and returns a number token. 
+        The method can parse integers, floats, octadecimal, hexdecimal and binary numbers. 
+        """
         next_character = self.look_ahead().lower()
+
         if self.current_character == '0' and next_character == 'b':
             return self.make_binary()
         elif self.current_character == '0' and next_character == 'o':
