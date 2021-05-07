@@ -96,3 +96,23 @@ class Lexer:
             return "invalid token"
 
         return int(binary_string, base=2)
+
+    def make_octodecimal(self):
+        """
+        Reads 
+        """
+        binary_string = "0o"
+        allowed_chars = "01234567"
+
+        self.advance()
+        self.advance()
+        
+        while self.allowed_character(allowed_chars):
+            binary_string += self.current_character
+
+            self.advance()
+        
+        if len(binary_string) < 3:
+            return "invalid token"
+
+        return int(binary_string, base=8)
