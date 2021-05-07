@@ -90,7 +90,7 @@ class Lexer:
     def make_binary(self):
         """
         Reads binary characters until not allowed character appers.
-        Returns a integer token
+        Returns a binary token
         """
         binary_string = "0b"
         allowed_chars = "01"
@@ -111,7 +111,7 @@ class Lexer:
     def make_octodecimal(self):
         """
         Reads octodecimal characters until not allowed character appers.
-        Returns a integer token
+        Returns a octodecimal token
         """
         binary_string = "0o"
         allowed_chars = "01234567"
@@ -132,7 +132,7 @@ class Lexer:
     def make_hexadecimal(self):
         """
         Reads hexadecimal characters until not allowed character appers.
-        Returns a integer token
+        Returns a hexdecimal token
         """
         binary_string = "0x"
         allowed_chars = "0123456789abcdef"
