@@ -58,6 +58,7 @@ class Lexer:
             return True
         return False
 
+    def make_tokens(self):
         """
         Preforms the lexical analysis on the source code and breaks it down to terminal tokens.
 
@@ -65,6 +66,7 @@ class Lexer:
             list, containing token-objects 
         """
         while self.current_character:
+            if self.allowed_character("0123456789"):
                 self.tokens.append(self.make_number())
             self.advance()
 
@@ -104,7 +106,7 @@ class Lexer:
             return "invalid token"
 
         return int(binary_string, base=2)
-
+        
     def make_octodecimal(self):
         """
         Reads 
