@@ -137,3 +137,23 @@ class Lexer:
 
         return int(binary_string, base=16)
 
+    def make_decimal(self):
+        number_string = ""
+        dot_counter = 0
+        allowed_chars = "1234567890."
+
+        while self.allowed_character(allowed_chars) and dot_counter < 2:
+            number_string += self.current_character
+
+            self.advance()
+            if self.current_character == ".":
+                dot_counter += 1
+            elif self.current_character is None:
+                break
+
+        if dot_counter:
+            return float(number_string)
+        else:
+            return int(number_string)
+            
+
