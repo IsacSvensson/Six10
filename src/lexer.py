@@ -77,9 +77,22 @@ class Lexer:
             return self.make_decimal()
         
 
-    def make_binary():
-        pass
-    def make_octodecimal():
-        pass
-    def make_hexadecimal():
-        pass
+    def make_binary(self):
+        """
+        Reads 
+        """
+        binary_string = "0b"
+        allowed_chars = "01"
+
+        self.advance()
+        self.advance()
+        
+        while self.allowed_character(allowed_chars):
+            binary_string += self.current_character
+
+            self.advance()
+        
+        if len(binary_string) < 3:
+            return "invalid token"
+
+        return int(binary_string, base=2)
