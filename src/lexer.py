@@ -37,7 +37,7 @@ class Lexer:
         else: 
             self.current_character = None
 
-    def look_ahead(count = 1):
+    def look_ahead(self, count = 1):
         """
         Looks ahead on comming characters in the source code.
 
@@ -57,20 +57,19 @@ class Lexer:
             list, containing token-objects 
         """
         while self.current_character:
-        if self.current_character in range(0,10):
-                tokens.append(make_number())
-            
+                self.tokens.append(self.make_number())
             self.advance()
 
-    def make_number():
+    def make_number(self):
         next_character = self.look_ahead().lower()
         if self.current_character == '0' and next_character == 'b':
-            return make_binary()
+            return self.make_binary()
         elif self.current_character == '0' and next_character == 'o':
-            return make_octodecimal()
+            return self.make_octodecimal()
         elif self.current_character == '0' and next_character == 'x':
-            return make_hexadecimal()
-        elif self.current_character == '0' and next_character != '.':
+            return self.make_hexadecimal()
+        else:
+            return self.make_decimal()
         
 
     def make_binary():
