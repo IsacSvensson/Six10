@@ -49,7 +49,15 @@ class Lexer:
         next_char = self.position.index + 1
         return self.source_code[next_char : next_char + count]
 
-    def make_tokens():
+    def allowed_character(self, allowed_characters):
+        if self.current_character is None:
+            return False
+        if allowed_characters is None or allowed_characters == "":
+            return False
+        elif self.current_character.lower() in allowed_characters:
+            return True
+        return False
+
         """
         Preforms the lexical analysis on the source code and breaks it down to terminal tokens.
 
