@@ -1,5 +1,6 @@
 import terminal_tokens as tt
 from position import Position
+from token import Token
 
 class Lexer:
     """
@@ -95,6 +96,9 @@ class Lexer:
         binary_string = "0b"
         allowed_chars = "01"
 
+        start_position = self.position.copy()
+        end_position = None
+
         self.advance()
         self.advance()
         
@@ -102,53 +106,65 @@ class Lexer:
             binary_string += self.current_character
 
             self.advance()
+
+        end_position = self.position.copy()
         
         if len(binary_string) < 3:
-            return "invalid token"
+            return Token(tt._INVALID, binary_string, start_position, end_position)
 
-        return int(binary_string, base=2)
+        return Token(tt._BIN, int(binary_string, base=2), start_position, end_position)
         
     def make_octodecimal(self):
         """
         Reads octodecimal characters until not allowed character appers.
         Returns a octodecimal token
         """
-        binary_string = "0o"
+        oct_string = "0o"
         allowed_chars = "01234567"
+
+        start_position = self.position.copy()
+        end_position = None
 
         self.advance()
         self.advance()
         
         while self.allowed_character(allowed_chars):
-            binary_string += self.current_character
+            oct_string += self.current_character
 
             self.advance()
         
-        if len(binary_string) < 3:
-            return "invalid token"
+        end_position = self.position.copy()
+        
+        if len(oct_string) < 3:
+            return Token(tt._INVALID, oct_string, start_position, end_position)
 
-        return int(binary_string, base=8)
+        return Token(tt._OCT, int(oct_string, base=8), start_position, end_position)
 
     def make_hexadecimal(self):
         """
         Reads hexadecimal characters until not allowed character appers.
         Returns a hexdecimal token
         """
-        binary_string = "0x"
+        hex_string = "0x"
         allowed_chars = "0123456789abcdef"
 
         self.advance()
         self.advance()
+
+        start_position = self.position.copy()
+        end_position = None
         
         while self.allowed_character(allowed_chars):
-            binary_string += self.current_character
+            hex_string += self.current_character
 
             self.advance()
         
-        if len(binary_string) < 3:
-            return "invalid token"
+        end_position = self.position.copy()
+        
+        if len(hex_string) < 3:
+            return Token(tt._INVALID, hex_string, start_position, end_position)
 
-        return int(binary_string, base=16)
+        return Token(tt._HEX, int(hex_string, base=16), start_position, end_position)
 
     def make_decimal(self):
         """
@@ -159,6 +175,9 @@ class Lexer:
         dot_counter = 0
         allowed_chars = "1234567890."
 
+        start_position = self.position.copy()
+        end_position = None
+
         while self.allowed_character(allowed_chars) and dot_counter < 2:
             number_string += self.current_character
 
@@ -167,10 +186,12 @@ class Lexer:
                 dot_counter += 1
             elif self.current_character is None:
                 break
+        
+        end_position = self.position.copy()
 
         if dot_counter:
-            return float(number_string)
+            return Token(tt._FLOAT, float(number_string), start_position, end_position)
         else:
-            return int(number_string)
+            return Token(tt._INT, int(number_string), start_position, end_position)
             
 
