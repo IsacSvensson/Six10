@@ -51,3 +51,6 @@ class Position:
             self.filename, 
             self.code_snippet
             )
+    
+    def __str__(self):
+        return "Row/col: {}/{}, Indent: {}".format(self.row, self.column, self.indent)
