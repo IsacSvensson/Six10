@@ -14,7 +14,8 @@ def main():
             console_input = input()
             lexer = Lexer(console_input, "Shell")
             lexer.make_tokens()
-            print(lexer.tokens)
+            for token in lexer.tokens:
+                print(token)
 
 
 if __name__ == "__main__":
