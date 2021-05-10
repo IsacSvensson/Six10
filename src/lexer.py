@@ -201,3 +201,7 @@ class Lexer:
             count += 1
             self.advance()
 
+        if count % 4 == 0:
+            return count/4
+        else:
+            return "Invalid indentation"
