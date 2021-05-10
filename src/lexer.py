@@ -1,6 +1,6 @@
 import terminal_tokens as tt
 from position import Position
-from token import Token
+from lex_token import Token
 
 class Lexer:
     """
