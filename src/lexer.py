@@ -73,6 +73,7 @@ class Lexer:
                 indent = self.check_indent()
                 if indent != self.position.indent:
                     self.change_indent(indent)
+            else:
             self.advance()
 
     def make_number(self):
