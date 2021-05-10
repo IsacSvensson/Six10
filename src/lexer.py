@@ -205,3 +205,13 @@ class Lexer:
             return count/4
         else:
             return "Invalid indentation"
+
+    def change_indent(self, indent):
+        while self.position.indent < indent:
+            self.position.indent += 1
+            self.tokens.append(Token(tt._INDENT, "    ", self.position, self.position))
+
+        while self.position.indent > indent:
+            self.position.indent -= 1
+            self.tokens.append(Token(tt._DEDENT, "    ", self.position, self.position))
+        
