@@ -31,7 +31,7 @@ class Lexer:
         Advances current_token to next character in source code. 
         Changes Position-object to new postion in code.
         """
-        self.position.advance()
+        self.position.advance(self.current_character)
 
         if self.position.index < len(self.source_code):
             self.current_character = self.source_code[self.position.index] 
