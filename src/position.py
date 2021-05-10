@@ -32,7 +32,7 @@ class Position:
         """
         self.index += 1
         self.column += 1
-
+        
         if current_character == '\n':
             self.row += 1
             self.column = 0
