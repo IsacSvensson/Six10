@@ -69,6 +69,10 @@ class Lexer:
         while self.current_character:
             if self.allowed_character("0123456789"):
                 self.tokens.append(self.make_number())
+            elif "{}".format(self.current_character) == "\n":
+                indent = self.check_indent()
+                if indent != self.position.indent:
+                    self.change_indent(indent)
             self.advance()
 
     def make_number(self):
