@@ -4,8 +4,16 @@ from lexer import Lexer
 
 def main():
     if len(argv) > 1:
-        # Will handle file reading
-        pass
+        source = str()
+
+        print(argv)
+        with open(argv[1]) as fh:
+            source = fh.read()
+        
+        lexer = Lexer(source, argv[1])
+        lexer.make_tokens()
+        for token in lexer.tokens:
+            print(token)
     else:
         console_input = None
         print("Six10 v.0\nRun on [{}]\n-------------".format(platform.system()))
