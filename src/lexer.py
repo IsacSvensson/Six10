@@ -194,4 +194,10 @@ class Lexer:
         else:
             return Token(tt._INT, int(number_string), start_position, end_position)
             
+    def check_indent(self):
+        self.advance()
+        count = 0
+        while self.current_character == " ":
+            count += 1
+            self.advance()
 
