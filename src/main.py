@@ -1,3 +1,4 @@
+import readline
 from sys import argv
 import platform
 from lexer import Lexer
