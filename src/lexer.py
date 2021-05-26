@@ -137,7 +137,7 @@ class Lexer:
             elif isLetter(self.current_character):
                 self.tokens.append(self.make_symbol())
             else:
-            self.advance()
+                self.advance()
 
     def make_number(self):
         """
@@ -179,7 +179,6 @@ class Lexer:
         
         if len(binary_string) < 3:
             return Token(tt._INVALID, binary_string, start_position, end_position)
-
         return Token(tt._BIN, int(binary_string, base=2), start_position, end_position)
         
     def make_octodecimal(self):
@@ -261,7 +260,7 @@ class Lexer:
             return Token(tt._FLOAT, float(number_string), start_position, end_position)
         else:
             return Token(tt._INT, int(number_string), start_position, end_position)
-            
+    
     def make_symbol(self):
         allowed_chars = "_1234567890abcdefghijklmnopqrstuvwxyz"
         symbol = ""
@@ -288,7 +287,7 @@ class Lexer:
         while self.current_character == " ":
             count += 1
             self.advance()
-
+        
         if count % 4 == 0:
             return count/4
         else:
