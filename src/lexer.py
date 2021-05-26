@@ -1,3 +1,4 @@
+from error import Error
 import terminal_tokens as tt
 from position import Position
 from lex_token import Token
