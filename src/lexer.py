@@ -98,7 +98,7 @@ class Lexer:
         current_indent_lvl: int, The number of indentations at current position in code
         tokens: list, A list of all lexed tokens 
     """
-    def __init__(self, source_code, filename):
+    def __init__(self, source_code="", filename="CLI"):
         """
         Inits class with source code and filename, init a Position object and gets first character.
         """
