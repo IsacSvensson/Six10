@@ -94,3 +94,13 @@ def test_accepted_init_lexer(source_code, file_name):
 
     assert isinstance(l, (lexer.Lexer)) and (l.error is None) and \
         (l.filename == file_name) and (l.source_code == source_code)
+
+@pytest.mark.parametrize("source_code, file_name, error", [
+    (None, None, "Error: expected 'str' as source_code"),
+    ([], "file.six10", "Error: expected 'str' as source_code"),
+    ("5+5", ("test",), "Error: expected 'str' as filename")
+])
+def test_failed_init_lexer(source_code, file_name, error):
+    l = lexer.Lexer(source_code, file_name)
+
+    assert isinstance(l.error, Error) and l.error.message == error
