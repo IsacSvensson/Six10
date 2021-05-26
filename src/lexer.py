@@ -134,6 +134,8 @@ class Lexer:
                 indent = self.check_indent()
                 if indent != self.position.indent:
                     self.change_indent(indent)
+            elif isLetter(self.current_character):
+                self.tokens.append(self.make_symbol())
             else:
             self.advance()
 
@@ -260,6 +262,26 @@ class Lexer:
         else:
             return Token(tt._INT, int(number_string), start_position, end_position)
             
+    def make_symbol(self):
+        allowed_chars = "_1234567890abcdefghijklmnopqrstuvwxyz"
+        symbol = ""
+        start = self.position.copy()
+
+        while self.current_character.lower() in allowed_chars:
+            symbol += self.current_character
+            if not self.advance():
+                break
+        
+        end = self.position.copy()
+
+        keyword = isKeyword(symbol)
+
+        if keyword:
+            return Token(keyword, symbol, start, end)
+
+        return Token(tt._IDENTIFIER, symbol, start, end)
+
+
     def check_indent(self):
         self.advance()
         count = 0
