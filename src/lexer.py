@@ -6,6 +6,14 @@ def isLetter(char):
     if char.lower() in "abcdefghijklmnopqrstuvwxyz":
         return True
     return False
+
+def isBool(symbol):
+    if symbol == "True":
+        return tt._TRUE
+    if symbol == "False":
+        return tt._FALSE
+    return None
+
 class Lexer:
     """
     Lexer class that handles lexical analysis of the source code.
