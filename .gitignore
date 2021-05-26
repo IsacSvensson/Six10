@@ -1,6 +1,9 @@
 # Folders #
 **/__pycache__
 **/.vscode
+**/.pytest_cache
+**/htmlcov
 
 # Files #
 ##################
+**/.coverage
