@@ -102,6 +102,14 @@ class Lexer:
         """
         Inits class with source code and filename, init a Position object and gets first character.
         """
+
+        self.error = None
+        if not isinstance(source_code, str):
+            self.error = Error("Error: expected 'str' as source_code")
+            return
+        if not isinstance(filename, str):
+            self.error = Error("Error: expected 'str' as filename")
+            return
         self.filename = filename
         self.source_code = source_code
         self.position = Position(-1, 0, -1, 0, filename)
