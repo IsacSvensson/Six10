@@ -2,6 +2,10 @@ import terminal_tokens as tt
 from position import Position
 from lex_token import Token
 
+def isLetter(char):
+    if char.lower() in "abcdefghijklmnopqrstuvwxyz":
+        return True
+    return False
 class Lexer:
     """
     Lexer class that handles lexical analysis of the source code.
