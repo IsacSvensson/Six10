@@ -7,6 +7,53 @@ def isLetter(char):
         return True
     return False
 
+def isKeyword(symbol):
+    if symbol == "pass":
+        return tt._PASS
+    elif symbol == "break":
+        return tt._BREAK
+    elif symbol ==  "continue":
+        return tt._CONTINUE
+    elif symbol == "return":
+        return tt._RETURN
+    elif symbol == "import":
+        return tt._IMPORT
+    elif symbol == "as":
+        return tt._AS
+    elif symbol == "raise":
+        return tt._RAISE
+    elif symbol == "delete":
+        return tt._DELETE
+    elif symbol == "if":
+        return tt._IF
+    elif symbol == "else":
+        return tt._ELSE
+    elif symbol == "elif":
+        return tt._ELIF
+    elif symbol == "and":
+        return tt._AND
+    elif symbol == "or":
+        return tt._OR
+    elif symbol == "not":
+        return tt._NOT
+    elif symbol == "in":
+        return tt._IN
+    elif symbol == "is":
+        return tt._BITWISE_IS
+    elif symbol == "def":
+        return tt._DEF
+    elif symbol == "class":
+        return tt._CLASS
+    elif symbol == "for":
+        return tt._FOR
+    elif symbol == "while":
+        return tt._WHILE
+    elif symbol == "switch":
+        return tt._SWITCH
+    elif symbol == "case":
+        return tt._CASE
+    return isBool(symbol)
+
 def isBool(symbol):
     if symbol == "True":
         return tt._TRUE
