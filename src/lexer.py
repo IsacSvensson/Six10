@@ -3,11 +3,27 @@ from position import Position
 from lex_token import Token
 
 def isLetter(char):
+    """
+    Checks if a character is a letter from the english/latin alphabet.
+
+    PARAMS:
+        char: a character
+    RETURNS:
+        bool
+    """
     if char.lower() in "abcdefghijklmnopqrstuvwxyz":
         return True
     return False
 
 def isKeyword(symbol):
+    """
+    Checks whether a symbol is a keyword or not.
+
+    PARAMS:
+        symbol: the string to test
+    RETURNS:
+        string | None
+    """
     if symbol == "pass":
         return tt._PASS
     elif symbol == "break":
@@ -55,6 +71,14 @@ def isKeyword(symbol):
     return isBool(symbol)
 
 def isBool(symbol):
+    """
+    Checks whether a symbol is a boolean or not.
+
+    PARAMS:
+        symbol: the string to test
+    RETURNS:
+        string | None
+    """    
     if symbol == "True":
         return tt._TRUE
     if symbol == "False":
@@ -262,6 +286,14 @@ class Lexer:
             return Token(tt._INT, int(number_string), start_position, end_position)
     
     def make_symbol(self):
+        """
+        Creates identifiers and keywords.
+        Reads characters from the source code until getting to a non allowed
+        character, decides if it's a keyword or identifier and returns a token.
+
+        RETURNS:
+            Token
+        """
         allowed_chars = "_1234567890abcdefghijklmnopqrstuvwxyz"
         symbol = ""
         start = self.position.copy()
@@ -282,6 +314,12 @@ class Lexer:
 
 
     def check_indent(self):
+        """
+        Checks indentation level.
+
+        Returns
+            int - Level of indentation
+        """
         self.advance()
         count = 0
         while self.current_character == " ":
@@ -294,6 +332,9 @@ class Lexer:
             return "Invalid indentation"
 
     def change_indent(self, indent):
+        """
+        Generates indent and dedent tokens to change indentation level.
+        """
         while self.position.indent < indent:
             self.position.indent += 1
             self.tokens.append(Token(tt._INDENT, "    ", self.position, self.position))

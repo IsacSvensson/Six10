@@ -4,6 +4,9 @@ import platform
 from lexer import Lexer
 
 def main():
+    """
+    Main method for running the language.
+    """
     if len(argv) > 1:
         source = str()
 
