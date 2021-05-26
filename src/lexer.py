@@ -12,8 +12,13 @@ def isLetter(char):
     RETURNS:
         bool
     """
-    if char.lower() in "abcdefghijklmnopqrstuvwxyz":
-        return True
+    try:
+        if len(char) != 1:
+            return False
+        if char.lower() in "abcdefghijklmnopqrstuvwxyz":
+            return True
+    except:
+        pass
     return False
 
 def isKeyword(symbol):
