@@ -1,4 +1,5 @@
 import pytest
+from lex_token import Token
 import lexer
 import terminal_tokens as tt
 from error import Error
