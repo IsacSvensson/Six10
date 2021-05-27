@@ -4,19 +4,20 @@ import lexer
 import terminal_tokens as tt
 from error import Error
 
-@pytest.mark.parametrize("test_input,expected_result", [
-    ("a", True),
-    ("A", True),
-    ("AA", False),
-    ("", False),
-    ("1", False),
-    ("Ö", False),
-    (True, False),
-    (["a"], False)
+@pytest.mark.parametrize("test_input,expected_result, expected_error", [
+    ("a", True, None),
+    ("A", True, None),
+    ("AA", False, Error("TypeError: char expected to have a length of 1")),
+    ("", False, Error("TypeError: char expected to have a length of 1")),
+    ("1", False, None),
+    ("Ö", False, None),
+    (True, False, Error("TypeError: char expected to be a string")),
+    (["a"], False, Error("TypeError: char expected to be a string"))
 ])
-def test_isLetter(test_input, expected_result):
-    assert lexer.isLetter(test_input) == expected_result
-
+def test_isLetter(test_input, expected_result, expected_error):
+    result, error = lexer.isLetter(test_input)
+    
+    assert result == expected_result and error == expected_error
 @pytest.mark.parametrize("test_input,expected_result", [
     ("a", None),
     ("A", None),
