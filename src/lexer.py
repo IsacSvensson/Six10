@@ -200,14 +200,15 @@ class Lexer:
         Reads characters from source code and returns a number token. 
         The method can parse integers, floats, octadecimal, hexdecimal and binary numbers. 
         """
-        next_character = self.look_ahead().lower()
 
-        if self.current_character == '0' and next_character == 'b':
-            return self.make_binary()
-        elif self.current_character == '0' and next_character == 'o':
-            return self.make_octodecimal()
-        elif self.current_character == '0' and next_character == 'x':
-            return self.make_hexadecimal()
+        if self.current_character == '0':
+            next_character = self.look_ahead().lower()
+            if next_character == 'b':
+                return self.make_binary()
+            elif next_character == 'o':
+                return self.make_octodecimal()
+            elif next_character == 'x':
+                return self.make_hexadecimal()
         else:
             return self.make_decimal()
         
