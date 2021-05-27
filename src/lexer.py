@@ -218,16 +218,23 @@ class Lexer:
         Reads binary characters until not allowed character appers.
         Returns a binary token
         """
-        binary_string = "0b"
+        binary_string = ""
         allowed_chars = "01"
 
         start_position = self.position.copy()
         end_position = None
 
+        binary_string += self.current_character
         self.advance()
+        binary_string += self.current_character
         self.advance()
+
+        if binary_string.lower() != '0b':
+            end_position = self.position.copy()
+            self.error = Error("ValueError: Can not convert to a number")
+            return Token(tt._INVALID, binary_string, start_position, end_position)
         
-        while self.allowed_character(allowed_chars):
+        while self.current_character and self.allowed_character(allowed_chars):
             binary_string += self.current_character
 
             self.advance()
@@ -235,6 +242,7 @@ class Lexer:
         end_position = self.position.copy()
         
         if len(binary_string) < 3:
+            self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, binary_string, start_position, end_position)
         return Token(tt._BIN, int(binary_string, base=2), start_position, end_position)
         
