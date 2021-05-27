@@ -251,23 +251,16 @@ class Lexer:
         Reads octodecimal characters until not allowed character appers.
         Returns a octodecimal token
         """
-        oct_string = ""
+        oct_string = "0o"
         allowed_chars = "01234567"
 
         start_position = self.position.copy()
         end_position = None
 
-        oct_string += self.current_character
         self.advance()
-        oct_string += self.current_character
         self.advance()
-
-        if oct_string.lower() != '0o':
-            end_position = self.position.copy()
-            self.error = Error("ValueError: Can not convert to a number")
-            return Token(tt._INVALID, oct_string, start_position, end_position)
-
-        while self.current_character and self.allowed_character(allowed_chars):
+        
+        while self.allowed_character(allowed_chars):
             oct_string += self.current_character
 
             self.advance()
@@ -275,7 +268,6 @@ class Lexer:
         end_position = self.position.copy()
         
         if len(oct_string) < 3:
-            self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, oct_string, start_position, end_position)
 
         return Token(tt._OCT, int(oct_string, base=8), start_position, end_position)
@@ -285,16 +277,23 @@ class Lexer:
         Reads hexadecimal characters until not allowed character appers.
         Returns a hexdecimal token
         """
-        hex_string = "0x"
+        hex_string = ""
         allowed_chars = "0123456789abcdef"
-
-        self.advance()
-        self.advance()
 
         start_position = self.position.copy()
         end_position = None
-        
-        while self.allowed_character(allowed_chars):
+
+        hex_string += self.current_character
+        self.advance()
+        hex_string += self.current_character
+        self.advance()
+
+        if hex_string.lower() != '0x':
+            end_position = self.position.copy()
+            self.error = Error("ValueError: Can not convert to a number")
+            return Token(tt._INVALID, hex_string, start_position, end_position)
+
+        while self.current_character and self.allowed_character(allowed_chars):
             hex_string += self.current_character
 
             self.advance()
@@ -302,6 +301,7 @@ class Lexer:
         end_position = self.position.copy()
         
         if len(hex_string) < 3:
+            self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, hex_string, start_position, end_position)
 
         return Token(tt._HEX, int(hex_string, base=16), start_position, end_position)
