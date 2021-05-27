@@ -251,16 +251,23 @@ class Lexer:
         Reads octodecimal characters until not allowed character appers.
         Returns a octodecimal token
         """
-        oct_string = "0o"
+        oct_string = ""
         allowed_chars = "01234567"
 
         start_position = self.position.copy()
         end_position = None
 
+        oct_string += self.current_character
         self.advance()
+        oct_string += self.current_character
         self.advance()
-        
-        while self.allowed_character(allowed_chars):
+
+        if oct_string.lower() != '0o':
+            end_position = self.position.copy()
+            self.error = Error("ValueError: Can not convert to a number")
+            return Token(tt._INVALID, oct_string, start_position, end_position)
+
+        while self.current_character and self.allowed_character(allowed_chars):
             oct_string += self.current_character
 
             self.advance()
@@ -268,6 +275,7 @@ class Lexer:
         end_position = self.position.copy()
         
         if len(oct_string) < 3:
+            self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, oct_string, start_position, end_position)
 
         return Token(tt._OCT, int(oct_string, base=8), start_position, end_position)
