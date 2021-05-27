@@ -12,14 +12,15 @@ def isLetter(char):
     RETURNS:
         bool
     """
-    try:
-        if len(char) != 1:
-            return False
-        if char.lower() in "abcdefghijklmnopqrstuvwxyz":
-            return True
-    except:
-        pass
-    return False
+    letters = "abcdefghijklmnopqrstuvwxyz"
+
+    if not isinstance(char, str):
+        return False, Error("TypeError: char expected to be a string")
+    if len(char) != 1:
+        return False, Error("TypeError: char expected to have a length of 1")
+    if char.lower() in letters:
+        return True, None
+    return False, None
 
 def isKeyword(symbol):
     """
@@ -190,9 +191,13 @@ class Lexer:
                 indent = self.check_indent()
                 if indent != self.position.indent:
                     self.change_indent(indent)
-            elif isLetter(self.current_character):
-                self.tokens.append(self.make_symbol())
             else:
+                letterResult, error = isLetter(self.current_character)
+                if letterResult: 
+                    self.tokens.append(self.make_symbol())
+                elif error:
+                    self.error = error
+                    return error
                 self.advance()
 
     def make_number(self):
