@@ -146,7 +146,23 @@ class Lexer:
         RETURNS:
             str: the following characters
         """
+        if not isinstance(count, int):
+            print(1)
+            self.error = Error("Error: count is expected to be an int")
+            return None
+
+        if count < 1:
+            print(2)
+            self.error = Error("Error: count is expected be a positive integer")
+            return None
+        
+        sc_length = len(self.source_code)
         next_char = self.position.index + 1
+
+        if sc_length < next_char + count:
+            print(3)
+            self.error = Error("Error: not enought characters in source code")
+            return None
         return self.source_code[next_char : next_char + count]
 
     def allowed_character(self, allowed_characters):
