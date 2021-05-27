@@ -142,3 +142,21 @@ def test_lexer_lookahead(source_code, look_ahead_size, expected_result, error):
 
     assert (res == expected_result) and (l.error == error)
 
+
+@pytest.mark.parametrize("source_code, allowed_chars, expected_result, error", [
+    ("5+10==15", "0123456789", True, None),
+    ("abc", "A", True, None),
+    ("ABC", "a", True, None),
+    ("ABC", "A", True, None),
+    ("abc", "a", True, None),
+    ("5+10==15", "abc", False, None),
+    ("", "abc", False, Error("Error: Unexpected end of source code.")),
+    ("5+10==15", "", False, Error("Error: No characters to allow entered.")),
+    ("5+10==15", None, False, Error("Error: No characters to allow entered."))
+])
+def test_lexer_allowed_character(source_code, allowed_chars, expected_result, error):
+    l = lexer.Lexer(source_code)
+    res = l.allowed_character(allowed_chars)
+
+    assert (res == expected_result) and (l.error == error)
+
