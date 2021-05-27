@@ -96,14 +96,14 @@ def test_accepted_init_lexer(source_code, file_name):
         (l.filename == file_name) and (l.source_code == source_code)
 
 @pytest.mark.parametrize("source_code, file_name, error", [
-    (None, None, "Error: expected 'str' as source_code"),
-    ([], "file.six10", "Error: expected 'str' as source_code"),
-    ("5+5", ("test",), "Error: expected 'str' as filename")
+    (None, None, Error("Error: expected 'str' as source_code")),
+    ([], "file.six10", Error("Error: expected 'str' as source_code")),
+    ("5+5", ("test",), Error("Error: expected 'str' as filename"))
 ])
 def test_failed_init_lexer(source_code, file_name, error):
     l = lexer.Lexer(source_code, file_name)
 
-    assert isinstance(l.error, Error) and l.error.message == error
+    assert isinstance(l.error, Error) and l.error == error
 
 @pytest.mark.parametrize("source_code, num_of_advances, expected_result, expected_cur_char", [
     ("", 0, False, None),
@@ -122,15 +122,15 @@ def test_lexer_advance(source_code, num_of_advances, expected_result, expected_c
     assert l.current_character == expected_cur_char and expected_result == l.advance()
 
 @pytest.mark.parametrize("source_code, look_ahead_size, expected_result, error", [
-    ("5+10==15", "15", None, "Error: count is expected to be an int"),
-    ("", -5, None, "Error: count is expected be a positive integer"),
-    ("", 0, None, "Error: count is expected be a positive integer"),
-    ("", 1, None, "Error: not enought characters in source code"),
-    ("", 5, None, "Error: not enought characters in source code"),
-    ("5+10==15", 0, None, "Error: count is expected be a positive integer"),
+    ("5+10==15", "15", None, Error("Error: count is expected to be an int")),
+    ("", -5, None, Error("Error: count is expected be a positive integer")),
+    ("", 0, None, Error("Error: count is expected be a positive integer")),
+    ("", 1, None, Error("Error: not enought characters in source code")),
+    ("", 5, None, Error("Error: not enought characters in source code")),
+    ("5+10==15", 0, None, Error("Error: count is expected be a positive integer")),
     ("5+10==15", 1, "+", None),
     ("5+10==15", 7, "+10==15", None),
-    ("5+10==15", 8, None, "Error: not enought characters in source code")
+    ("5+10==15", 8, None, Error("Error: not enought characters in source code"))
 ])
 def test_lexer_lookahead(source_code, look_ahead_size, expected_result, error):
     l = lexer.Lexer(source_code)
@@ -140,4 +140,5 @@ def test_lexer_lookahead(source_code, look_ahead_size, expected_result, error):
     else:
         res = l.look_ahead(look_ahead_size)
 
-    assert (res == expected_result) and ((l.error.message if l.error else None) == error)
+    assert (res == expected_result) and (l.error == error)
+
