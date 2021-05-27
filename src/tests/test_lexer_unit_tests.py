@@ -175,3 +175,20 @@ def test_lexer_make_decimal(source_code, expected_result, error):
     res = l.make_decimal()
 
     assert (res.value == expected_result) and (l.error == error)
+
+@pytest.mark.parametrize("source_code, expected_result, error", [
+    ("0b0", 0, None),
+    ("0b0000", 0, None),
+    ("0b1", 1, None),
+    ("0b0001", 1, None),
+    ("0b1111", 15, None),
+    ("0b100000000", 256, None),
+    ("0b", "0b" ,Error("ValueError: Can not convert to a number")),
+    ("0x", "0x" ,Error("ValueError: Can not convert to a number"))
+])
+def test_lexer_make_binary(source_code, expected_result, error):
+    l = lexer.Lexer(source_code)
+
+    res = l.make_binary()
+
+    assert (res.value == expected_result) and (l.error == error)
