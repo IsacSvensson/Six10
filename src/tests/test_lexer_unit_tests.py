@@ -194,21 +194,21 @@ def test_lexer_make_binary(source_code, expected_result, error):
     assert (res.value == expected_result) and (l.error == error)
 
 @pytest.mark.parametrize("source_code, expected_result, error", [
-    ("0o0", 0, None),
-    ("0o0000", 0, None),
-    ("0o1", 1, None),
-    ("0o7", 7, None),
-    ("0o10", 8, None),
-    ("0o17", 15, None),
-    ("0o0017", 15, None),
-    ("0o10000", 4096, None),
-    ("0o", "0o" ,Error("ValueError: Can not convert to a number")),
-    ("0x", "0x" ,Error("ValueError: Can not convert to a number"))
+    ("0x0", 0, None),
+    ("0x0000", 0, None),
+    ("0x1", 1, None),
+    ("0xa", 10, None),
+    ("0xF", 15, None),
+    ("0xFF", 255, None),
+    ("0x100", 256, None),
+    ("0x0000aA", 170, None),
+    ("0x10000", 65536, None),
+    ("0x", "0x" ,Error("ValueError: Can not convert to a number")),
+    ("0b", "0b" ,Error("ValueError: Can not convert to a number"))
 ])
-def test_lexer_make_octal(source_code, expected_result, error):
+def test_lexer_make_hexadecimal(source_code, expected_result, error):
     l = lexer.Lexer(source_code)
 
-    res = l.make_octodecimal()
+    res = l.make_hexadecimal()
 
     assert (res.value == expected_result) and (l.error == error)
-
