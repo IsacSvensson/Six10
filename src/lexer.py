@@ -295,12 +295,21 @@ class Lexer:
         Reads decimal characters until not allowed character appers.
         Returns a integer or float token
         """
+
         number_string = ""
         dot_counter = 0
         allowed_chars = "1234567890."
 
+
         start_position = self.position.copy()
         end_position = None
+
+        if self.current_character not in allowed_chars:
+            self.error = Error("ValueError: Expected a digit or dot '.'")
+            char = self.current_character
+            self.advance()
+            end_position = self.position.copy()
+            return Token(tt._INVALID, char, start_position, end_position)
 
         while self.allowed_character(allowed_chars) and dot_counter < 2:
             number_string += self.current_character
