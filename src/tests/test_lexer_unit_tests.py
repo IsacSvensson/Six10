@@ -104,3 +104,19 @@ def test_failed_init_lexer(source_code, file_name, error):
     l = lexer.Lexer(source_code, file_name)
 
     assert isinstance(l.error, Error) and l.error.message == error
+
+@pytest.mark.parametrize("source_code, num_of_advances, expected_result, expected_cur_char", [
+    ("", 0, False, None),
+    ("", 1, False, None),
+    ("5+10==15", 0, True, '5'),
+    ("5+10==15", 1, True, '+'),
+    ("5+10==15", 7, False, '5'),
+    ("5+10==15", 8, False, None)
+])
+def test_lexer_advance(source_code, num_of_advances, expected_result, expected_cur_char):
+    l = lexer.Lexer(source_code)
+    
+    for i in range(num_of_advances):
+        l.advance()
+
+    assert l.current_character == expected_cur_char and expected_result == l.advance()
