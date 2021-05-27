@@ -161,3 +161,17 @@ def test_lexer_allowed_character(source_code, allowed_chars, expected_result, er
 
     assert (res == expected_result) and (l.error == error)
 
+@pytest.mark.parametrize("source_code, expected_result, error", [
+    ("51015", 51015, None),
+    ("0", 0, None),
+    ("1", 1, None),
+    ("0.001", 0.001, None),
+    ("1000.6", 1000.6, None),
+    ("a", "a", Error("ValueError: Expected a digit or dot '.'"))
+])
+def test_lexer_make_decimal(source_code, expected_result, error):
+    l = lexer.Lexer(source_code)
+
+    res = l.make_decimal()
+
+    assert (res.value == expected_result) and (l.error == error)
