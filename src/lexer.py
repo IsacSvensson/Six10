@@ -167,10 +167,12 @@ class Lexer:
 
     def allowed_character(self, allowed_characters):
         if self.current_character is None:
+            self.error = Error("Error: Unexpected end of source code.")
             return False
         if allowed_characters is None or allowed_characters == "":
+            self.error = Error("Error: No characters to allow entered.")
             return False
-        elif self.current_character.lower() in allowed_characters:
+        elif self.current_character.lower() in allowed_characters.lower():
             return True
         return False
 
