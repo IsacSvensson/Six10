@@ -120,3 +120,24 @@ def test_lexer_advance(source_code, num_of_advances, expected_result, expected_c
         l.advance()
 
     assert l.current_character == expected_cur_char and expected_result == l.advance()
+
+@pytest.mark.parametrize("source_code, look_ahead_size, expected_result, error", [
+    ("5+10==15", "15", None, "Error: count is expected to be an int"),
+    ("", -5, None, "Error: count is expected be a positive integer"),
+    ("", 0, None, "Error: count is expected be a positive integer"),
+    ("", 1, None, "Error: not enought characters in source code"),
+    ("", 5, None, "Error: not enought characters in source code"),
+    ("5+10==15", 0, None, "Error: count is expected be a positive integer"),
+    ("5+10==15", 1, "+", None),
+    ("5+10==15", 7, "+10==15", None),
+    ("5+10==15", 8, None, "Error: not enought characters in source code")
+])
+def test_lexer_lookahead(source_code, look_ahead_size, expected_result, error):
+    l = lexer.Lexer(source_code)
+    
+    if look_ahead_size == "":
+        res = l.look_ahead()
+    else:
+        res = l.look_ahead(look_ahead_size)
+
+    assert (res == expected_result) and ((l.error.message if l.error else None) == error)
