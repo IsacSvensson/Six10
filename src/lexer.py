@@ -374,11 +374,17 @@ class Lexer:
         RETURNS:
             Token
         """
-        allowed_chars = "_1234567890abcdefghijklmnopqrstuvwxyz"
+        allowed_chars = "1234567890_abcdefghijklmnopqrstuvwxyz"
         symbol = ""
         start = self.position.copy()
 
-        while self.current_character.lower() in allowed_chars:
+
+        if not self.allowed_character(allowed_chars[10:]):
+            symbol = self.current_character
+            self.advance()
+            end = self.position.copy()
+            self.error = Error("ValueError: Unexpected illegal character {}".format(symbol))
+            return Token(tt._INVALID, symbol, start, end)
             symbol += self.current_character
             if not self.advance():
                 break
