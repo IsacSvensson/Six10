@@ -215,15 +215,16 @@ class Lexer:
         """
 
         if self.current_character == '0':
-            next_character = self.look_ahead().lower()
-            if next_character == 'b':
-                return self.make_binary()
-            elif next_character == 'o':
-                return self.make_octodecimal()
-            elif next_character == 'x':
-                return self.make_hexadecimal()
-        else:
-            return self.make_decimal()
+            next_character = self.look_ahead()
+            if next_character:
+                next_character = next_character.lower() 
+                if next_character == 'b':
+                    return self.make_binary()
+                elif next_character == 'o':
+                    return self.make_octodecimal()
+                elif next_character == 'x':
+                    return self.make_hexadecimal()
+        return self.make_decimal()
         
 
     def make_binary(self):
