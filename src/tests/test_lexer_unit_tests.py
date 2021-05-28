@@ -234,3 +234,23 @@ def test_lexer_make_hexadecimal(source_code, expected_result, error):
     res = l.make_hexadecimal()
 
     assert (res.value == expected_result) and (l.error == error)
+
+@pytest.mark.parametrize("source_code, dataType, error", [
+    ("a", tt._IDENTIFIER, None),
+    ("aCamelCaseSymbol", tt._IDENTIFIER, None),
+    ("_private", tt._IDENTIFIER, None),
+    ("snake_case_symbol", tt._IDENTIFIER, None),
+    ("0invalid_with_digit", tt._INVALID, Error("ValueError: Unexpected illegal character {}".format("0"))),
+    ("valid_with_digit_1", tt._IDENTIFIER, None),
+    ("0", tt._INVALID, Error("ValueError: Unexpected illegal character {}".format("0"))),
+    ("åäö", tt._INVALID, Error("ValueError: Unexpected illegal character {}".format("å"))),
+    ("Џџ_Њњ_cryllic", tt._INVALID, Error("ValueError: Unexpected illegal character {}".format("Џ"))),
+    ("\U0001f600\U0001F606\U0001F923", tt._INVALID ,Error("ValueError: Unexpected illegal character {}".format("\U0001f600"))),
+    ("0b", tt._INVALID ,Error("ValueError: Unexpected illegal character {}".format("0"))),
+    ("", tt._INVALID ,Error("ValueError: Unexpected illegal character {}".format(None)))
+])
+def test_lexer_make_symbol(source_code, dataType, error):
+    l = lexer.Lexer(source_code)
+    res = l.make_symbol()
+
+    assert ((res.datatype if res else None) == dataType) and (l.error == error)
