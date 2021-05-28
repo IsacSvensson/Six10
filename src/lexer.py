@@ -15,9 +15,9 @@ def isLetter(char):
     letters = "abcdefghijklmnopqrstuvwxyz"
 
     if not isinstance(char, str):
-        return False, Error("TypeError: char expected to be a string")
+        return False, Error("TypeError: 'char' expected to be a string")
     if len(char) != 1:
-        return False, Error("TypeError: char expected to have a length of 1")
+        return False, Error("TypeError: 'char' expected to have a length of 1")
     if char.lower() in letters:
         return True, None
     return False, None
