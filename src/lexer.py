@@ -411,14 +411,20 @@ class Lexer:
         """
         self.advance()
         count = 0
+        start, end = None, None
         while self.current_character == " ":
+            if count % 4 == 0:
+                start = self.position.copy()
             count += 1
             self.advance()
         
         if count % 4 == 0:
             return count/4
         else:
-            return "Invalid indentation"
+            self.error = Error("IndentationError: Invalid indentation")
+            end = self.position.copy()
+            self.tokens.append(Token(tt._INVALID, " "*(count%4), start, end))
+            return None
 
     def change_indent(self, indent):
         """
