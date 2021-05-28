@@ -393,12 +393,13 @@ class Lexer:
         
         end = self.position.copy()
 
-        keyword = isKeyword(symbol)
+        symbol_type, error = isKeyword(symbol)
 
-        if keyword:
-            return Token(keyword, symbol, start, end)
+        if error:
+            self.error = error
+            return Token(tt._INVALID, symbol, start, end)
 
-        return Token(tt._IDENTIFIER, symbol, start, end)
+        return Token(symbol_type, symbol, start, end)
 
 
     def check_indent(self):
