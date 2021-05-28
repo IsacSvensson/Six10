@@ -423,7 +423,16 @@ class Lexer:
         Returns
             int - Level of indentation
         """
-        self.advance()
+        if self.current_character == "\n":
+            self.advance()
+        elif self.current_character != " ":
+            start = self.position.copy()
+            char = self.current_character
+            self.advance()
+            end = self.position.copy()
+            self.error = Error("IndentationError: Unexpected character")
+            self.tokens.append(Token(tt._INVALID, char, start, end))
+            return None
         count = 0
         start, end = None, None
         while self.current_character == " ":
