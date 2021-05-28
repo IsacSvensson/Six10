@@ -31,50 +31,54 @@ def isKeyword(symbol):
     RETURNS:
         string | None
     """
+    if not isinstance(symbol, str):
+        return tt._INVALID, Error("TypeError: 'symbol' expected to be a string")
+    if len(symbol) < 1:
+        return tt._INVALID, Error("ValueError: 'symbol' is not allowed to be empty string")
     if symbol == "pass":
-        return tt._PASS
+        return tt._PASS, None
     elif symbol == "break":
-        return tt._BREAK
+        return tt._BREAK, None
     elif symbol ==  "continue":
-        return tt._CONTINUE
+        return tt._CONTINUE, None
     elif symbol == "return":
-        return tt._RETURN
+        return tt._RETURN, None
     elif symbol == "import":
-        return tt._IMPORT
+        return tt._IMPORT, None
     elif symbol == "as":
-        return tt._AS
+        return tt._AS, None
     elif symbol == "raise":
-        return tt._RAISE
+        return tt._RAISE, None
     elif symbol == "delete":
-        return tt._DELETE
+        return tt._DELETE, None
     elif symbol == "if":
-        return tt._IF
+        return tt._IF, None
     elif symbol == "else":
-        return tt._ELSE
+        return tt._ELSE, None
     elif symbol == "elif":
-        return tt._ELIF
+        return tt._ELIF, None
     elif symbol == "and":
-        return tt._AND
+        return tt._AND, None
     elif symbol == "or":
-        return tt._OR
+        return tt._OR, None
     elif symbol == "not":
-        return tt._NOT
+        return tt._NOT, None
     elif symbol == "in":
-        return tt._IN
+        return tt._IN, None
     elif symbol == "is":
-        return tt._BITWISE_IS
+        return tt._BITWISE_IS, None
     elif symbol == "def":
-        return tt._DEF
+        return tt._DEF, None
     elif symbol == "class":
-        return tt._CLASS
+        return tt._CLASS, None
     elif symbol == "for":
-        return tt._FOR
+        return tt._FOR, None
     elif symbol == "while":
-        return tt._WHILE
+        return tt._WHILE, None
     elif symbol == "switch":
-        return tt._SWITCH
+        return tt._SWITCH, None
     elif symbol == "case":
-        return tt._CASE
+        return tt._CASE, None
     return isBool(symbol)
 
 def isBool(symbol):
