@@ -7,66 +7,68 @@ from error import Error
 @pytest.mark.parametrize("test_input,expected_result, expected_error", [
     ("a", True, None),
     ("A", True, None),
-    ("AA", False, Error("TypeError: char expected to have a length of 1")),
-    ("", False, Error("TypeError: char expected to have a length of 1")),
+    ("AA", False, Error("TypeError: 'char' expected to have a length of 1")),
+    ("", False, Error("TypeError: 'char' expected to have a length of 1")),
     ("1", False, None),
     ("Ö", False, None),
-    (True, False, Error("TypeError: char expected to be a string")),
-    (["a"], False, Error("TypeError: char expected to be a string"))
+    (True, False, Error("TypeError: 'char' expected to be a string")),
+    (["a"], False, Error("TypeError: 'char' expected to be a string"))
 ])
 def test_isLetter(test_input, expected_result, expected_error):
     result, error = lexer.isLetter(test_input)
     
     assert result == expected_result and error == expected_error
-@pytest.mark.parametrize("test_input,expected_result", [
-    ("a", None),
-    ("A", None),
-    ("", None),
-    ("1", None),
-    ("Ö", None),
-    (True, None),
-    (["a"], None),
-    ("True", tt._TRUE),
-    ("False", tt._FALSE),
-    ("true", None),
-    ("false", None),
+@pytest.mark.parametrize("test_input,expected_result, expected_error", [
+    ("a", tt._IDENTIFIER, None),
+    ("A", tt._IDENTIFIER, None),
+    ("", tt._INVALID, Error("ValueError: 'symbol' is not allowed to be empty string")),
+    (True, tt._INVALID, Error("TypeError: 'symbol' expected to be a string")),
+    (["a"], tt._INVALID, Error("TypeError: 'symbol' expected to be a string")),
+    ("True", tt._TRUE, None),
+    ("False", tt._FALSE, None),
+    ("true", tt._IDENTIFIER, None),
+    ("false", tt._IDENTIFIER, None),
     
 ])
-def test_isBool(test_input, expected_result):
-    assert lexer.isBool(test_input) == expected_result
+def test_isBool(test_input, expected_result, expected_error):
+    res, error = lexer.isBool(test_input) 
 
-@pytest.mark.parametrize("test_input,expected_result", [
-    ("pass", tt._PASS),
-    ("break", tt._BREAK),
-    ("return", tt._RETURN),
-    ("continue", tt._CONTINUE),
-    ("import", tt._IMPORT),
-    ("as", tt._AS),
-    ("raise", tt._RAISE),
-    ("delete", tt._DELETE),
-    ("if", tt._IF),
-    ("else", tt._ELSE),
-    ("elif", tt._ELIF),
-    ("and", tt._AND),
-    ("or", tt._OR),
-    ("not", tt._NOT),
-    ("in", tt._IN),
-    ("is", tt._BITWISE_IS),
-    ("def", tt._DEF),
-    ("class", tt._CLASS),
-    ("for", tt._FOR),
-    ("while", tt._WHILE),
-    ("switch", tt._SWITCH),
-    ("case", tt._CASE),
-    ("True", tt._TRUE),
-    ("False", tt._FALSE),
-    ("true", None),
-    ("false", None),
-    ("12", None),
-    ("Test123", None)
+    assert res== expected_result and error==expected_error
+
+@pytest.mark.parametrize("test_input,expected_result, expected_error", [
+    ("pass", tt._PASS, None),
+    ("break", tt._BREAK, None),
+    ("return", tt._RETURN, None),
+    ("continue", tt._CONTINUE, None),
+    ("import", tt._IMPORT, None),
+    ("as", tt._AS, None),
+    ("raise", tt._RAISE, None),
+    ("delete", tt._DELETE, None),
+    ("if", tt._IF, None),
+    ("else", tt._ELSE, None),
+    ("elif", tt._ELIF, None),
+    ("and", tt._AND, None),
+    ("or", tt._OR, None),
+    ("not", tt._NOT, None),
+    ("in", tt._IN, None),
+    ("is", tt._BITWISE_IS, None),
+    ("def", tt._DEF, None),
+    ("class", tt._CLASS, None),
+    ("for", tt._FOR, None),
+    ("while", tt._WHILE, None),
+    ("switch", tt._SWITCH, None),
+    ("case", tt._CASE, None),
+    ("True", tt._TRUE, None),
+    ("False", tt._FALSE, None),
+    ("true", tt._IDENTIFIER, None),
+    ("false", tt._IDENTIFIER, None),
+    ("Test123", tt._IDENTIFIER, None),
+    ("", tt._INVALID, Error("ValueError: 'symbol' is not allowed to be empty string")),
+    (True, tt._INVALID, Error("TypeError: 'symbol' expected to be a string")),
     ])
-def test_isKeyword(test_input, expected_result):
-    assert lexer.isKeyword(test_input) == expected_result
+def test_isKeyword(test_input, expected_result, expected_error):
+    res, error = lexer.isKeyword(test_input) 
+    assert res == expected_result and error == expected_error
 
 @pytest.mark.parametrize("source_code, file_name", [
     ("", ""),
