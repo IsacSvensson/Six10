@@ -1,3 +1,4 @@
+from error import error
 import readline
 from sys import argv
 import platform
@@ -22,6 +23,10 @@ def run_shell():
         console_input = input()
         lexer = Lexer(console_input, "Shell")
         lexer.make_tokens()
+        if lexer.error:
+            print(lexer.error.message)
+            print(lexer.tokens[-1])
+            continue
         for token in lexer.tokens:
             print(token)
 
