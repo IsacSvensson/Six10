@@ -442,7 +442,7 @@ class Lexer:
             self.advance()
         
         if count % 4 == 0:
-            return count/4
+            return int(count/4)
         else:
             self.error = Error("IndentationError: Invalid indentation")
             end = self.position.copy()
