@@ -195,18 +195,32 @@ class Lexer:
         while self.current_character:
             if self.allowed_character("0123456789"):
                 self.tokens.append(self.make_number())
+                if self.error: return
             elif "{}".format(self.current_character) == "\n":
                 indent = self.check_indent()
+                if self.error: return
                 if indent != self.position.indent:
                     self.change_indent(indent)
             else:
                 letterResult, error = isLetter(self.current_character)
+                if error: 
+                    self.error = error
+                    return 
                 if letterResult: 
                     self.tokens.append(self.make_symbol())
-                elif error:
-                    self.error = error
-                    return error
-                self.advance()
+                    continue               
+                else:
+                    if self.allowed_character(" \t"):
+                        self.advance()
+                        continue
+                    start = self.position.copy()
+                    char = self.current_character
+                    self.advance()
+                    end = self.position.copy()
+                    self.tokens.append(Token(tt._INVALID, char, start, end))
+                    self.error = Error("ValueError: Unexpected character")
+            if self.error:
+                    return
 
     def make_number(self):
         """
