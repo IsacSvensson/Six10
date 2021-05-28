@@ -385,6 +385,8 @@ class Lexer:
             end = self.position.copy()
             self.error = Error("ValueError: Unexpected illegal character {}".format(symbol))
             return Token(tt._INVALID, symbol, start, end)
+
+        while self.allowed_character(allowed_chars):
             symbol += self.current_character
             if not self.advance():
                 break
