@@ -254,3 +254,18 @@ def test_lexer_make_symbol(source_code, dataType, error):
     res = l.make_symbol()
 
     assert ((res.datatype if res else None) == dataType) and (l.error == error)
+
+
+@pytest.mark.parametrize("source_code, indent_level, error", [
+    ("\n", 0, None),
+    ("\n" + "    ", 1, None),
+    ("\n" + "    "*5, 5, None),
+    ("\n ", None, Error("IndentationError: Invalid indentation")),
+    ("\n     ", None, Error("IndentationError: Invalid indentation")),
+    ("5", None, Error("IndentationError: Unexpected character")),
+])
+def test_lexer_check_indent(source_code, indent_level, error):
+    l = lexer.Lexer(source_code)
+    res = l.check_indent()
+
+    assert (res == indent_level) and (l.error == error)
