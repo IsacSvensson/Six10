@@ -7,7 +7,7 @@ from lexer import Lexer
 def run_file(filename):
     source = str()
 
-    with open() as fh:
+    with open(filename) as fh:
         source = fh.read()
     
     lexer = Lexer(source, filename)
