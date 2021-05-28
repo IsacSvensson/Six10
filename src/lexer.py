@@ -89,12 +89,16 @@ def isBool(symbol):
         symbol: the string to test
     RETURNS:
         string | None
-    """    
+    """
+    if not isinstance(symbol, str):
+        return tt._INVALID, Error("TypeError: 'symbol' expected to be a string")
+    if len(symbol) < 1:
+        return tt._INVALID, Error("ValueError: 'symbol' is not allowed to be empty string")
     if symbol == "True":
-        return tt._TRUE
-    if symbol == "False":
-        return tt._FALSE
-    return None
+        return tt._TRUE, None
+    elif symbol == "False":
+        return tt._FALSE, None
+    return tt._IDENTIFIER, None
 
 class Lexer:
     """
