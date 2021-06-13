@@ -129,12 +129,12 @@ def test_lexer_advance(source_code, num_of_advances, expected_result, expected_c
     ("5+10==15", "15", None, Error("Error: count is expected to be an int")),
     ("", -5, None, Error("Error: count is expected be a positive integer")),
     ("", 0, None, Error("Error: count is expected be a positive integer")),
-    ("", 1, None, Error("Error: not enought characters in source code")),
-    ("", 5, None, Error("Error: not enought characters in source code")),
+    ("", 1, None, None),
+    ("", 5, None, None),
     ("5+10==15", 0, None, Error("Error: count is expected be a positive integer")),
     ("5+10==15", 1, "+", None),
     ("5+10==15", 7, "+10==15", None),
-    ("5+10==15", 8, None, Error("Error: not enought characters in source code"))
+    ("5+10==15", 8, None, None)
 ])
 def test_lexer_lookahead(source_code, look_ahead_size, expected_result, error):
     l = lexer.Lexer(source_code)
@@ -269,3 +269,55 @@ def test_lexer_check_indent(source_code, indent_level, error):
     res = l.check_indent()
 
     assert (res == indent_level) and (l.error == error)
+
+@pytest.mark.parametrize("cur_indent_lvl, new_indent_lvl, indent_type, error", [
+    (0, 0, None, None),
+    (0, 1, tt._INDENT, None),
+    (1, 0, tt._DEDENT, None),
+    (1, 1, None, None),
+    (0, 10, tt._INDENT, None),
+    (10, 0, tt._DEDENT, None),
+    (0, -1, None, Error("ValueError: Positive integer expected")),
+    (5, "Hej", None, Error("ValueError: Positive integer expected")),
+])
+def test_lexer_change_indent(cur_indent_lvl, new_indent_lvl, indent_type, error):
+    l = lexer.Lexer()
+    l.position.indent = cur_indent_lvl
+
+    l.change_indent(new_indent_lvl)
+
+    assert (l.tokens[-1].datatype if l.tokens else None == indent_type) and (l.error == error)
+
+@pytest.mark.parametrize("source_code, expected_result, error", [
+    ("0", 0, None),
+    ("0b0", 0, None),
+    ("0o0", 0, None),
+    ("0x0", 0, None),
+    ("1", 1, None),
+    ("0b1", 1, None),
+    ("0o1", 1, None),
+    ("0x1", 1, None),
+    ("100", 100, None),
+    ("0b100", 4, None),
+    ("0o100", 64, None),
+    ("0x100", 256, None),
+    ("a", None, Error("ValueError: Expected a digit or dot '.'")),
+])
+def test_lexer_make_symbol(source_code, expected_result, error):
+    l = lexer.Lexer(source_code)
+    res = l.make_number()
+
+    assert ((res.value if res.datatype != tt._INVALID else None) == expected_result) and (l.error == error)
+
+@pytest.mark.parametrize("source_code, expected_result, error", [
+    ("\"Hejsan\"", "Hejsan", None),
+    ("\'Katten\'", "Katten", None),
+    ("\"åäö\"", "åäö", None),
+    ("\"Hola\\n\"", "Hola\n", None),
+    ("\"Hola\n\"", None, Error("StringError: Incorrect line break in string")),
+])
+def test_lexer_make_string(source_code, expected_result, error):
+    l = lexer.Lexer(source_code)
+    res = l.make_string()
+
+    assert ((res.value if res.datatype != tt._INVALID else None) == expected_result) and (l.error == error)

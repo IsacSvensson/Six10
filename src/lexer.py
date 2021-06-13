@@ -156,12 +156,10 @@ class Lexer:
             str: the following characters
         """
         if not isinstance(count, int):
-            print(1)
             self.error = Error("Error: count is expected to be an int")
             return None
 
         if count < 1:
-            print(2)
             self.error = Error("Error: count is expected be a positive integer")
             return None
         
@@ -169,8 +167,6 @@ class Lexer:
         next_char = self.position.index + 1
 
         if sc_length < next_char + count:
-            print(3)
-            self.error = Error("Error: not enought characters in source code")
             return None
         return self.source_code[next_char : next_char + count]
 
@@ -197,10 +193,17 @@ class Lexer:
                 self.tokens.append(self.make_number())
                 if self.error: return
             elif "{}".format(self.current_character) == "\n":
+                start = self.position.copy()
+                self.advance()
+                self.tokens.append(Token(tt._NEWLINE, '\n',start, self.position.copy()))
                 indent = self.check_indent()
                 if self.error: return
                 if indent != self.position.indent:
                     self.change_indent(indent)
+            elif self.allowed_character("'\""):
+                self.tokens.append(self.make_string())
+                if self.error: return
+                continue
             else:
                 letterResult, error = isLetter(self.current_character)
                 if error: 
@@ -415,6 +418,47 @@ class Lexer:
 
         return Token(symbol_type, symbol, start, end)
 
+    def make_string(self):
+        start = self.position.copy()
+        qm = self.current_character
+        not_allowed_chars = qm + "\n"
+
+        string = str()
+        prev = None
+        while self.advance() and not self.allowed_character(not_allowed_chars):
+            if self.current_character == '\\':
+                next = self.look_ahead()
+                if next == '\n':
+                    self.advance()
+                    continue
+                elif next == "\"\'":
+                    string += self.current_character
+                    prev = self.current_character
+                elif next == 'n':
+                    self.advance()
+                    string += '\n'
+                    prev = '\n'
+                    continue
+                elif next == 't':
+                    self.advance()
+                    string += '\t'
+                    prev = '\t'
+                    continue
+                elif next == '\\':
+                    self.advance()
+
+            string += self.current_character
+            prev = self.current_character
+        
+        if self.current_character == qm:
+            self.advance()
+            end = self.position.copy()
+            return Token(tt._STRING, string, start, end)
+        elif self.current_character == "\n":
+            self.advance()
+            end = self.position.copy()
+            self.error = Error("StringError: Incorrect line break in string")
+            return Token(tt._INVALID, string, start, end)
 
     def check_indent(self):
         """
@@ -453,6 +497,13 @@ class Lexer:
         """
         Generates indent and dedent tokens to change indentation level.
         """
+        if not isinstance(indent, int):
+            self.error = Error("ValueError: Positive integer expected")
+            return
+        if indent < 0:
+            self.error = Error("ValueError: Positive integer expected")
+            return
+
         while self.position.indent < indent:
             self.position.indent += 1
             self.tokens.append(Token(tt._INDENT, "    ", self.position, self.position))

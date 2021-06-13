@@ -4,40 +4,40 @@ def date_to_string(date_string):
     
     switch date_string[5:7]:
         case '01':
-            new_string += Januari
+            new_string += "Januari"
             break
         case '02':
-            new_string += Februari
+            new_string += "Februari"
             break
         case '03':
-            new_string += March
+            new_string += "March"
             break
         case '04':
-            new_string += April
+            new_string += "April"
             break
         case '05':
-            new_string += May
+            new_string += "May"
             break
         case '06':
-            new_string += June
+            new_string += "June"
             break
         case '07':
-            new_string += July
+            new_string += "July"
             break
         case '08':
-            new_string += August
+            new_string += "August"
             break
         case '09':
-            new_string += September
+            new_string += "September"
             break
         case '10':
-            new_string += October
+            new_string += "October"
             break
         case '11':
-            new_string += November
+            new_string += "November"
             break
         case '12':
-            new_string += December
+            new_string += "December"
             break
         default: 
             raise ValueError('Incorrect input')
@@ -46,6 +46,6 @@ def date_to_string(date_string):
 
     return new_string
 
-date_of_birth = 2017/07/19
+date_of_birth = "2017/07/19"
 
 print("Sixten was born: " + date_to_string(date_of_birth))
