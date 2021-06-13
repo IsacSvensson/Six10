@@ -512,3 +512,10 @@ class Lexer:
             self.position.indent -= 1
             self.tokens.append(Token(tt._DEDENT, "    ", self.position, self.position))
         
+    def is_operator(self):
+        first_char_in_op = ['=', '+', '-', '*', '/', '%', '&', '|', '^', 
+            '<', '>', '(', ')', '[', ']', '{', '}', '.', ',', ':',]
+        if in first_char_in_op:
+            return True
+        return False
+    
