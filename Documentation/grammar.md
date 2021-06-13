@@ -106,6 +106,24 @@ comparison:
     bitwise_or compare_pair+
   | bitwise_or
 
+compare_pair:
+      eq_bitwise_or
+    | noteq_bitwise_or
+    | lte_bitwise_or
+    | lt_bitwise_or
+    | gte_bitwise_or
+    | gt_bitwise_or
+    | notin_bitwise_or
+    | in_bitwise_or
+    | isnot_bitwise_or
+    | is_bitwise_or
+
+eq_bitwise_or:
+    '==' bitwise_or 
+
+noteq_bitwise_or:
+    '!=' bitwise_or
+
 bitwise_or:
     bitwise_or '|' bitwise_xor 
   | bitwise_xor
