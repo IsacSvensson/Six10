@@ -321,3 +321,54 @@ def test_lexer_make_string(source_code, expected_result, error):
     res = l.make_string()
 
     assert ((res.value if res.datatype != tt._INVALID else None) == expected_result) and (l.error == error)
+
+@pytest.mark.parametrize("source_code, expected_result, error", [
+    ('=',tt._ASSIGN, None,),
+    ('==',tt._BITWISE_EQ, None,),
+    ('+',tt._PLUS, None,),
+    ('++',tt._INCR, None,),
+    ('+=',tt._PLUS_ASSIGN, None,),
+    ('-',tt._MINUS, None,),
+    ('--',tt._DECR, None,),
+    ('-=',tt._MINUS_ASSIGN, None,),
+    ('*',tt._MULT, None,),
+    ('*=',tt._MULT_ASSIGN, None,),
+    ('**',tt._EXP, None,),
+    ('**=',tt._POWER_ASSIGN, None,),
+    ('/',tt._DIV, None,),
+    ('/=',tt._DIV_ASSIGN, None,),
+    ('//',tt._FLOOR, None,),
+    ('//=',tt._FLOOR_ASSIGN, None,),
+    ('%',tt._MOD, None,),
+    ('%=',tt._MOD_ASSIGN, None,),
+    ('&=',tt._AND_ASSIGN, None,),
+    ('&',tt._BITWISE_AND, None,),
+    ('|=',tt._OR_ASSIGN, None,),
+    ('|',tt._BITWISE_OR, None,),
+    ('^',tt._BITWISE_XOR, None,),
+    ('^=',tt._XOR_ASSIGN, None,),
+    ('<',tt._BITWISE_LT, None,),
+    ('<=',tt._BITWISE_LTE, None,),
+    ('<<',tt._BITWISE_LSHIFT, None,),
+    ('<<=',tt._LSHIFT_ASSIGN, None,),
+    ('>',tt._BITWISE_GT, None,),
+    ('>=',tt._BITWISE_GTE, None,),
+    ('>>',tt._BITWISE_RSHIFT, None,),
+    ('>>=',tt._RSHIFT_ASSIGN, None,),
+    ('(',tt._LPARAN, None,),
+    (')',tt._RPARAN, None,),
+    ('[' ,tt._LSQBRACK, None,),
+    (']' ,tt._RSQBRACK, None,),
+    ('{' ,tt._LCURLBRACK, None,),
+    ('}' ,tt._RCURLBRACK, None,),
+    ('.',tt._DOT, None,),
+    (',',tt._COMMA, None,),
+    (':',tt._COLON, None,),
+    ('', None, Error("LexicalError: No characters in buffer"),),
+    (' ', None, Error("ValueError: Token not a operator"),),
+])
+def test_lexer_make_operator(source_code, expected_result, error):
+    l = lexer.Lexer(source_code)
+    res = l.make_operator()
+
+    assert ((res.datatype if res.datatype != tt._INVALID else None) == expected_result) and (l.error == error)
