@@ -142,10 +142,6 @@ class Lexer:
 
             if self.position.index < len(self.source_code):
                 self.current_character = self.source_code[self.position.index] 
-            self.current_character = self.source_code[self.position.index] 
-                self.current_character = self.source_code[self.position.index] 
-            else: 
-        else: 
             else: 
                 self.current_character = None
                 return False
