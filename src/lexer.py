@@ -205,6 +205,10 @@ class Lexer:
                 self.tokens.append(self.make_string())
                 if self.error: return
                 continue
+            elif self.is_operator():
+                self.tokens.append(self.make_operator())
+                if self.error: return
+                continue
             else:
                 letterResult, error = isLetter(self.current_character)
                 if error: 
@@ -516,7 +520,84 @@ class Lexer:
     def is_operator(self):
         first_char_in_op = ['=', '+', '-', '*', '/', '%', '&', '|', '^', 
             '<', '>', '(', ')', '[', ']', '{', '}', '.', ',', ':',]
-        if in first_char_in_op:
+        if self.current_character in first_char_in_op:
             return True
         return False
+    
+    def make_operator(self):
+        n = self.look_ahead(2)
+        if not n:
+            n = self.look_ahead()
+
+        possible_op = self.current_character
+        if possible_op is None:
+            self.error = Error("LexicalError: No characters in buffer")
+            return Token(tt._INVALID, None, None, None)
+        if n:
+            possible_op += n 
+        start = self.position.copy()
+
+        values = {
+            '=':tt._ASSIGN,
+            '==':tt._BITWISE_EQ,
+            '+':tt._PLUS,
+            '++':tt._INCR,
+            '+=':tt._PLUS_ASSIGN,
+            '-':tt._MINUS,
+            '--':tt._DECR,
+            '-=':tt._MINUS_ASSIGN,
+            '*':tt._MULT,
+            '*=':tt._MULT_ASSIGN,
+            '**':tt._EXP,
+            '**=':tt._POWER_ASSIGN,
+            '/':tt._DIV,
+            '/=':tt._DIV_ASSIGN,
+            '//':tt._FLOOR,
+            '//=':tt._FLOOR_ASSIGN,
+            '%':tt._MOD,
+            '%=':tt._MOD_ASSIGN,
+            '&=':tt._AND_ASSIGN,
+            '&':tt._BITWISE_AND,
+            '|=':tt._OR_ASSIGN,
+            '|':tt._BITWISE_OR,
+            '^':tt._BITWISE_XOR,
+            '^=':tt._XOR_ASSIGN,
+            '<':tt._BITWISE_LT,
+            '<=':tt._BITWISE_LTE,
+            '<<':tt._BITWISE_LSHIFT,
+            '<<=':tt._LSHIFT_ASSIGN,
+            '>':tt._BITWISE_GT,
+            '>=':tt._BITWISE_GTE,
+            '>>':tt._BITWISE_RSHIFT,
+            '>>=':tt._RSHIFT_ASSIGN,
+            '(':tt._LPARAN,
+            ')':tt._RPARAN,
+            '[' :tt._LSQBRACK,
+            ']' :tt._RSQBRACK,
+            '{' :tt._LCURLBRACK,
+            '}' :tt._RCURLBRACK,
+            '.':tt._DOT,
+            ',':tt._COMMA,
+            ':':tt._COLON,
+        }
+        
+        if possible_op.__len__() == 3 and values.get(possible_op):
+            self.advance(3)
+            end = self.position.copy()
+            return Token(values.get(possible_op), possible_op, start, end)
+        elif possible_op.__len__() >= 2 and values.get(possible_op[:2]):
+            self.advance(2)
+            end = self.position.copy()
+            return Token(values.get(possible_op[:2]), possible_op[:2], start, end)
+        elif values.get(self.current_character):
+            char = self.current_character
+            self.advance()
+            end = self.position.copy()
+            return Token(values.get(char), char, start, end)
+        else:
+            self.error = Error("ValueError: Token not a operator")
+            char = self.current_character
+            self.advance()
+            end = self.position.copy()
+            return Token(tt._INVALID, char, start, end)
     
