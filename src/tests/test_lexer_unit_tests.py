@@ -257,16 +257,16 @@ def test_lexer_make_symbol(source_code, dataType, error):
 
 
 @pytest.mark.parametrize("source_code, indent_level, error", [
-    ("\n", 0, None),
-    ("\n" + "    ", 1, None),
-    ("\n" + "    "*5, 5, None),
-    ("\n ", None, Error("IndentationError: Invalid indentation")),
-    ("\n     ", None, Error("IndentationError: Invalid indentation")),
-    ("5", None, Error("IndentationError: Unexpected character")),
+    ("\n\n", 0, None),
+    ("    "+ 'def', 1, None),
+    ("    "*5 + 'hej', 5, None),
+    (" katten", None, Error("IndentationError: Invalid indentation")),
+    ("      Hejsan", None, Error("IndentationError: Invalid indentation")),
+    ("5", 0, None),
 ])
 def test_lexer_check_indent(source_code, indent_level, error):
     l = lexer.Lexer(source_code)
-    res = l.check_indent()
+    res, blank = l.check_indent()
 
     assert (res == indent_level) and (l.error == error)
 
@@ -372,3 +372,16 @@ def test_lexer_make_operator(source_code, expected_result, error):
     res = l.make_operator()
 
     assert ((res.datatype if res.datatype != tt._INVALID else None) == expected_result) and (l.error == error)
+
+@pytest.mark.parametrize("source_code, expected_value, expected_type, error", [
+    ("\"\"\"Detta är en flerradskommentar\nDen skrivs över flera rader\"\"\"", "\"\"\"Detta är en flerradskommentar\nDen skrivs över flera rader\"\"\"", "multi_line_comment", None),
+    ("#Katten\n", "#Katten", "comment", None),
+    ("#\"åäö\"\n", "#\"åäö\"", "comment", None),
+    ("\"Hola\\n\"", None, "invalid", Error("LexicalError: Invalid Comment")),
+    ("#Detta är en vanlig kommentar\nden kan inte hantera radbryt", "#Detta är en vanlig kommentar", "comment", None),
+])
+def test_lexer_make_comment(source_code, expected_value, expected_type,  error):
+    l = lexer.Lexer(source_code)
+    res = l.make_comment()
+
+    assert ((res.value if res.datatype != tt._INVALID else None) == expected_value) and (l.error == error)

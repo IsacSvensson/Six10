@@ -1,4 +1,4 @@
-from error import error
+from error import Error
 import readline
 from sys import argv
 import platform

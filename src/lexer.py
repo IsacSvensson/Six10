@@ -130,7 +130,14 @@ class Lexer:
         self.position = Position(-1, 0, -1, 0, filename)
         self.current_character = None
         self.tokens = []
-        self.advance()
+        self.advance() # Inits instance, setting current_char to first char in src code and setting that as position
+
+    def get_cur_char(self):
+        """
+        RETURNS: 
+            str: A copy of current_character
+        """
+        return self.current_character
 
     def advance(self, n=1):
         """
@@ -172,13 +179,21 @@ class Lexer:
         return self.source_code[next_char : next_char + count]
 
     def allowed_character(self, allowed_characters):
-        if self.current_character is None:
+        """
+        Checks whether current character is part of the set of characters inputed.
+
+        PARAMS:
+            allowed_characters: iterable - a iterable containing characters, (set, list or string)
+        RETURNS:
+            bool
+        """
+        if self.get_cur_char() is None:
             self.error = Error("Error: Unexpected end of source code.")
             return False
         if allowed_characters is None or allowed_characters == "":
             self.error = Error("Error: No characters to allow entered.")
             return False
-        elif self.current_character.lower() in allowed_characters.lower():
+        elif self.get_cur_char().lower() in allowed_characters.lower():
             return True
         return False
 
@@ -189,28 +204,37 @@ class Lexer:
         RETURNS:
             list, containing token-objects 
         """
-        while self.current_character:
+        while self.get_cur_char():
             if self.allowed_character("0123456789"):
                 self.tokens.append(self.make_number())
                 if self.error: return
-            elif "{}".format(self.current_character) == "\n":
+            elif self.get_cur_char() == "\n":
                 start = self.position.copy()
                 self.advance()
                 self.tokens.append(Token(tt._NEWLINE, '\n',start, self.position.copy()))
-                indent = self.check_indent()
+                indent, blank = self.check_indent()
+                if blank:
+                    continue
                 if self.error: return
                 if indent != self.position.indent:
                     self.change_indent(indent)
             elif self.allowed_character("'\""):
-                self.tokens.append(self.make_string())
+                if self.look_ahead(2) == '""':
+                    self.tokens.append(self.make_comment())
+                else:
+                    self.tokens.append(self.make_string())
                 if self.error: return
                 continue
             elif self.is_operator():
                 self.tokens.append(self.make_operator())
                 if self.error: return
                 continue
+            elif self.allowed_character('#'):
+                self.tokens.append(self.make_comment())
+                if self.error: return
+                continue
             else:
-                letterResult, error = isLetter(self.current_character)
+                letterResult, error = isLetter(self.get_cur_char())
                 if error: 
                     self.error = error
                     return 
@@ -218,11 +242,11 @@ class Lexer:
                     self.tokens.append(self.make_symbol())
                     continue               
                 else:
-                    if self.allowed_character(" \t"):
+                    if self.allowed_character(" \n"):
                         self.advance()
                         continue
                     start = self.position.copy()
-                    char = self.current_character
+                    char = self.get_cur_char()
                     self.advance()
                     end = self.position.copy()
                     self.tokens.append(Token(tt._INVALID, char, start, end))
@@ -236,7 +260,7 @@ class Lexer:
         The method can parse integers, floats, octadecimal, hexdecimal and binary numbers. 
         """
 
-        if self.current_character == '0':
+        if self.get_cur_char() == '0':
             next_character = self.look_ahead()
             if next_character:
                 next_character = next_character.lower() 
@@ -260,9 +284,9 @@ class Lexer:
         start_position = self.position.copy()
         end_position = None
 
-        binary_string += self.current_character
+        binary_string += self.get_cur_char()
         self.advance()
-        binary_string += self.current_character
+        binary_string += self.get_cur_char()
         self.advance()
 
         if binary_string.lower() != '0b':
@@ -270,8 +294,8 @@ class Lexer:
             self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, binary_string, start_position, end_position)
         
-        while self.current_character and self.allowed_character(allowed_chars):
-            binary_string += self.current_character
+        while self.get_cur_char() and self.allowed_character(allowed_chars):
+            binary_string += self.get_cur_char()
 
             self.advance()
 
@@ -293,9 +317,9 @@ class Lexer:
         start_position = self.position.copy()
         end_position = None
 
-        oct_string += self.current_character
+        oct_string += self.get_cur_char()
         self.advance()
-        oct_string += self.current_character
+        oct_string += self.get_cur_char()
         self.advance()
 
         if oct_string.lower() != '0o':
@@ -303,8 +327,8 @@ class Lexer:
             self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, oct_string, start_position, end_position)
 
-        while self.current_character and self.allowed_character(allowed_chars):
-            oct_string += self.current_character
+        while self.get_cur_char() and self.allowed_character(allowed_chars):
+            oct_string += self.get_cur_char()
 
             self.advance()
         
@@ -327,9 +351,9 @@ class Lexer:
         start_position = self.position.copy()
         end_position = None
 
-        hex_string += self.current_character
+        hex_string += self.get_cur_char()
         self.advance()
-        hex_string += self.current_character
+        hex_string += self.get_cur_char()
         self.advance()
 
         if hex_string.lower() != '0x':
@@ -337,8 +361,8 @@ class Lexer:
             self.error = Error("ValueError: Can not convert to a number")
             return Token(tt._INVALID, hex_string, start_position, end_position)
 
-        while self.current_character and self.allowed_character(allowed_chars):
-            hex_string += self.current_character
+        while self.get_cur_char() and self.allowed_character(allowed_chars):
+            hex_string += self.get_cur_char()
 
             self.advance()
         
@@ -364,20 +388,20 @@ class Lexer:
         start_position = self.position.copy()
         end_position = None
 
-        if self.current_character not in allowed_chars:
+        if self.get_cur_char() not in allowed_chars:
             self.error = Error("ValueError: Expected a digit or dot '.'")
-            char = self.current_character
+            char = self.get_cur_char()
             self.advance()
             end_position = self.position.copy()
             return Token(tt._INVALID, char, start_position, end_position)
 
         while self.allowed_character(allowed_chars) and dot_counter < 2:
-            number_string += self.current_character
+            number_string += self.get_cur_char()
 
             self.advance()
-            if self.current_character == ".":
+            if self.get_cur_char() == ".":
                 dot_counter += 1
-            elif self.current_character is None:
+            elif self.get_cur_char() is None:
                 break
         
         end_position = self.position.copy()
@@ -402,14 +426,14 @@ class Lexer:
 
 
         if not self.allowed_character(allowed_chars[10:]):
-            symbol = self.current_character
+            symbol = self.get_cur_char()
             self.advance()
             end = self.position.copy()
             self.error = Error("ValueError: Unexpected illegal character {}".format(symbol))
             return Token(tt._INVALID, symbol, start, end)
 
         while self.allowed_character(allowed_chars):
-            symbol += self.current_character
+            symbol += self.get_cur_char()
             if not self.advance():
                 break
         
@@ -425,20 +449,20 @@ class Lexer:
 
     def make_string(self):
         start = self.position.copy()
-        qm = self.current_character
+        qm = self.get_cur_char()
         not_allowed_chars = qm + "\n"
 
         string = str()
         prev = None
         while self.advance() and not self.allowed_character(not_allowed_chars):
-            if self.current_character == '\\':
+            if self.get_cur_char() == '\\':
                 next = self.look_ahead()
                 if next == '\n':
                     self.advance()
                     continue
                 elif next == "\"\'":
-                    string += self.current_character
-                    prev = self.current_character
+                    string += self.get_cur_char()
+                    prev = self.get_cur_char()
                 elif next == 'n':
                     self.advance()
                     string += '\n'
@@ -452,14 +476,14 @@ class Lexer:
                 elif next == '\\':
                     self.advance()
 
-            string += self.current_character
-            prev = self.current_character
+            string += self.get_cur_char()
+            prev = self.get_cur_char()
         
-        if self.current_character == qm:
+        if self.get_cur_char() == qm:
             self.advance()
             end = self.position.copy()
             return Token(tt._STRING, string, start, end)
-        elif self.current_character == "\n":
+        elif self.get_cur_char() == "\n":
             self.advance()
             end = self.position.copy()
             self.error = Error("StringError: Incorrect line break in string")
@@ -472,31 +496,28 @@ class Lexer:
         Returns
             int - Level of indentation
         """
-        if self.current_character == "\n":
-            self.advance()
-        elif self.current_character != " ":
-            start = self.position.copy()
-            char = self.current_character
-            self.advance()
-            end = self.position.copy()
-            self.error = Error("IndentationError: Unexpected character")
-            self.tokens.append(Token(tt._INVALID, char, start, end))
-            return None
+        if self.get_cur_char() == "\n":
+            return 0, True
+        elif self.get_cur_char() != " ":
+            return 0, False
         count = 0
         start, end = None, None
-        while self.current_character == " ":
+        while self.get_cur_char() == " ":
             if count % 4 == 0:
                 start = self.position.copy()
             count += 1
             self.advance()
         
+        if self.allowed_character('\n'):
+            return None, True
+
         if count % 4 == 0:
-            return int(count/4)
+            return int(count/4), False
         else:
             self.error = Error("IndentationError: Invalid indentation")
             end = self.position.copy()
-            self.tokens.append(Token(tt._INVALID, " "*(count%4), start, end))
-            return None
+            self.tokens.append(Token(tt._INVALID, None, start, end))
+            return None, False
 
     def change_indent(self, indent):
         """
@@ -520,7 +541,7 @@ class Lexer:
     def is_operator(self):
         first_char_in_op = ['=', '+', '-', '*', '/', '%', '&', '|', '^', 
             '<', '>', '(', ')', '[', ']', '{', '}', '.', ',', ':',]
-        if self.current_character in first_char_in_op:
+        if self.get_cur_char() in first_char_in_op:
             return True
         return False
     
@@ -529,7 +550,7 @@ class Lexer:
         if not n:
             n = self.look_ahead()
 
-        possible_op = self.current_character
+        possible_op = self.get_cur_char()
         if possible_op is None:
             self.error = Error("LexicalError: No characters in buffer")
             return Token(tt._INVALID, None, None, None)
@@ -589,15 +610,51 @@ class Lexer:
             self.advance(2)
             end = self.position.copy()
             return Token(values.get(possible_op[:2]), possible_op[:2], start, end)
-        elif values.get(self.current_character):
-            char = self.current_character
+        elif values.get(self.get_cur_char()):
+            char = self.get_cur_char()
             self.advance()
             end = self.position.copy()
             return Token(values.get(char), char, start, end)
         else:
             self.error = Error("ValueError: Token not a operator")
-            char = self.current_character
+            char = self.get_cur_char()
             self.advance()
             end = self.position.copy()
             return Token(tt._INVALID, char, start, end)
     
+    def make_comment(self):
+        start = self.position.copy()
+        single_line = self.allowed_character('#')
+
+        comment = str()
+
+        if single_line:
+            while not self.allowed_character('\n'):
+                comment += self.get_cur_char()
+                if not self.advance():
+                    self.error = Error("LexicalError: Line break '\\n' expected to terminate comment")
+                    return Token(tt._INVALID, comment, start, self.position.copy())
+        else:
+            count = 0
+
+            for i in range(3):
+                if self.allowed_character('"'):
+                    comment += self.get_cur_char()
+                    self.advance()
+                else:
+                    self.error = Error("LexicalError: Invalid Comment")
+                    return Token(tt._INVALID, comment, start, self.position.copy())
+
+            while count < 3:
+                comment += self.get_cur_char()
+                if not self.advance():
+                    self.error = Error("LexicalError: ' \"\"\" ' expected to terminate comment")
+                    return Token(tt._INVALID, comment, start, self.position.copy())
+                if self.get_cur_char() == '"':
+                    count += 1
+                else:
+                    count = 0
+            
+            comment += '"'
+
+        return Token(tt._COMMENT if single_line else tt._MULTI_COMMENT, comment, start, self.position.copy())
