@@ -1,13 +1,13 @@
 def bubbleSort(elements):
     n = len(elements)
-  
+
     for i in range(n-1):
         for j in range(0, n-i-1):
             if elements[j] > elements[j+1] :
                 elements[j], elements[j+1] = elements[j+1], elements[j]
 
 elements = [64, 34, 25, 12, 22, 11, 90]
-  
+                  
 bubbleSort(elements)
   
 print ("Sorted elements are:")

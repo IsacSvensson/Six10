@@ -296,7 +296,6 @@ class Lexer:
         
         while self.get_cur_char() and self.allowed_character(allowed_chars):
             binary_string += self.get_cur_char()
-
             self.advance()
 
         end_position = self.position.copy()
@@ -381,7 +380,7 @@ class Lexer:
         """
 
         number_string = ""
-        dot_counter = 0
+        dot_counter = 0 # To make sure that there is only one decimal point
         allowed_chars = "1234567890."
 
 
@@ -424,7 +423,7 @@ class Lexer:
         symbol = ""
         start = self.position.copy()
 
-
+        # To make sure that the symbol doesn't start with a digit
         if not self.allowed_character(allowed_chars[10:]):
             symbol = self.get_cur_char()
             self.advance()
@@ -434,7 +433,7 @@ class Lexer:
 
         while self.allowed_character(allowed_chars):
             symbol += self.get_cur_char()
-            if not self.advance():
+            if not self.advance(): # if reaching end of src code 
                 break
         
         end = self.position.copy()
@@ -448,12 +447,18 @@ class Lexer:
         return Token(symbol_type, symbol, start, end)
 
     def make_string(self):
+        """
+        Creates a string.
+        Reads characters for src code until terminating character is reached.
+
+        RETURNS:
+            Token
+        """
         start = self.position.copy()
         qm = self.get_cur_char()
         not_allowed_chars = qm + "\n"
 
         string = str()
-        prev = None
         while self.advance() and not self.allowed_character(not_allowed_chars):
             if self.get_cur_char() == '\\':
                 next = self.look_ahead()
@@ -462,22 +467,18 @@ class Lexer:
                     continue
                 elif next == "\"\'":
                     string += self.get_cur_char()
-                    prev = self.get_cur_char()
                 elif next == 'n':
                     self.advance()
                     string += '\n'
-                    prev = '\n'
                     continue
                 elif next == 't':
                     self.advance()
                     string += '\t'
-                    prev = '\t'
                     continue
                 elif next == '\\':
                     self.advance()
 
             string += self.get_cur_char()
-            prev = self.get_cur_char()
         
         if self.get_cur_char() == qm:
             self.advance()
@@ -496,9 +497,9 @@ class Lexer:
         Returns
             int - Level of indentation
         """
-        if self.get_cur_char() == "\n":
+        if self.get_cur_char() == "\n": # If blank row without indent
             return 0, True
-        elif self.get_cur_char() != " ":
+        elif self.get_cur_char() != " ": # If row without indent
             return 0, False
         count = 0
         start, end = None, None
@@ -508,10 +509,10 @@ class Lexer:
             count += 1
             self.advance()
         
-        if self.allowed_character('\n'):
+        if self.allowed_character('\n'): # if blank row with indent 
             return None, True
 
-        if count % 4 == 0:
+        if count % 4 == 0: 
             return int(count/4), False
         else:
             self.error = Error("IndentationError: Invalid indentation")
@@ -530,11 +531,11 @@ class Lexer:
             self.error = Error("ValueError: Positive integer expected")
             return
 
-        while self.position.indent < indent:
+        while self.position.indent < indent: # increases indentation
             self.position.indent += 1
             self.tokens.append(Token(tt._INDENT, "    ", self.position, self.position))
 
-        while self.position.indent > indent:
+        while self.position.indent > indent: # Decreases indentation
             self.position.indent -= 1
             self.tokens.append(Token(tt._DEDENT, "    ", self.position, self.position))
         
