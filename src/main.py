@@ -3,6 +3,7 @@ import readline
 from sys import argv
 import platform
 from lexer import Lexer
+from parser import Parser
 
 def run_file(filename):
     source = str()
@@ -14,6 +15,11 @@ def run_file(filename):
     lexer.make_tokens()
     for token in lexer.tokens:
         print(token)
+    parser = Parser(lexer.tokens)
+
+    res = parser.parse()
+
+    res.node.print_tree()
 
 def run_shell():
     console_input = None
