@@ -3,7 +3,7 @@ import readline
 from sys import argv
 import platform
 from lexer import Lexer
-from parser import Parser
+from six10_parser import Parser
 
 def run_file(filename):
     source = str()
@@ -13,12 +13,16 @@ def run_file(filename):
     
     lexer = Lexer(source, filename)
     lexer.make_tokens()
+    if lexer.error:
+        print(lexer.error)
+        return
     for token in lexer.tokens:
         print(token)
     parser = Parser(lexer.tokens)
 
     res = parser.parse()
-
+    if res.error:
+        print(res.error)
     res.node.print_tree()
 
 def run_shell():
