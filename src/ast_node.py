@@ -35,10 +35,12 @@ class Program_node(Ast_node):
     """
     Top node of the AST.
     """
-    def __init__(self, file_name):
-        super().__init__(file_name, list()) 
+    def __init__(self, file_name, nodes=None):
+        if nodes is None:
+            nodes = []
+        super().__init__(file_name, nodes) 
     def build_ast(self):
-        pass
+        raise NotImplementedError
 
 class Class_decl_node(Ast_node):
     """
