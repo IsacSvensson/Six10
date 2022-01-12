@@ -49,7 +49,7 @@ class Class_decl_node(Ast_node):
     def __init__(self, value, children):
         super().__init__(value, children) 
     def build_ast(self):
-        pass
+        raise NotImplementedError
 
 class Func_decl_node(Ast_node):
     """
