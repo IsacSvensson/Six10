@@ -17,7 +17,7 @@ class Ast_node:
         """
         returns the value of the node as a string
         """
-        val = str(self.value.value) if self.value.value else ""
+        val = str(self.value) if self.value else ""
         return val
     
     def print_tree(self, deepth = 0):
