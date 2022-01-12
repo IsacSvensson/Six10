@@ -12,4 +12,4 @@ class Token:
         self.end = end
 
     def __str__(self):
-        return "[{}]: {}\nStart:{}\nEnd:{}\n".format(self.datatype, self.value, self.start, self.end)
+        return f"[{self.datatype}]: {self.value}"
