@@ -82,3 +82,11 @@ class Number_node(Ast_node):
     def __init__(self, value):
         super().__init__(value, None)
     
+class If_else_expression_node(Ast_node):
+    def __init__(self, true_val, condition, else_val):
+        super().__init__(None, [true_val, condition, else_val])
+
+class Comparison_node(Ast_node):
+    def __init__(self, op, lhs, rhs):
+        super().__init__(op, [lhs, rhs])
+    
