@@ -36,3 +36,6 @@ class Error:
         if isinstance(o, Error):
             return self.message == o.message
         return False
+
+    def __str__(self) -> str:
+        return self.generate_traceback()
