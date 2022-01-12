@@ -12,7 +12,7 @@ class Position:
         filename: str - Name of the file.
         code_snippet: str - The code snippet which the position-object concerns 
     """
-    def __init__(self, index, row, column, indent, filename = None, code_snippet = None):
+    def __init__(self, index, row, column, indent, filename = None, source_code=None):
         """
         Inits class with given parameters
         """
@@ -21,7 +21,7 @@ class Position:
         self.column = column
         self.indent = indent
         self.filename = filename
-        self.code_snippet = code_snippet
+        self.source_code = source_code
 
     def advance(self, current_character=None):
         """
@@ -49,8 +49,11 @@ class Position:
             self.column, 
             self.indent, 
             self.filename, 
-            self.code_snippet
+            self.source_code
             )
-    
+
+    def get_line_str(self):
+        return self.source_code.split('\n')[self.row]
+
     def __str__(self):
         return "Row/col: {}/{}, Indent: {}".format(self.row, self.column, self.indent)
