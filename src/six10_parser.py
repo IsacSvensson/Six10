@@ -172,6 +172,88 @@ class Parser:
             node = If_else_expression_node(true_val, condition, else_val)
             return res.success(node)
         return res
+
+    def disjunction(self):
+        """
+        Parsing disjunction:
+            conjunction ('or' conjunction)+
+          | conjunction
+        """
+        return self.bin_op(self.conjunction, (tt._OR,))
+
+    def conjunction(self):
+        """
+        Parsing conjunction:
+            invertion ('and' invertion)+
+          | invertion
+        """
+        return self.bin_op(self.invertion, (tt._AND,))
+
+    def invertion(self):
+        """
+        Parsing invertion:
+            'not' invertion
+          | comparison
+        """
+        res = Parse_result()
+        # If negation
+        if self.current_token.datatype == tt._NOT:
+            tok = self.current_token
+            res.register(self.advance())
+            invertion = res.register(self.invertion())
+            if res.error: return res
+
+            return res.success(Pre_unary_op_node(tok, invertion))
+        # Else
+        return self.comparison()
+
+    def comparison(self):
+        """
+        Parsing comparison:
+            bitwise_or compare_pair+
+          | bitwise_or
+        """
+        res = self.bitwise_or()
+
+        # If comparison of some kind
+        if self.current_token.datatype in tt._COMPARISON:
+            tok = self.current_token
+            lhs = res.node
+            # If 'not in'
+            if self.current_token.datatype == tt._NOT:
+                self.advance()
+                if self.current_token.datatype == tt._IN:
+                    self.advance()
+                    res = self.bin_op(self.bitwise_or, (tt._NOT_IN))
+                    if res.error: return res
+                else:
+                    return res.failure(Error("Expected 'in'", 
+                        self.current_token.start, self.current_token.end))
+                rhs = res.node
+            elif self.current_token.datatype == tt._BITWISE_IS:
+                self.advance()
+                if self.current_token.datatype == tt._NOT:
+                    # If is not
+                    self.advance()
+                    res = self.bin_op(self.bitwise_or, (tt._BITWISE_IS_NOT))
+                    if res.error: return res
+                else:
+                    # if is
+                    res = self.bin_op(self.bitwise_or, (tt._BITWISE_IS_NOT))
+                    if res.error: return res
+                rhs = res.node
+            else:
+                # all other comparisons
+                res = self.bin_op(self.bitwise_or, tt._COMPARISON)
+                if res.error: return res
+                rhs = res.node
+            return res.success(Comparison_node(tok, lhs, rhs))
+        return res
+
+    def bitwise_or(self):
+        """
+        Parsing + and -
+        """
         return self.bin_op(self.term, (tt._PLUS, tt._MINUS))
 
     def term(self):
