@@ -149,6 +149,29 @@ class Parser:
         """
         Expression parser. Either regular expression or if/else expression
         """
+        res = self.disjunction()
+        if res.error: return res
+
+        # If/else expression
+        if self.current_token.datatype == tt._IF:
+            # Value to use if condition is true
+            true_val = res.node
+            self.advance()
+            # Get condition
+            res = self.expr()
+            if res.error: return res
+            condition = res.node
+            if self.current_token.datatype != tt._ELSE:
+                return res.failure(Error("Expected 'else'",
+                    self.current_token.start, self.current_token.end))
+            self.advance()
+            # Value to use if condition is False
+            res = self.expr()
+            if res.error: return res
+            else_val = res.node
+            node = If_else_expression_node(true_val, condition, else_val)
+            return res.success(node)
+        return res
         return self.bin_op(self.term, (tt._PLUS, tt._MINUS))
 
     def term(self):
