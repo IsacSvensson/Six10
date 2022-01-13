@@ -73,8 +73,16 @@ class Parser:
             self.current_token = None
 
     def parse(self):
-        res = self.statements()
+        """
+        Entrypoint for tokenization.
+        """
+        res = self.program()
     
+        return res
+
+    def program(self):
+        res = self.statements()
+
         return res
 
     def statements(self):
