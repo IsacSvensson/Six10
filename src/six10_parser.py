@@ -370,17 +370,17 @@ class Parser:
         Handles binary operations
         """
         res = Parse_result()
-        lhs = res.register(func())
+        left = res.register(func())
         if res.error: return res
 
         while self.current_token.datatype in ops:
             op_tok = self.current_token
             res.register(self.advance())
-            rhs = res.register(func())
+            right = res.register(func())
             if res.error: return res
-            lhs = Bin_op_node(lhs, op_tok, rhs)
+            left = Bin_op_node(left, op_tok, right)
 
-        return res.success(lhs)
+        return res.success(left)
     
     def un_op(self, func, ops):
         """
@@ -388,7 +388,6 @@ class Parser:
         """
         res = Parse_result()
         if self.current_token.datatype in ops:
-            # If pre operation
             while self.current_token.datatype in ops:
                 op_tok = self.current_token
                 res.register(self.advance())
@@ -396,7 +395,6 @@ class Parser:
                 if res.error: return res
                 right = Pre_unary_op_node(op_tok, value)
         else:
-            # If post operation
             right = res.register(func())
             if res.error: return res
 
