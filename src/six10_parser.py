@@ -275,40 +275,136 @@ class Parser:
             factor = res.register(self.factor())
             if res.error: return res
 
-            return res.success(Unary_op_node(tok, factor))
+            return res.success(Pre_unary_op_node(tok, factor))
+        else:
+            return self.un_op(self.unary_variation, (tt._INCR, tt._DECR))
 
-        elif tok.datatype in (tt._INT, tt._FLOAT):
-            factor = Number_node(tok)
-            node = factor
-            res.register(self.advance())
+    def unary_variation(self):
+        """
+        Handles pre/post increase/decrease
+        """
+        return self.bin_op(self.power, (tt._EXP,))
+            
+    def power(self):
+        """
+        Handles exponents
+        """
+        return self.bin_op(self.primary, (tt._DOT,))
 
-            if self.current_token.datatype in (tt._INCR, tt._DECR):
-                res.register(self.advance())
-                node = Unary_op_node(self.current_token, factor)
-            return res.success(node)
-
-        elif tok.datatype == tt._LPARAN:
-            res.register(self.advance())
-            expr = res.register(self.expr())
+    def primary(self):
+        """
+        Handles members, subscribers and function calls
+        """
+        res = self.atom()
+        if res.error: return res
+        id = res.node
+        if self.current_token.datatype == tt._LPARAN:
+            self.advance()
+            res = self.expression_list()
             if res.error: return res
-            if self.current_token.datatype == tt._RPARAN:
-                res.register(self.advance())
-                return res.success(expr)
-            else:
-                return res.failure(Error("Expected ')'", tok.start, self.current_token.end))
-        
-        return res.failure(Error("Expected int or float", self.current_token.start, self.current_token.end))
-    
-    def bin_op(self, func, ops):
+            args = res.node
+            if self.current_token.datatype != tt._RPARAN:
+                res.failure("Expected ')'",  
+                    self.current_token.start, self.current_token.end)
+            self.advance()
+            return res.success(Func_call_node(id.value, args))
+        elif self.current_token.datatype == tt._LSQBRACK:
+            self.advance()
+            res = self.arguments()
+            if res.error: return res
+            args = res.node
+            if self.current_token.datatype != tt._RSQBRACK:
+                res.failure("Expected ']'",  
+                    self.current_token.start, self.current_token.end)
+            self.advance()
+            return res.success(Subscriber_call_node(id, args))
+        return res
+
+    def expression_list(self):
+        """
+        Handles lists of expressions, such as arguments/parameters or items in 
+        containers
+        """
+        raise NotImplementedError
+
+    def atom(self):
+        """
+        Handles identifiers, litterals, tuples, lists, dicts, sets and 
+        parenthesis enclosed expresions
+        """
         res = Parse_result()
-        left = res.register(func())
+        tok = self.current_token
+        if self.current_token.datatype == tt._IDENTIFIER:
+            self.advance()
+            return res.success(Identifier_call_node(tok))
+        if self.current_token.datatype == tt._LPARAN:
+            raise NotImplementedError
+        if self.current_token.datatype == tt._LSQBRACK:
+            raise NotImplementedError
+        if self.current_token.datatype == tt._LCURLBRACK:
+            raise NotImplementedError
+        return self.litteral()
+
+    def litteral(self):
+        """
+        Handles Bools, None, Strings and numbers
+        """
+        res = Parse_result()
+        tok = self.current_token
+        if tok.datatype == tt._TRUE or tok.datatype == tt._FALSE:
+            self.advance()
+            return res.success(Bool_node(tok))
+        if tok.datatype == tt._NONE:
+            self.advance()
+            return res.success(None_node(tok))
+        if tok.datatype == tt._STRING:
+            self.advance()
+            return res.success(None_node(tok))
+        if tok.datatype == tt._INT or tok.datatype == tt._FLOAT:
+            self.advance()
+            return res.success(Number_node(tok))
+        return res.failure("Expected litteral ('True'/'False', 'None', string or number)")
+
+    def bin_op(self, func, ops):
+        """
+        Handles binary operations
+        """
+        res = Parse_result()
+        lhs = res.register(func())
         if res.error: return res
 
         while self.current_token.datatype in ops:
             op_tok = self.current_token
             res.register(self.advance())
+            rhs = res.register(func())
+            if res.error: return res
+            lhs = Bin_op_node(lhs, op_tok, rhs)
+
+        return res.success(lhs)
+    
+    def un_op(self, func, ops):
+        """
+        Handles pre and post unary operations
+        """
+        res = Parse_result()
+        if self.current_token.datatype in ops:
+            # If pre operation
+            while self.current_token.datatype in ops:
+                op_tok = self.current_token
+                res.register(self.advance())
+                value = res.register(func())
+                if res.error: return res
+                right = Pre_unary_op_node(op_tok, value)
+        else:
+            # If post operation
             right = res.register(func())
             if res.error: return res
-            left = Bin_op_node(left, op_tok, right)
 
-        return res.success(left)
+            while self.current_token.datatype in ops:
+                op_tok = self.current_token
+                res.register(self.advance())
+                right = res.register(func())
+                if res.error: return res
+                right = Post_unary_op_node(op_tok, right)
+
+        return res.success(right)
