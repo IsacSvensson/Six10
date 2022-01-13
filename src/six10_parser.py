@@ -87,16 +87,25 @@ class Parser:
 
     def statements(self):
         res = Parse_result()
+        # Holds all statements that is the program
         stmts = []
+
+        # Runs until EOF is encountered
         while self.current_token.datatype != tt._EOF:
             if self.current_token.datatype in tt._CMP_STMT:
+                # Compound statments
                 node = res.register(self.compound_statment())
             else:
+                # Small statements
                 node = res.register(self.small_statment())
             if res.error: return res
-            stmts.append(node)
+            if node:
+                # If node extracted add to list.
+                stmts.append(node)
+            # Skip blank lines
             while self.current_token.datatype == tt._NEWLINE:
                 self.advance()
+        # Entrypoint of AST.
         res.success(Program_node(self.tokens[0].start.filename, stmts))
         return res
 
