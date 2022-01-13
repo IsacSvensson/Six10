@@ -7,11 +7,20 @@ from ast_node import Comparison_node, Func_call_node, Subscriber_call_node
 from ast_node import Identifier_call_node, Bool_node, None_node
 
 class Parse_result:
+    """
+    Class for holding parse results
+    """
     def __init__(self):
+        """
+        Inits with none values
+        """
         self.error = None
         self.node = None
 
     def register(self, res):
+        """
+        Registers if anything went wrong
+        """
         if isinstance(res, Parse_result):
             if res.error: self.error = res.error
             return res.node
@@ -19,25 +28,43 @@ class Parse_result:
         return res
 
     def success(self, node):
+        """
+        Registers successfully created nodes
+        """
         self.node = node
         return self
 
     def failure(self, error):
+        """
+        Registers failures
+        """
         self.error = error
         return self
 
 
 class Parser:
+    """
+    Parser class, takes a set of tokens and parses to create an ast
+    """
     def __init__(self, tokens) -> None:
+        """
+        Inits with a list of tokens.
+        """
         self.tokens = tokens
         self.token_index = -1
         self.advance()
     
     def advance(self):
+        """
+        Moves selects next token
+        """
         self.token_index += 1
         self.update_current_token()
     
     def update_current_token(self):
+        """
+        Updates current_token to next token
+        """
         if self.token_index >= 0 and self.token_index < len(self.tokens):
             self.current_token = self.tokens[self.token_index]
 
