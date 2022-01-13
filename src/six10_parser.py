@@ -110,9 +110,15 @@ class Parser:
         return res
 
     def compound_statment(self):
+        """
+        Parses definitions of functions and classes and if/while/for/switch-statements  
+        """
         raise NotImplementedError
 
     def small_statment(self):
+        """
+        Parsing regular one-line-statements.
+        """
         res = Parse_result()
         tok = self.current_token
 
@@ -135,10 +141,14 @@ class Parser:
         elif tok.datatype == tt._MULTI_COMMENT:
             raise NotImplementedError
         else:
+            # If not anything above, it's a expression.
             return self.expr()
 
 
     def expr(self):
+        """
+        Expression parser. Either regular expression or if/else expression
+        """
         return self.bin_op(self.term, (tt._PLUS, tt._MINUS))
 
     def term(self):
