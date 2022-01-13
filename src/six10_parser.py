@@ -52,6 +52,8 @@ class Parser:
         """
         self.tokens = tokens
         self.token_index = -1
+        self.current_token = None
+        # Sets up current token
         self.advance()
     
     def advance(self):
@@ -67,6 +69,8 @@ class Parser:
         """
         if self.token_index >= 0 and self.token_index < len(self.tokens):
             self.current_token = self.tokens[self.token_index]
+        else:
+            self.current_token = None
 
     def parse(self):
         res = self.statements()
