@@ -58,6 +58,21 @@ class Func_decl_node(Ast_node):
     def __init__(self, value, children):
         super().__init__(value, children)
 
+class Func_call_node(Ast_node):
+    """
+    Used to define a method
+    """
+    def __init__(self, function, arguments):
+        super().__init__(function, [arguments])
+
+
+class Subscriber_call_node(Ast_node):
+    """
+    Used to define a method
+    """
+    def __init__(self, function, arguments):
+        super().__init__(function, [arguments])
+
 class Bin_op_node(Ast_node):
     """
     Defines a binary operation. 
@@ -68,7 +83,7 @@ class Bin_op_node(Ast_node):
     def __init__(self, left, operator, right):
         super().__init__(operator, list((left, right)))
 
-class Unary_op_node(Ast_node):
+class Pre_unary_op_node(Ast_node):
     """
     Defines a unary operation. 
     value = the operator 
@@ -78,7 +93,26 @@ class Unary_op_node(Ast_node):
     def __init__(self, operator, value):
         super().__init__(operator, list((value,)))
 
+class Post_unary_op_node(Ast_node):
+    """
+    Defines a unary operation. 
+    value = the operator 
+    children[0] = value to operate on
+    children[1] = prefix (bool)
+    """
+    def __init__(self, operator, value):
+        super().__init__(operator, list((value,)))
+
+
 class Number_node(Ast_node):
+    def __init__(self, value):
+        super().__init__(value, None)
+
+class Bool_node(Ast_node):
+    def __init__(self, value):
+        super().__init__(value, None)
+
+class None_node(Ast_node):
     def __init__(self, value):
         super().__init__(value, None)
     
@@ -89,4 +123,8 @@ class If_else_expression_node(Ast_node):
 class Comparison_node(Ast_node):
     def __init__(self, op, lhs, rhs):
         super().__init__(op, [lhs, rhs])
+    
+class Identifier_call_node(Ast_node):
+    def __init__(self, token):
+        super().__init__(token, [])
     
