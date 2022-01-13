@@ -257,13 +257,19 @@ class Parser:
         return self.bin_op(self.term, (tt._PLUS, tt._MINUS))
 
     def term(self):
+        """
+        Parsing '*', '/', '%' and '//'
+        """
         return self.bin_op(self.factor, (tt._MULT, tt._DIV, tt._MOD, tt._FLOOR))
 
     def factor(self):
+        """
+        Handles unary '+' and '-'
+        """
         res = Parse_result()
         tok = self.current_token
-        node = None 
 
+        # If unary plus or minus
         if tok.datatype in (tt._PLUS, tt._MINUS):
             res.register(self.advance())
             factor = res.register(self.factor())
