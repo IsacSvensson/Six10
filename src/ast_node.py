@@ -62,16 +62,16 @@ class Func_call_node(Ast_node):
     """
     Used to define a method
     """
-    def __init__(self, function, arguments):
-        super().__init__(function, [arguments])
+    def __init__(self, identifier, arguments):
+        super().__init__(identifier.value, [identifier, arguments])
 
 
 class Subscriber_call_node(Ast_node):
     """
     Used to define a method
     """
-    def __init__(self, function, arguments):
-        super().__init__(function, [arguments])
+    def __init__(self, identifier, arguments):
+        super().__init__(identifier.value, [identifier, arguments])
 
 class Bin_op_node(Ast_node):
     """
@@ -127,4 +127,7 @@ class Comparison_node(Ast_node):
 class Identifier_call_node(Ast_node):
     def __init__(self, token):
         super().__init__(token, [])
-    
+
+class Expression_list_node(Ast_node):
+    def __init__(self, expressions):
+        super().__init__("Expression list", expressions)
