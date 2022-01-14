@@ -37,8 +37,17 @@ def run_shell():
             print(lexer.error.message)
             print(lexer.tokens[-1])
             continue
-        for token in lexer.tokens:
-            print(token)
+        parser = Parser(lexer.tokens)
+        try:
+            res = parser.parse()
+            if res.error:
+                print(res.error)
+            elif res.node:
+                res.node.print_tree()
+            else:
+                print("No node, and no error")
+        except NotImplementedError:
+            print("Feature not implemented")
 
 def main():
     """
