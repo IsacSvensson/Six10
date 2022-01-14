@@ -302,32 +302,45 @@ class Parser:
         id = res.node
         if self.current_token.datatype == tt._LPARAN:
             self.advance()
-            res = self.expression_list()
+            res = self.expression_list(tt._RPARAN)
             if res.error: return res
-            args = res.node
-            if self.current_token.datatype != tt._RPARAN:
-                res.failure("Expected ')'",  
-                    self.current_token.start, self.current_token.end)
-            self.advance()
-            return res.success(Func_call_node(id.value, args))
+            if res.node:
+                args = res.node
+            else:
+                return res.failure(Error("No ast-node was created."))
+            return res.success(Func_call_node(id, args))
         elif self.current_token.datatype == tt._LSQBRACK:
             self.advance()
-            res = self.arguments()
+            res = self.expression_list(tt._RSQBRACK)
             if res.error: return res
-            args = res.node
-            if self.current_token.datatype != tt._RSQBRACK:
-                res.failure("Expected ']'",  
-                    self.current_token.start, self.current_token.end)
-            self.advance()
+            if res.node:
+                args = res.node
+            else:
+                return res.failure(Error("No ast-node was created."))
             return res.success(Subscriber_call_node(id, args))
         return res
 
-    def expression_list(self):
+    def expression_list(self, terminator):
         """
         Handles lists of expressions, such as arguments/parameters or items in 
         containers
         """
-        raise NotImplementedError
+        res = Parse_result()
+        exprs = []
+
+        while self.current_token.datatype != terminator:
+            res = self.expr()
+            if res.error: return res
+            if res.node:
+                exprs.append(res.node)
+            if self.current_token.datatype == tt._COMMA:
+                self.advance()
+            elif self.current_token.datatype != terminator:
+                return res.failure(Error(f"Expected ',' or {terminator}",
+                    self.current_token.start, self.current_token.end))
+        self.advance()
+
+        return res.success(Expression_list_node(exprs))
 
     def atom(self):
         """
