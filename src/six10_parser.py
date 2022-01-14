@@ -393,6 +393,7 @@ class Parser:
         """
         res = Parse_result()
         if self.current_token.datatype in ops:
+            # If pre operation
             while self.current_token.datatype in ops:
                 op_tok = self.current_token
                 res.register(self.advance())
@@ -400,6 +401,7 @@ class Parser:
                 if res.error: return res
                 right = Pre_unary_op_node(op_tok, value)
         else:
+            # If post operation
             right = res.register(func())
             if res.error: return res
 
