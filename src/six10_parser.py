@@ -142,7 +142,9 @@ class Parser:
             raise NotImplementedError
         else:
             # If not anything above, it's a expression.
-            return self.expr()
+            res = self.expr()
+            #TODO: Implement assignment here.
+        return res
 
 
     def expr(self):
@@ -338,10 +340,13 @@ class Parser:
             self.advance()
             return res.success(Identifier_call_node(tok))
         if self.current_token.datatype == tt._LPARAN:
+            #TODO: Implement parenthesis enclosed expression and tuple
             raise NotImplementedError
         if self.current_token.datatype == tt._LSQBRACK:
+            #TODO: Implement list
             raise NotImplementedError
         if self.current_token.datatype == tt._LCURLBRACK:
+            #TODO: Implement set and dict
             raise NotImplementedError
         return self.litteral()
 
