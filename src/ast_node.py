@@ -128,6 +128,14 @@ class Identifier_call_node(Ast_node):
     def __init__(self, token):
         super().__init__(token, [])
 
+class List_node(Ast_node):
+    def __init__(self, objects):
+        super().__init__("List", [objects])
+
 class Expression_list_node(Ast_node):
+    def __init__(self, expressions):
+        super().__init__("Expression list", expressions)
+
+class Slices_node(Ast_node):
     def __init__(self, expressions):
         super().__init__("Expression list", expressions)
