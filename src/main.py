@@ -32,23 +32,24 @@ def run_shell():
     while console_input != "":
         print(">>> ", end="")
         console_input = input()
-        lexer = Lexer(console_input, "Shell")
-        lexer.make_tokens()
-        if lexer.error:
-            print(lexer.error.message)
-            print(lexer.tokens[-1])
-            continue
-        parser = Parser(lexer.tokens)
-        try:
-            res = parser.parse()
-            if res.error:
-                print(res.error)
-            elif res.node:
-                res.node.print_tree()
-            else:
-                print("No node, and no error")
-        except NotImplementedError:
-            print("Feature not implemented")
+        if console_input:
+            lexer = Lexer(console_input, "Shell")
+            lexer.make_tokens()
+            if lexer.error:
+                print(lexer.error.message)
+                print(lexer.tokens[-1])
+                continue
+            parser = Parser(lexer.tokens)
+            try:
+                res = parser.parse()
+                if res.error:
+                    print(res.error)
+                elif res.node:
+                    res.node.print_tree()
+                else:
+                    print("No node, and no error")
+            except NotImplementedError:
+                print("Feature not implemented")
 
 def main():
     """
