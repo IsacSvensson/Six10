@@ -103,11 +103,11 @@ class Parser:
             if node:
                 # If node extracted add to list.
                 stmts.append(node)
-            # Skip blank lines
             if self.current_token.datatype not in [tt._EOF, tt._NEWLINE]:
                 tok = self.current_token
                 return res.failure(Error("Expected new line, '\\n' or EOF.", 
                     tok.start, tok.end))
+            # Skip blank lines
             while self.current_token.datatype == tt._NEWLINE:
                 self.advance()
         # Entrypoint of AST.
