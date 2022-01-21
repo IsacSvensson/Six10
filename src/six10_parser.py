@@ -445,7 +445,8 @@ class Parser:
         if dt in tt._NUMBER_TOKENS:
             self.advance()
             return res.success(Number_node(tok))
-        return res.failure("Expected litteral ('True'/'False', 'None', string or number)")
+        return res.failure(Error("Expected litteral ('True'/'False', 'None', string or number)", 
+            tok.start, tok.end))
 
     def bin_op(self, func, ops):
         """
