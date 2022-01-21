@@ -336,6 +336,7 @@ class Parser:
         """
         res = Parse_result()
         exprs = []
+        list_comprehension = False
 
         while self.current_token.datatype != terminator:
             res = self.expr()
@@ -344,9 +345,16 @@ class Parser:
                 exprs.append(res.node)
             if self.current_token.datatype == tt._COMMA:
                 self.advance()
+            if self.current_token.datatype == tt._FOR:
+                list_comprehension = True
+                break
             elif self.current_token.datatype != terminator:
                 return res.failure(Error(f"Expected ',' or {terminator}",
                     self.current_token.start, self.current_token.end))
+
+        if list_comprehension:
+            pass
+
         self.advance()
 
         return res.success(Expression_list_node(exprs))
