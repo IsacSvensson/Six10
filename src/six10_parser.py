@@ -251,6 +251,8 @@ class Parser:
                 rhs = res.node
             else:
                 # all other comparisons
+                tok = self.current_token
+                self.advance()
                 res = self.bin_op(self.bitwise_or, tt._COMPARISON)
                 if res.error: return res
                 rhs = res.node
