@@ -359,6 +359,43 @@ class Parser:
 
         return res.success(Expression_list_node(exprs))
 
+    def slices(self):
+        """
+        Handles lists of expressions, such as arguments/parameters or items in 
+        containers
+        """
+        res = Parse_result()
+        exprs = []
+        slice = 0
+
+        while self.current_token.datatype != tt._RSQBRACK:
+            if slice < 3:
+                if self.current_token.datatype == tt._COLON:
+                    res = res.success(None_node(Token(tt._NONE, "", 
+                        self.current_token.start, self.current_token.end)))
+                else:
+                    res = self.expr()
+                if res.error: return res
+                if res.node:
+                    exprs.append(res.node)
+                    slice += 1
+                if self.current_token.datatype == tt._COLON and slice < 3:
+                    self.advance()
+                elif self.current_token.datatype != tt._RSQBRACK:
+                    return res.failure(Error(f"Expected ']'",
+                        self.current_token.start, self.current_token.end))
+            elif self.current_token.datatype != tt._RSQBRACK:
+                return res.failure(Error(f"Expected ']'",
+                    self.current_token.start, self.current_token.end))
+        
+        while len(exprs) < 3:
+            exprs.append(None_node(Token(tt._NONE, "", self.current_token.start, 
+                self.current_token.end)))
+
+        self.advance()
+
+        return res.success(Slices_node(exprs))
+
     def atom(self):
         """
         Handles identifiers, litterals, tuples, lists, dicts, sets and 
