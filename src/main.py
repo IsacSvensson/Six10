@@ -23,6 +23,7 @@ def run_file(filename):
     res = parser.parse()
     if res.error:
         print(res.error)
+        return
     res.node.print_tree()
 
 def run_shell():
