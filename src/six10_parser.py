@@ -416,8 +416,11 @@ class Parser:
                 return res.failure(Error("Expected ')'", 
                     self.current_token.start, self.current_token.end))
         if self.current_token.datatype == tt._LSQBRACK:
-            #TODO: Implement list
-            raise NotImplementedError
+            # List
+            self.advance()
+            res = self.expression_list(tt._RSQBRACK)
+            if res.error: return res
+            return res.success(List_node(res.node))
         if self.current_token.datatype == tt._LCURLBRACK:
             #TODO: Implement set and dict
             raise NotImplementedError
