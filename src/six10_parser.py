@@ -307,24 +307,26 @@ class Parser:
         res = self.atom()
         if res.error: return res
         id = res.node
-        if self.current_token.datatype == tt._LPARAN:
-            self.advance()
-            res = self.expression_list(tt._RPARAN)
-            if res.error: return res
-            if res.node:
-                args = res.node
-            else:
-                return res.failure(Error("No ast-node was created."))
-            return res.success(Func_call_node(id, args))
-        elif self.current_token.datatype == tt._LSQBRACK:
-            self.advance()
-            res = self.expression_list(tt._RSQBRACK)
-            if res.error: return res
-            if res.node:
-                args = res.node
-            else:
-                return res.failure(Error("No ast-node was created."))
-            return res.success(Subscriber_call_node(id, args))
+        while self.current_token.datatype in tt._PARANS:
+            if self.current_token.datatype == tt._LPARAN:
+                self.advance()
+                res = self.expression_list(tt._RPARAN)
+                if res.error: return res
+                if res.node:
+                    args = res.node
+                else:
+                    return res.failure(Error("No ast-node was created."))
+                res.success(Func_call_node(id, args))
+            elif self.current_token.datatype == tt._LSQBRACK:
+                self.advance()
+                res = self.slices()
+                if res.error: return res
+                if res.node:
+                    args = res.node
+                else:
+                    return res.failure(Error("No ast-node was created."))
+                res.success(Subscriber_call_node(id, args))
+            id = res.node
         return res
 
     def expression_list(self, terminator):
