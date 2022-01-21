@@ -407,8 +407,14 @@ class Parser:
             self.advance()
             return res.success(Identifier_call_node(tok))
         if self.current_token.datatype == tt._LPARAN:
-            #TODO: Implement parenthesis enclosed expression and tuple
-            raise NotImplementedError
+            self.advance()
+            res = self.expr()
+            if self.current_token.datatype == tt._RPARAN:
+                self.advance()
+                return res
+            else:
+                return res.failure(Error("Expected ')'", 
+                    self.current_token.start, self.current_token.end))
         if self.current_token.datatype == tt._LSQBRACK:
             #TODO: Implement list
             raise NotImplementedError
