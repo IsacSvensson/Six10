@@ -432,16 +432,17 @@ class Parser:
         """
         res = Parse_result()
         tok = self.current_token
-        if tok.datatype == tt._TRUE or tok.datatype == tt._FALSE:
+        dt = tok.datatype
+        if dt == tt._TRUE or dt == tt._FALSE:
             self.advance()
             return res.success(Bool_node(tok))
-        if tok.datatype == tt._NONE:
+        if dt == tt._NONE:
             self.advance()
             return res.success(None_node(tok))
-        if tok.datatype == tt._STRING:
+        if dt == tt._STRING:
             self.advance()
             return res.success(None_node(tok))
-        if tok.datatype == tt._INT or tok.datatype == tt._FLOAT:
+        if dt in tt._NUMBER_TOKENS:
             self.advance()
             return res.success(Number_node(tok))
         return res.failure("Expected litteral ('True'/'False', 'None', string or number)")
