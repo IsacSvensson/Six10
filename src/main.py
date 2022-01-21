@@ -8,7 +8,7 @@ from six10_parser import Parser
 def run_file(filename):
     source = str()
 
-    with open(filename) as fh:
+    with open(filename, encoding='utf8') as fh:
         source = fh.read()
     
     lexer = Lexer(source, filename)
