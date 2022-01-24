@@ -1,6 +1,3 @@
-from distutils.log import error
-
-from sqlalchemy import tuple_
 from error import Error
 from lex_token import Token
 import terminal_tokens as tt
@@ -151,7 +148,7 @@ class Parser:
         else:
             # If not anything above, it's a expression.
             res = self.expr()
-            if res.error: return error
+            if res.error: return res
             tok = self.current_token
             is_tuple = False
             is_assign = False
