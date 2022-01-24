@@ -150,4 +150,16 @@ class Set_comprehension_node(Ast_node):
 
 class Slices_node(Ast_node):
     def __init__(self, expressions):
-        super().__init__("Expression list", expressions)
+        super().__init__("Slices List", expressions)
+
+class Key_value_node(Ast_node):
+    def __init__(self, key, value):
+        super().__init__("Key/Value List", [key, value])
+
+class Dict_node(Ast_node):
+    def __init__(self, objects):
+        super().__init__("Dict", [objects])
+
+class Set_node(Ast_node):
+    def __init__(self, objects):
+        super().__init__("Set", [objects])
