@@ -480,13 +480,9 @@ class Parser:
             return res.success(Identifier_call_node(tok))
         if self.current_token.datatype == tt._LPARAN:
             self.advance()
-            res = self.expr()
-            if self.current_token.datatype == tt._RPARAN:
-                self.advance()
-                return res
-            else:
-                return res.failure(Error("Expected ')'", 
-                    self.current_token.start, self.current_token.end))
+            res = self.expression_list(tt._RPARAN)
+            if res.error: return res
+            return res.success(Tuple_node(res.node))
         if self.current_token.datatype == tt._LSQBRACK:
             # List
             self.advance()
