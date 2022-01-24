@@ -345,7 +345,7 @@ class Parser:
                 exprs.append(res.node)
             if self.current_token.datatype == tt._COMMA:
                 self.advance()
-            if self.current_token.datatype == tt._FOR:
+            elif self.current_token.datatype == tt._FOR:
                 list_comprehension = True
                 break
             elif self.current_token.datatype != terminator:
@@ -353,11 +353,55 @@ class Parser:
                     self.current_token.start, self.current_token.end))
 
         if list_comprehension:
-            pass
+            self.advance()
+            res = self.identifier_list()
+            if res.error: return res
+            expr_list = res.node
+            res = self.expr()
+            if res.error: return res
+            iterable = res.node
+            self.advance()
+            return res.success(List_comprehension_node(exprs, expr_list, iterable))
 
         self.advance()
 
         return res.success(Expression_list_node(exprs))
+
+    def identifier_list(self):
+        """
+        """
+        res = Parse_result()
+        list_comprehension = False
+        ids = []
+        
+        while self.current_token.datatype != tt._IN:
+            res = self.atom()
+            if res.error: return res
+            if res.node:
+                ids.append(res.node)
+            if self.current_token.datatype == tt._COMMA:
+                self.advance()
+            elif self.current_token.datatype == tt._FOR:
+                list_comprehension = True
+                break
+            elif self.current_token.datatype != tt._IN:
+                return res.failure(Error(f"Expected ',' or 'in'",
+                    self.current_token.start, self.current_token.end))
+
+        if list_comprehension:
+            self.advance()
+            res = self.identifier_list()
+            if res.error: return res
+            expr_list = res.node
+            res = self.expr()
+            if res.error: return res
+            iterable = res.node
+            self.advance()
+            return res.success(List_comprehension_node(ids, expr_list, iterable))
+
+        self.advance()
+
+        return res.success(Expression_list_node(ids))
 
     def slices(self):
         """
