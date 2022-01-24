@@ -136,6 +136,18 @@ class Expression_list_node(Ast_node):
     def __init__(self, expressions):
         super().__init__("Expression list", expressions)
 
+class List_comprehension_node(Ast_node):
+    def __init__(self, expressions, expr_list, iterable):
+        super().__init__("List Comprehension", [expressions[0], expr_list, iterable])
+
+class Dict_comprehension_node(Ast_node):
+    def __init__(self, kv_pair, expr_list, iterable):
+        super().__init__("Dict Comprehension", [kv_pair[0], expr_list, iterable])
+
+class Set_comprehension_node(Ast_node):
+    def __init__(self, expression, expr_list, iterable):
+        super().__init__("Set Comprehension", [expression[0], expr_list, iterable])
+
 class Slices_node(Ast_node):
     def __init__(self, expressions):
         super().__init__("Expression list", expressions)
