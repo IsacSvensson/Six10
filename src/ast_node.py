@@ -132,6 +132,10 @@ class List_node(Ast_node):
     def __init__(self, objects):
         super().__init__("List", [objects])
 
+class Tuple_node(Ast_node):
+    def __init__(self, objects):
+        super().__init__("Tuple", [objects])
+
 class Expression_list_node(Ast_node):
     def __init__(self, expressions):
         super().__init__("Expression list", expressions)
@@ -163,3 +167,7 @@ class Dict_node(Ast_node):
 class Set_node(Ast_node):
     def __init__(self, objects):
         super().__init__("Set", [objects])
+
+class Assign_node(Ast_node):
+    def __init__(self, assign_op, id, expression):
+        super().__init__(assign_op, [id, expression])
