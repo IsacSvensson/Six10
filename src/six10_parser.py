@@ -537,7 +537,7 @@ class Parser:
 
         if self.current_token.datatype != terminator:
             res = self.expr()
-            if res.error: return res
+            if res.error: return res, is_dict
             if res.node:
                 exprs.append(res.node)
             if self.current_token.datatype == tt._COMMA:
@@ -549,30 +549,33 @@ class Parser:
                 self.advance()
                 key = res.node
                 res = self.expr()
-                if res.error: return res
+                if res.error: return res, is_dict
                 value = res.node
                 exprs.append(Key_value_node(key, value))
                 if self.current_token.datatype == tt._FOR:
                     comprehension = True
                 elif self.current_token.datatype == tt._COMMA:
                     self.advance()
-                else:
-                    return res.failure(Error("Expected 'for' or ',.", 
-                        self.current_token.start, self.current_token.end))
+                elif self.current_token.datatype != terminator:
+                    return res.failure(Error("Expected 'for', ',' or '}'.", 
+                        self.current_token.start, self.current_token.end)), is_dict
+            elif self.current_token.datatype != terminator:
+                    return res.failure(Error("Expected 'for', ',' or '}'.", 
+                        self.current_token.start, self.current_token.end)), is_dict
 
         while self.current_token.datatype != terminator and not comprehension:
             res = self.expr()
-            if res.error: return res
+            if res.error: return res, is_dict
             if res.node:
                 if is_dict:
                     if self.current_token.datatype == tt._COLON:
                         self.advance()
                     else:
                         return res.failure(Error("Expected ':'", 
-                            self.current_token.start, self.current_token.end))
+                            self.current_token.start, self.current_token.end)), is_dict
                     key = res.node
                     res = self.expr()
-                    if res.error: return res
+                    if res.error: return res, is_dict
                     value = res.node
                     exprs.append(Key_value_node(key, value))
                 else:
@@ -581,15 +584,15 @@ class Parser:
                 self.advance()
             elif self.current_token.datatype != terminator:
                 return res.failure(Error(f"Expected ',' or {terminator}",
-                    self.current_token.start, self.current_token.end))
+                    self.current_token.start, self.current_token.end)), is_dict
 
         if comprehension:
             self.advance()
             res = self.identifier_list()
-            if res.error: return res
+            if res.error: return res, is_dict
             expr_list = res.node
             res = self.expr()
-            if res.error: return res
+            if res.error: return res, is_dict
             iterable = res.node
             self.advance()
             if is_dict:
