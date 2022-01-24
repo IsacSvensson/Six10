@@ -148,7 +148,35 @@ class Parser:
         else:
             # If not anything above, it's a expression.
             res = self.expr()
-            #TODO: Implement assignment here.
+            if res.error: return res
+            tok = self.current_token
+            is_tuple = False
+            is_assign = False
+            num_of_assign_ops = 0
+            tuple_entries = []
+            while self.current_token.datatype not in [tt._NEWLINE, tt._EOF]:
+                tok = self.current_token
+                if tok.datatype in tt._ASSIGN_OPS:
+                    if is_tuple:
+                        tuple_entries.append(res.node)
+                        id = Tuple_node(Expression_list_node(tuple_entries))
+                    else:
+                        id = res.node
+                    assign_op = tok
+                    self.advance()
+                    res = self.small_statment()
+                    if res.error: return error
+                    return res.success(Assign_node(assign_op, id, res.node))
+                elif tok.datatype == tt._COMMA:
+                    tuple_entries.append(res.node)
+                    is_tuple = True
+                    self.advance()
+                    res = self.expr()
+                    if res.error: return error
+            if is_tuple:
+                tuple_entries.append(res.node)
+                res.success(Tuple_node(Expression_list_node(tuple_entries)))
+
         return res
 
 
