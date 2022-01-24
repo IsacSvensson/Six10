@@ -1,3 +1,6 @@
+from distutils.log import error
+
+from sqlalchemy import tuple_
 from error import Error
 from lex_token import Token
 import terminal_tokens as tt
@@ -148,7 +151,7 @@ class Parser:
         else:
             # If not anything above, it's a expression.
             res = self.expr()
-            if res.error: return res
+            if res.error: return error
             tok = self.current_token
             is_tuple = False
             is_assign = False
@@ -509,18 +512,20 @@ class Parser:
         dt = tok.datatype
         if dt == tt._TRUE or dt == tt._FALSE:
             self.advance()
-            return res.success(Bool_node(tok))
-        if dt == tt._NONE:
+            res.success(Bool_node(tok))
+        elif dt == tt._NONE:
             self.advance()
-            return res.success(None_node(tok))
-        if dt == tt._STRING:
+            res.success(None_node(tok))
+        elif dt == tt._STRING:
             self.advance()
-            return res.success(None_node(tok))
-        if dt in tt._NUMBER_TOKENS:
+            res.success(None_node(tok))
+        elif dt in tt._NUMBER_TOKENS:
             self.advance()
-            return res.success(Number_node(tok))
-        return res.failure(Error("Expected litteral ('True'/'False', 'None', string or number)", 
-            tok.start, tok.end))
+            res.success(Number_node(tok))
+        else:
+            return res.failure(Error("Expected litteral ('True'/'False', 'None', string or number)", 
+                tok.start, tok.end))
+        return res
 
     def dict_or_set(self):
         """
