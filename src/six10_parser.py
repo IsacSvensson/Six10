@@ -79,8 +79,9 @@ class Parser:
 
     def program(self):
         res = self.statements()
+        if res.error: return res
 
-        return res
+        return res.success(Program_node(self.tokens[0].start.filename, [res.node]))
 
     def statements(self):
         res = Parse_result()
