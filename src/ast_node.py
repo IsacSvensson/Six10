@@ -55,8 +55,8 @@ class Func_decl_node(Ast_node):
     """
     Used to define a method
     """
-    def __init__(self, value, children):
-        super().__init__(value, children)
+    def __init__(self, id, parameters, block):
+        super().__init__(id, [parameters, block])
 
 class Func_call_node(Ast_node):
     """
@@ -128,6 +128,10 @@ class Identifier_call_node(Ast_node):
     def __init__(self, token):
         super().__init__(token, [])
 
+class Identifier_def_node(Ast_node):
+    def __init__(self, id, value):
+        super().__init__(id, [value])
+
 class List_node(Ast_node):
     def __init__(self, objects):
         super().__init__("List", [objects])
@@ -172,6 +176,41 @@ class Assign_node(Ast_node):
     def __init__(self, assign_op, id, expression):
         super().__init__(assign_op, [id, expression])
 
+class Return_node(Ast_node):
+    def __init__(self, expression):
+        super().__init__("Return", [expression])
+
+class Pass_node(Ast_node):
+    def __init__(self, token):
+        super().__init__(token, [])
+
+class Break_node(Ast_node):
+    def __init__(self, token):
+        super().__init__(token, [])
+
+class Continue_node(Ast_node):
+    def __init__(self, token):
+        super().__init__(token, [])
+
+class Multi_line_comment_node(Ast_node):
+    def __init__(self, comment):
+        super().__init__(comment, [])
+
+class Raise_node(Ast_node):
+    def __init__(self, tok, exception):
+        super().__init__(tok, [exception])
+
+class Delete_node(Ast_node):
+    def __init__(self, tok, variable):
+        super().__init__(tok, [variable])
+
+class Import_node(Ast_node):
+    def __init__(self, tok, module):
+        super().__init__(tok, [module])
+
+class Exception_node(Ast_node):
+    def __init__(self, tok, module):
+        super().__init__(tok, [module])
 
 class Block_node(Ast_node):
     def __init__(self, stmts):
