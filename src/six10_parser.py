@@ -89,7 +89,7 @@ class Parser:
         stmts = []
 
         # Runs until EOF is encountered
-        while self.current_token.datatype != tt._EOF:
+        while self.current_token.datatype not in [tt._EOF, tt._DEDENT]:
             if self.current_token.datatype in tt._CMP_STMT:
                 # Compound statments
                 node = res.register(self.compound_statment())
@@ -100,7 +100,7 @@ class Parser:
             if node:
                 # If node extracted add to list.
                 stmts.append(node)
-            if self.current_token.datatype not in [tt._EOF, tt._NEWLINE]:
+            if self.current_token.datatype not in [tt._EOF, tt._NEWLINE, tt._DEDENT]:
                 tok = self.current_token
                 return res.failure(Error("Expected new line, '\\n' or EOF.", 
                     tok.start, tok.end))
