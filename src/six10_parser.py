@@ -125,23 +125,55 @@ class Parser:
         tok = self.current_token
 
         if tok.datatype == tt._RETURN:
-            raise NotImplementedError
+            self.advance()
+            tok = self.current_token
+            if tok.datatype in [tt._NEWLINE, tt._EOF]:
+                return res.success(Return_node(None_node(tok)))
+            else:
+                res = self.expr()
+                if res.error: return res
+                return res.success(Return_node(res.node))
         elif tok.datatype == tt._IMPORT:
-            raise NotImplementedError
+            self.advance()
+            tok = self.current_token
+            if tok.datatype in [tt._NEWLINE, tt._EOF]:
+                return res.failure(Error("Expected module", tok.start, tok.end))
+            else:
+                res = self.expr()
+                if res.error: return res
+                return res.success(Import_node(res.node))
         elif tok.datatype == tt._RAISE:
-            raise NotImplementedError
+            self.advance()
+            tok = self.current_token
+            if tok.datatype in [tt._NEWLINE, tt._EOF]:
+                return res.failure(Error("Expected Exception", tok.start, tok.end))
+            else:
+                res = self.expr()
+                if res.error: return res
+                return res.success(Exception_node(res.node))
         elif tok.datatype == tt._PASS:
-            raise NotImplementedError
+            self.advance()
+            return res.success(Pass_node(tok))
         elif tok.datatype == tt._DELETE:
-            raise NotImplementedError
+            self.advance()
+            tok = self.current_token
+            if tok.datatype in [tt._NEWLINE, tt._EOF]:
+                return res.failure(Error("Expected Expression", tok.start, tok.end))
+            else:
+                res = self.expr()
+                if res.error: return res
+                return res.success(Delete_node(res.node))
         elif tok.datatype == tt._BREAK:
-            raise NotImplementedError
+            self.advance()
+            return res.success(Break_node(tok))
         elif tok.datatype == tt._CONTINUE:
-            raise NotImplementedError
+            self.advance()
+            return res.success(Continue_node(tok))
         elif tok.datatype == tt._COMMENT:
-            raise NotImplementedError
+            self.advance()
         elif tok.datatype == tt._MULTI_COMMENT:
-            raise NotImplementedError
+            self.advance()
+            return res.success(Multi_line_comment_node(tok))
         else:
             # If not anything above, it's a expression.
             res = self.expr()
