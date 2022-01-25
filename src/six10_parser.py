@@ -115,6 +115,49 @@ class Parser:
         """
         Parses definitions of functions and classes and if/while/for/switch-statements  
         """
+        res = Parse_result()
+        tok = self.current_token
+
+        # function definition
+        if tok.datatype == tt._DEF:
+            self.advance()
+            if self.current_token.datatype != tt._IDENTIFIER:
+                return res.failure(Error("Expected Identifier", 
+                    self.current_token.start, self.current_token.end))
+            res = self.atom()
+            if res.error: return
+            id = res.node
+
+            if self.current_token.datatype != tt._LPARAN:
+                return res.failure(Error("Expected '('", 
+                    self.current_token.start, self.current_token.end))
+
+            self.advance()
+            # TODO: Implement parameter-list-parser
+            res = self.expression_list(tt._RPARAN)
+            if res.error: return
+            parameters = res.node
+            
+            if self.current_token.datatype != tt._COLON:
+                return res.failure(Error("Expected ':'", 
+                    self.current_token.start, self.current_token.end))
+            
+            self.advance()
+            if self.current_token.datatype != tt._NEWLINE:
+                return res.failure(Error("Expected New Line", 
+                    self.current_token.start, self.current_token.end))
+            self.advance()
+
+            if self.current_token.datatype != tt._INDENT:
+                return res.failure(Error("Expected ':'", 
+                    self.current_token.start, self.current_token.end))
+
+            res = self.statements()
+            if res.error: return res
+
+            block = res.node
+
+            return Func_decl_node(id, parameters, block)
         raise NotImplementedError
 
     def small_statment(self):
