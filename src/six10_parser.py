@@ -158,8 +158,23 @@ class Parser:
             block = res.node
 
             return Func_decl_node(id, parameters, block)
-        raise NotImplementedError
-
+        # class definition
+        elif tok.datatype == tt._CLASS:
+            raise NotImplementedError
+        # if stmt
+        elif tok.datatype == tt._IF:
+            raise NotImplementedError
+        # for stmt
+        elif tok.datatype == tt._FOR:
+            raise NotImplementedError
+        # while stmt
+        elif tok.datatype == tt._WHILE:
+            raise NotImplementedError
+        # switch stmt
+        elif tok.datatype == tt._SWITCH:
+            raise NotImplementedError
+        else:
+            return res
     def small_statment(self):
         """
         Parsing regular one-line-statements.
