@@ -475,18 +475,18 @@ class Parser:
         if self.current_token.datatype == tt._IDENTIFIER:
             self.advance()
             return res.success(Identifier_call_node(tok))
-        if self.current_token.datatype == tt._LPARAN:
+        elif self.current_token.datatype == tt._LPARAN:
             self.advance()
             res = self.expression_list(tt._RPARAN)
             if res.error: return res
             return res.success(Tuple_node(res.node))
-        if self.current_token.datatype == tt._LSQBRACK:
+        elif self.current_token.datatype == tt._LSQBRACK:
             # List
             self.advance()
             res = self.expression_list(tt._RSQBRACK)
             if res.error: return res
             return res.success(List_node(res.node))
-        if self.current_token.datatype == tt._LCURLBRACK:
+        elif self.current_token.datatype == tt._LCURLBRACK:
             # Dict/Set
             self.advance()
             res, is_dict = self.dict_or_set()
@@ -495,6 +495,7 @@ class Parser:
                 return res.success(Dict_node(res.node))
             else:
                 return res.success(Set_node(res.node))
+        elif self.current_token.datatype == tt._INDENT:
             # Block
             self.advance()
             stmts = []
