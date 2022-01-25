@@ -665,5 +665,6 @@ class Lexer:
                     count = 0
             
             comment += '"'
+            self.advance()
 
         return Token(tt._COMMENT if single_line else tt._MULTI_COMMENT, comment, start, self.position.copy())
