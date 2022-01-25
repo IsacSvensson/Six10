@@ -108,7 +108,7 @@ class Parser:
             while self.current_token.datatype == tt._NEWLINE:
                 self.advance()
         # Entrypoint of AST.
-        res.success(Program_node(self.tokens[0].start.filename, stmts))
+        res.success(Block_node(stmts))
         return res
 
     def compound_statment(self):
@@ -495,6 +495,13 @@ class Parser:
                 return res.success(Dict_node(res.node))
             else:
                 return res.success(Set_node(res.node))
+            # Block
+            self.advance()
+            stmts = []
+            while self.current_token.datatype != tt._DEDENT:
+                res = self.statements()
+                if res.error: return res
+                return res
         return self.litteral()
 
     def litteral(self):

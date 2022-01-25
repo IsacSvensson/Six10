@@ -171,3 +171,8 @@ class Set_node(Ast_node):
 class Assign_node(Ast_node):
     def __init__(self, assign_op, id, expression):
         super().__init__(assign_op, [id, expression])
+
+
+class Block_node(Ast_node):
+    def __init__(self, stmts):
+        super().__init__("Block", stmts)
