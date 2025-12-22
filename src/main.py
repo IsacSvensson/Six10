@@ -4,57 +4,74 @@ from sys import argv
 import platform
 from lexer import Lexer
 from six10_parser import Parser
+from interpreter import Evaluator
+import sys
+import time
 
 def run_file(filename):
     source = str()
 
     with open(filename, encoding='utf8') as fh:
         source = fh.read()
-    
     lexer = Lexer(source, filename)
+    start = time.time()
     lexer.make_tokens()
     if lexer.error:
-        print(lexer.error)
+        print("Error:", lexer.error)
         return
-    for token in lexer.tokens:
-        print(token)
     parser = Parser(lexer.tokens)
 
     res = parser.parse()
     if res.error:
-        print(res.error)
+        print("Error:", res.error)
+        print("Traceback:")
+        print(res.error.get_traceback())
         return
-    res.node.print_tree()
+    evaluator = Evaluator()
+    result = evaluator.eval(res.node)
+    end = time.time()
+    print(result)
+    print(f"Elapsed: {end - start:.6f} s")
 
 def run_shell():
-    console_input = None
+    evaluator = Evaluator()
     print("Six10 v.0\nRun on [{}]\n-------------".format(platform.system()))
-    while console_input != "":
-        print(">>> ", end="")
-        console_input = input()
-        if console_input:
-            lexer = Lexer(console_input, "Shell")
-            lexer.make_tokens()
-            if lexer.error:
-                print(lexer.error.message)
-                print(lexer.tokens[-1])
-                continue
-            parser = Parser(lexer.tokens)
-            try:
-                res = parser.parse()
-                if res.error:
-                    print(res.error)
-                elif res.node:
-                    res.node.print_tree()
-                else:
-                    print("No node, and no error")
-            except NotImplementedError:
-                print("Feature not implemented")
+    while True:
+        try:
+            line = input(">>> ")
+        except KeyboardInterrupt:
+            print()
+            break
+        if not line:
+            continue
+        lexer = Lexer(source_code=line, filename="Shell")
+        start = time.time()
+        lexer.make_tokens()
+        if lexer.error:
+            print("Error:", lexer.error.message)
+            print(lexer.tokens[-1])
+            continue
+        parser = Parser(lexer.tokens)
+        res = parser.parse()
+        if res.error:
+            print("Error:", res.error)
+            print("Traceback:")
+            print(res.error.get_traceback())
+            continue
+        try:
+            result = evaluator.eval(res.node)
+            end = time.time()
+            print(result)
+            print(f"Elapsed: {end - start:.6f} s")
+        except Exception as e:
+            print("Traceback:")
+            print(e)
 
 def main():
     """
     Main method for running the language.
     """
+    argv = sys.argv
     if len(argv) > 1:
         run_file(argv[1])
     else:

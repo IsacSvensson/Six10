@@ -1,0 +1,60 @@
+def Stats(nums):
+    n = len(nums)
+    s = 0
+    for i in range(n):
+        s = s + nums[i]
+    return (n > 0 and nums[0] or None, n > 0 and nums[n-1] or None, s, n > 0 and (s // n) or None)
+
+class Vector(x, y):
+    def __init__(self, x, y):
+        self.x = x; self.y = y
+    def add(self, otherX, otherY):
+        self.x = self.x + otherX
+        self.y = self.y + otherY
+    def length2(self):
+        return self.x*self.x + self.y*self.y
+
+def bubbleSort(elements):
+    n = len(elements)
+    for i in range(n-1):
+        for j in range(0, n-i-1):
+            if elements[j] > elements[j+1]:
+                elements[j], elements[j+1] = elements[j+1], elements[j]
+
+def classify(n):
+    if n == 0:
+        return "zero"
+    elif n == 1:
+        return "one"
+    elif n == 2:
+        return "two"
+
+values = [64, 34, 25, 12, 22, 11, 90]
+print("Original count:")
+print(len(values))
+
+bubbleSort(values)
+print("Sorted elements are:")
+for i in range(len(values)):
+    print(values[i])
+
+minv, maxv, sumv, avgv = Stats(values)
+print("Stats:")
+print(minv)
+print(maxv)
+print(sumv)
+print(avgv)
+
+v = Vector(3, 4)
+print("v len2:")
+print(v.length2())
+v.add(1, -2)
+print("v after add:")
+print(v.x)
+print(v.y)
+print(v.length2())
+
+print("classify:")
+print(classify(0))
+print(classify(1))
+print(classify(2))

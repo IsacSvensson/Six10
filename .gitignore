@@ -3,6 +3,8 @@
 **/.vscode
 **/.pytest_cache
 **/htmlcov
+**/.vs
+**/myenv
 
 # Files #
 ##################

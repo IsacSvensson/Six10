@@ -5,14 +5,14 @@ from lex_token import Token
 
 def isLetter(char):
     """
-    Checks if a character is a letter from the english/latin alphabet.
+    Checks if a character is a letter from the english/latin alphabet or underscore.
 
     PARAMS:
         char: a character
     RETURNS:
         bool
     """
-    letters = "abcdefghijklmnopqrstuvwxyz"
+    letters = "abcdefghijklmnopqrstuvwxyz_"
 
     if not isinstance(char, str):
         return False, Error("TypeError: 'char' expected to be a string")
@@ -79,7 +79,13 @@ def isKeyword(symbol):
         return tt._SWITCH, None
     elif symbol == "case":
         return tt._CASE, None
-    return isBool(symbol)
+    elif symbol == "True":
+        return tt._TRUE, None
+    elif symbol == "False":
+        return tt._FALSE, None
+    elif symbol == "None":
+        return tt._NONE, None
+    return tt._IDENTIFIER, None
 
 def isBool(symbol):
     """
@@ -254,6 +260,10 @@ class Lexer:
                     self.error = Error("ValueError: Unexpected character", self.position)
             if self.error:
                     return
+        # At EOF, unwind indentation
+        while self.position.indent > 0:
+            self.position.indent -= 1
+            self.tokens.append(Token(tt._DEDENT, "    ", self.position, self.position))
         self.tokens.append(Token(tt._EOF, "", self.position.copy(), self.position.copy()))
 
     def make_number(self):
@@ -468,7 +478,7 @@ class Lexer:
                 if next == '\n':
                     self.advance()
                     continue
-                elif next == "\"\'":
+                elif next == "\"'":
                     string += self.get_cur_char()
                 elif next == 'n':
                     self.advance()
@@ -549,7 +559,7 @@ class Lexer:
         
     def is_operator(self):
         first_char_in_op = ['=', '+', '-', '*', '/', '%', '&', '|', '^', 
-            '<', '>', '(', ')', '[', ']', '{', '}', '.', ',', ':',]
+            '<', '>', '(', ')', '[', ']', '{', '}', '.', ',', ':', ';', '!']
         if self.get_cur_char() in first_char_in_op:
             return True
         return False
@@ -570,6 +580,7 @@ class Lexer:
         values = {
             '=':tt._ASSIGN,
             '==':tt._BITWISE_EQ,
+            '!=':tt._BITWISE_NEQ,
             '+':tt._PLUS,
             '++':tt._INCR,
             '+=':tt._PLUS_ASSIGN,
@@ -609,6 +620,7 @@ class Lexer:
             '.':tt._DOT,
             ',':tt._COMMA,
             ':':tt._COLON,
+            ';':tt._NEWLINE,
         }
         
         if possible_op.__len__() == 3 and values.get(possible_op):
@@ -641,7 +653,7 @@ class Lexer:
             while not self.allowed_character('\n'):
                 comment += self.get_cur_char()
                 if not self.advance():
-                    self.error = Error("LexicalError: Line break '\\n' expected to terminate comment", self.position)
+                    self.error = Error("LexicalError: Line break '\n' expected to terminate comment", self.position)
                     return Token(tt._INVALID, comment, start, self.position.copy())
         else:
             count = 0

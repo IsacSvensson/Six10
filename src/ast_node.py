@@ -28,8 +28,11 @@ class Ast_node:
     
         if self.children:
             for child in self.children:
-                child.print_tree(deepth+1)
-            
+                if child is not None:
+                    child.print_tree(deepth+1)
+                else:
+                    print(("  "*(deepth+1)) + "None")
+
 
 class Program_node(Ast_node):
     """
@@ -146,15 +149,15 @@ class Expression_list_node(Ast_node):
 
 class List_comprehension_node(Ast_node):
     def __init__(self, expressions, expr_list, iterable):
-        super().__init__("List Comprehension", [expressions[0], expr_list, iterable])
+        super().__init__("List Comprehension", [expressions[0] if expressions else None, expr_list, iterable])
 
 class Dict_comprehension_node(Ast_node):
     def __init__(self, kv_pair, expr_list, iterable):
-        super().__init__("Dict Comprehension", [kv_pair[0], expr_list, iterable])
+        super().__init__("Dict Comprehension", [kv_pair[0] if kv_pair else None, expr_list, iterable])
 
 class Set_comprehension_node(Ast_node):
     def __init__(self, expression, expr_list, iterable):
-        super().__init__("Set Comprehension", [expression[0], expr_list, iterable])
+        super().__init__("Set Comprehension", [expression[0] if expression else None, expr_list, iterable])
 
 class Slices_node(Ast_node):
     def __init__(self, expressions):
@@ -215,3 +218,54 @@ class Exception_node(Ast_node):
 class Block_node(Ast_node):
     def __init__(self, stmts):
         super().__init__("Block", stmts)
+
+class If_node(Ast_node):
+    def __init__(self, condition, then_block, elif_blocks=None, else_block=None):
+        children = [condition, then_block]
+        if elif_blocks:
+            children.append(Expression_list_node(elif_blocks))
+        if else_block:
+            children.append(else_block)
+        super().__init__("If", children)
+
+class Elif_node(Ast_node):
+    def __init__(self, condition, block):
+        super().__init__("Elif", [condition, block])
+
+class Else_node(Ast_node):
+    def __init__(self, block):
+        super().__init__("Else", [block])
+
+class For_node(Ast_node):
+    def __init__(self, targets, iterable, block, else_block=None):
+        children = [targets, iterable, block]
+        if else_block:
+            children.append(else_block)
+        super().__init__("For", children)
+
+class While_node(Ast_node):
+    def __init__(self, condition, block, else_block=None):
+        children = [condition, block]
+        if else_block:
+            children.append(else_block)
+        super().__init__("While", children)
+
+class Targets_node(Ast_node):
+    def __init__(self, identifiers):
+        super().__init__("Targets", identifiers)
+
+class Switch_node(Ast_node):
+    def __init__(self, expression, cases):
+        super().__init__("Switch", [expression, Expression_list_node(cases)])
+
+class Case_node(Ast_node):
+    def __init__(self, literal, block):
+        super().__init__("Case", [literal, block])
+
+class Member_access_node(Ast_node):
+    def __init__(self, target, member):
+        super().__init__("Member", [target, member])
+
+class String_node(Ast_node):
+    def __init__(self, value):
+        super().__init__(value, None)
